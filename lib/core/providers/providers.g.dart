@@ -49,3 +49,85 @@ final class DatabaseProvider
 }
 
 String _$databaseHash() => r'0fe56aaf5bde72ce9021e425b918c495557124c1';
+
+@ProviderFor(secureKeyStore)
+final secureKeyStoreProvider = SecureKeyStoreProvider._();
+
+final class SecureKeyStoreProvider
+    extends $FunctionalProvider<SecureKeyStore, SecureKeyStore, SecureKeyStore>
+    with $Provider<SecureKeyStore> {
+  SecureKeyStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'secureKeyStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$secureKeyStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<SecureKeyStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SecureKeyStore create(Ref ref) {
+    return secureKeyStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SecureKeyStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SecureKeyStore>(value),
+    );
+  }
+}
+
+String _$secureKeyStoreHash() => r'e001c02c50e8c7098aadfca9b63ee5754af6d990';
+
+@ProviderFor(apiClient)
+final apiClientProvider = ApiClientProvider._();
+
+final class ApiClientProvider
+    extends $FunctionalProvider<ApiClient, ApiClient, ApiClient>
+    with $Provider<ApiClient> {
+  ApiClientProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'apiClientProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$apiClientHash();
+
+  @$internal
+  @override
+  $ProviderElement<ApiClient> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  ApiClient create(Ref ref) {
+    return apiClient(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ApiClient value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ApiClient>(value),
+    );
+  }
+}
+
+String _$apiClientHash() => r'90c807f03b90249684265cc91739139c2c89eeb9';
