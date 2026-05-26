@@ -1,87 +1,39 @@
 import 'package:flutter/material.dart';
-import 'core/network/address_validator.dart';
-import 'data/secure/secure_key_store.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/providers.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  const testUrls = [
-    'http://192.168.1.100:1234',
-    'http://10.0.2.2:1234',
-    'http://localhost:1234',
-    'https://api.openai.com',
-    'http://8.8.8.8:8080',
-    'http://172.20.0.5:1234',
-  ];
-
-  // Secure storage round-trip
-  final store = SecureKeyStore();
-  String secureResult;
-  try {
-    await store.setApiKey('test-id', 'sk-tajny-klucz-123');
-    final read = await store.getApiKey('test-id');
-    final ok = read == 'sk-tajny-klucz-123';
-    await store.deleteApiKey('test-id');
-    final afterDelete = await store.getApiKey('test-id');
-    secureResult = (ok && afterDelete == null)
-        ? '✅ zapis → odczyt → usunięcie OK'
-        : '❌ niezgodność (read="$read", po usunięciu="$afterDelete")';
-  } catch (e) {
-    secureResult = '❌ błąd secure storage: $e';
-  }
-
-  runApp(TestApp(urls: testUrls, secureResult: secureResult));
+  runApp(const ProviderScope(child: TestApp()));
 }
 
-class TestApp extends StatelessWidget {
-  final List<String> urls;
-  final String secureResult;
-  const TestApp({super.key, required this.urls, required this.secureResult});
+class TestApp extends ConsumerWidget {
+  const TestApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final db = ref.watch(databaseProvider);
     return MaterialApp(
       title: 'Atrament',
       home: Scaffold(
-        appBar: AppBar(title: const Text('Test: walidacja + secure storage')),
-        body: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Text(
-              'Secure storage: $secureResult',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const Divider(height: 32),
-            const Text(
-              'Walidacja adresów:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ...urls.map((u) {
-              final priv = isPrivateAddress(u);
-              final warn = shouldWarnCleartext(u);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      u,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text(
-                      '  ${priv ? "prywatny" : "publiczny"} • '
-                      '${isCleartext(u) ? "HTTP" : "HTTPS"} • '
-                      '${warn ? "⚠️ OSTRZEŻ" : "ok bez ostrzeżenia"}',
-                      style: TextStyle(
-                        color: warn ? Colors.orange.shade800 : Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-          ],
+        appBar: AppBar(title: const Text('Test Riverpod')),
+        body: FutureBuilder(
+          future: db.select(db.profiles).get(),
+          builder: (context, snap) {
+            if (snap.hasError) {
+              return Center(child: Text('❌ ${snap.error}'));
+            }
+            if (!snap.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return Center(
+              child: Text(
+                '✅ Riverpod + baza działają\nProfili w bazie: ${snap.data!.length}',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 20, color: Colors.green),
+              ),
+            );
+          },
         ),
       ),
     );
