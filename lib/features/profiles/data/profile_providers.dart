@@ -6,7 +6,6 @@ import 'profile_repository.dart';
 
 part 'profile_providers.g.dart';
 
-// profileRepository zostaje generowany (@riverpod działa dla zwykłych typów).
 @Riverpod(keepAlive: true)
 ProfileRepository profileRepository(Ref ref) {
   return ProfileRepository(
@@ -15,11 +14,13 @@ ProfileRepository profileRepository(Ref ref) {
   );
 }
 
-// profilesList: ręczny StreamProvider zamiast @riverpod.
-// Powód: riverpod_generator 4.x-dev rzuca InvalidTypeException przy
-// Stream<List<Profile>> (typ generowany przez Drift). Ręczny provider
-// omija generator dla tego typu. Mieszanie obu stylów jest wspierane.
-// TODO: wrócić do @riverpod gdy wyjdzie stabilny riverpod_generator.
+// Ręczny StreamProvider — riverpod_generator 4.x-dev rzuca InvalidTypeException
+// przy Stream<...> z typami Drift. (TODO: @riverpod gdy stabilny generator)
 final profilesListProvider = StreamProvider<List<Profile>>((ref) {
   return ref.watch(profileRepositoryProvider).watchProfiles();
+});
+
+// Aktywny profil — ten sam powód dla ręcznego stylu (Stream<String?>).
+final activeProfileIdProvider = StreamProvider<String?>((ref) {
+  return ref.watch(profileRepositoryProvider).watchActiveProfileId();
 });
