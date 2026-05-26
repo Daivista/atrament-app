@@ -9,8 +9,6 @@ class ProfileRepository {
 
   ProfileRepository(this._db, this._keyStore);
 
-  // Klucz systemowy w user_variables. Konwencja: prefiks "app." = systemowe
-  // (odfiltrowane w przyszłym UI zmiennych użytkownika). Manifest 11 (notatka v1.6.x).
   static const _kActiveProfile = 'app.active_profile_id';
 
   Future<String> saveProfile({
@@ -38,8 +36,6 @@ class ProfileRepository {
     return id;
   }
 
-  /// Edycja profilu. Klucz API: newApiKey!=null → ustaw nowy; clearApiKey=true →
-  /// usuń; oba puste → zostaw bez zmian.
   Future<void> updateProfile({
     required String id,
     required String name,
@@ -66,9 +62,7 @@ class ProfileRepository {
         name: Value(name),
         baseUrl: Value(baseUrl),
         apiKeyRef: Value(apiKeyRef),
-        apiKeyNeedsReentry: const Value(
-          false,
-        ), // reset flagi przy świadomej edycji
+        apiKeyNeedsReentry: const Value(false),
       ),
     );
   }
@@ -100,16 +94,12 @@ class ProfileRepository {
     )..orderBy([(p) => OrderingTerm(expression: p.createdAt)])).get();
   }
 
-  /// Usuwa profil: klucz z secure storage → rekord z bazy. Jeśli usuwany był
-  /// aktywny, czyści też wskaźnik aktywnego (by nie wskazywał na nieistniejący).
   Future<void> deleteProfile(String profileId) async {
     await _keyStore.deleteApiKey(profileId);
     await (_db.delete(_db.profiles)..where((p) => p.id.equals(profileId))).go();
     final active = await _getActiveId();
     if (active == profileId) {
-      await (_db.delete(
-        _db.userVariables,
-      )..where((v) => v.key.equals(_kActiveProfile))).go();
+      await clearActiveProfile();
     }
   }
 
@@ -121,6 +111,13 @@ class ProfileRepository {
         .insertOnConflictUpdate(
           UserVariablesCompanion.insert(key: _kActiveProfile, value: Value(id)),
         );
+  }
+
+  /// Usuwa oznaczenie aktywnego profilu (żaden nie jest aktywny).
+  Future<void> clearActiveProfile() {
+    return (_db.delete(
+      _db.userVariables,
+    )..where((v) => v.key.equals(_kActiveProfile))).go();
   }
 
   Stream<String?> watchActiveProfileId() {
