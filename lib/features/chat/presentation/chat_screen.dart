@@ -28,7 +28,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   Future<void> _editTitle() async {
     final chat = ref.read(chatControllerProvider);
-    if (chat.chatId == null) return; // jeszcze nie ma czatu w bazie
+    if (chat.chatId == null) return;
     final ctrl = TextEditingController(text: chat.title ?? '');
     final result = await showDialog<String>(
       context: context,
@@ -74,6 +74,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       orElse: () => null,
     );
 
+    final lastIsPartial =
+        chat.messages.isNotEmpty &&
+        chat.messages.last.isPartial &&
+        chat.messages.last.role == 'assistant' &&
+        !chat.isStreaming;
+
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
@@ -110,6 +116,33 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               Expanded(
                 child: _MessageList(scroll: _scroll, chat: chat),
               ),
+              if (lastIsPartial)
+                Container(
+                  width: double.infinity,
+                  color: Colors.orange.shade50,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.pause_circle_outline,
+                        color: Colors.orange.shade800,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      const Expanded(child: Text('Odpowiedź przerwana')),
+                      TextButton.icon(
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text('Kontynuuj'),
+                        onPressed: () => ref
+                            .read(chatControllerProvider.notifier)
+                            .continueLast(),
+                      ),
+                    ],
+                  ),
+                ),
               if (chat.error != null)
                 Container(
                   width: double.infinity,
@@ -160,7 +193,11 @@ class _MessageList extends StatelessWidget {
       itemBuilder: (context, i) {
         if (i < chat.messages.length) {
           final m = chat.messages[i];
-          return _Bubble(text: m.content, isUser: m.role == 'user');
+          return _Bubble(
+            text: m.content,
+            isUser: m.role == 'user',
+            isPartial: m.isPartial,
+          );
         }
         return _Bubble(
           text: chat.streamingContent.isEmpty && chat.isStreaming
@@ -180,11 +217,13 @@ class _Bubble extends StatelessWidget {
   final bool isUser;
   final String reasoning;
   final bool streaming;
+  final bool isPartial;
   const _Bubble({
     required this.text,
     required this.isUser,
     this.reasoning = '',
     this.streaming = false,
+    this.isPartial = false,
   });
 
   @override
@@ -192,36 +231,39 @@ class _Bubble extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.all(12),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
-        ),
-        decoration: BoxDecoration(
-          color: isUser ? cs.primaryContainer : cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (reasoning.isNotEmpty) ...[
-              Text(
-                '🧠 Myślenie',
-                style: TextStyle(fontSize: 11, color: cs.outline),
-              ),
-              Text(
-                reasoning,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                  color: cs.onSurfaceVariant,
+      child: Opacity(
+        opacity: isPartial ? 0.75 : 1.0,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.all(12),
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.8,
+          ),
+          decoration: BoxDecoration(
+            color: isUser ? cs.primaryContainer : cs.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (reasoning.isNotEmpty) ...[
+                Text(
+                  '🧠 Myślenie',
+                  style: TextStyle(fontSize: 11, color: cs.outline),
                 ),
-              ),
-              const Divider(height: 12),
+                Text(
+                  reasoning,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontStyle: FontStyle.italic,
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+                const Divider(height: 12),
+              ],
+              Text(text + (streaming ? ' ▋' : '')),
             ],
-            Text(text + (streaming ? ' ▋' : '')),
-          ],
+          ),
         ),
       ),
     );

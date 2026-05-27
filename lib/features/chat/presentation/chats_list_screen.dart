@@ -104,8 +104,7 @@ class ChatsListScreen extends ConsumerWidget {
           builder: (ctx) => AlertDialog(
             title: const Text('Usunąć rozmowę?'),
             content: Text(
-              'Rozmowa „${c.title ?? "bez nazwy"}" zostanie usunięta wraz ze wszystkimi wiadomościami. '
-              'Tej operacji nie można cofnąć.',
+              'Rozmowa „${c.title ?? "bez nazwy"}" zostanie usunięta wraz ze wszystkimi wiadomościami.',
             ),
             actions: [
               TextButton(

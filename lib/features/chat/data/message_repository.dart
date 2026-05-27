@@ -71,6 +71,35 @@ class MessageRepository {
     return id;
   }
 
+  /// Resume flow (manifest 7.6): konkatenacja dokończenia do partial.
+  /// Perf-note 9.5: jeden UPDATE po streamie, nie per chunk.
+  Future<void> appendContinuation(
+    String messageId,
+    String additionalContent, {
+    String? additionalReasoning,
+  }) async {
+    final msg = await (_db.select(
+      _db.messages,
+    )..where((m) => m.id.equals(messageId))).getSingleOrNull();
+    if (msg == null) return;
+
+    final mergedContent = (msg.content ?? '') + additionalContent;
+    final mergedReasoning = (msg.reasoning ?? '') + (additionalReasoning ?? '');
+
+    await (_db.update(
+      _db.messages,
+    )..where((m) => m.id.equals(messageId))).write(
+      MessagesCompanion(
+        content: Value(mergedContent),
+        reasoning: Value(mergedReasoning.isEmpty ? null : mergedReasoning),
+        isPartial: const Value(false),
+      ),
+    );
+    await (_db.update(_db.chats)..where((c) => c.id.equals(msg.chatId))).write(
+      ChatsCompanion(updatedAt: Value(DateTime.now().millisecondsSinceEpoch)),
+    );
+  }
+
   static String _autoTitle(String content) {
     final clean = content.trim().replaceAll(RegExp(r'\s+'), ' ');
     if (clean.length <= 40) return clean;
@@ -86,11 +115,6 @@ class MessageRepository {
     );
   }
 
-  /// Usuwa czat wraz z wiadomościami.
-  /// Manifest 9 ma messages.parent_id ON DELETE RESTRICT (chroni przed
-  /// przypadkowym usunięciem wiadomości-rodzica). To wchodzi w konflikt z
-  /// CASCADE delete chatu — w transakcji najpierw zerwiemy więzy parent_id,
-  /// potem delete chatu uruchomi czysto CASCADE na chat_id.
   Future<void> deleteChat(String chatId) async {
     await _db.transaction(() async {
       await (_db.update(_db.messages)..where((m) => m.chatId.equals(chatId)))

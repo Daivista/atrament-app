@@ -1,12 +1,11 @@
-/// Wiadomość w formacie OpenAI messages[].
 class ChatMessage {
-  final String role; // 'user' | 'assistant' | 'system'
+  final String role;
   final String content;
-  const ChatMessage(this.role, this.content);
+  final bool isPartial;
+  const ChatMessage(this.role, this.content, {this.isPartial = false});
   Map<String, dynamic> toJson() => {'role': role, 'content': content};
 }
 
-/// Fragment odpowiedzi ze streamingu (content i reasoning rozdzielone).
 class ChatChunk {
   final String? contentDelta;
   final String? reasoningDelta;
@@ -14,7 +13,6 @@ class ChatChunk {
   const ChatChunk({this.contentDelta, this.reasoningDelta, this.done = false});
 }
 
-/// Cel rozmowy: dane aktywnego serwera + wybrany model.
 class ChatTarget {
   final String baseUrl;
   final String? apiKey;

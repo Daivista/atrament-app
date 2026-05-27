@@ -36,7 +36,7 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
 class ChatState {
   final String? chatId;
   final String? lastMessageId;
-  final String? title; // do wyświetlania w AppBar
+  final String? title;
   final List<ChatMessage> messages;
   final String streamingContent;
   final String streamingReasoning;
@@ -64,9 +64,7 @@ class ChatState {
     bool? isStreaming,
     String? error,
     bool clearError = false,
-    bool clearAll = false,
   }) {
-    if (clearAll) return const ChatState();
     return ChatState(
       chatId: chatId ?? this.chatId,
       lastMessageId: lastMessageId ?? this.lastMessageId,
@@ -86,14 +84,17 @@ final chatControllerProvider = NotifierProvider<ChatController, ChatState>(
 
 class ChatController extends Notifier<ChatState> {
   CancelToken? _cancelToken;
+  // Flaga: user nacisnął Stop. Repo połyka cancel cicho (nie rzuca), więc bez
+  // tej flagi nie odróżnimy "normalne done" od "anulowano" — i partial nie
+  // dostałby flagi isPartial. Resetowana na false na początku każdego send/continueLast.
+  bool _wasStopped = false;
 
   @override
   ChatState build() => const ChatState();
 
-  /// Ładuje konkretny czat z bazy. Wołane przez ekran listy przy kliknięciu.
   Future<void> loadChat(String chatId) async {
     if (state.isStreaming) return;
-    state = const ChatState(); // czysty start zanim załadujemy nowe dane
+    state = const ChatState();
     try {
       final repo = ref.read(messageRepositoryProvider);
       final chat = await repo.getChat(chatId);
@@ -104,12 +105,13 @@ class ChatController extends Notifier<ChatState> {
         lastMessageId: chat.activeLeafMessageId,
         title: chat.title,
         messages: dbMsgs
-            .map((m) => ChatMessage(m.role, m.content ?? ''))
+            .map(
+              (m) =>
+                  ChatMessage(m.role, m.content ?? '', isPartial: m.isPartial),
+            )
             .toList(),
       );
-    } catch (_) {
-      // Pusty stan = akceptowalny fallback (lista i tak go pokaże).
-    }
+    } catch (_) {}
   }
 
   void newChat() {
@@ -144,8 +146,6 @@ class ChatController extends Notifier<ChatState> {
       content: text.trim(),
       parentId: state.lastMessageId,
     );
-
-    // Pobierz tytuł z bazy — jeśli to była pierwsza wiadomość, repo wygenerowało auto.
     final chat = await repo.getChat(chatId);
 
     final history = [...state.messages, ChatMessage('user', text.trim())];
@@ -161,6 +161,7 @@ class ChatController extends Notifier<ChatState> {
     );
 
     _cancelToken = CancelToken();
+    _wasStopped = false;
     final chatApi = ref.read(chatRepositoryProvider);
 
     try {
@@ -181,12 +182,14 @@ class ChatController extends Notifier<ChatState> {
               : null,
         );
       }
+      // Po wyjściu z pętli sprawdzamy CZY user anulował.
+      // Repo połyka cancel cicho, więc tutaj rozróżniamy.
       await _commitAssistant(
         repo,
         chatId,
         userId,
         target.model,
-        isPartial: false,
+        isPartial: _wasStopped,
       );
     } catch (e) {
       await _commitAssistant(
@@ -196,13 +199,74 @@ class ChatController extends Notifier<ChatState> {
         target.model,
         isPartial: true,
       );
-      if (e is! DioException || e.type != DioExceptionType.cancel) {
-        state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> continueLast() async {
+    if (state.isStreaming) return;
+    if (state.messages.isEmpty) return;
+    final last = state.messages.last;
+    if (!last.isPartial || last.role != 'assistant') return;
+
+    final target = await ref.read(chatTargetProvider.future);
+    if (target == null) {
+      state = state.copyWith(error: 'Brak aktywnego serwera.');
+      return;
+    }
+
+    final chatId = state.chatId;
+    final partialId = state.lastMessageId;
+    if (chatId == null || partialId == null) return;
+
+    final repo = ref.read(messageRepositoryProvider);
+
+    final continueMsg = ChatMessage(
+      'user',
+      'Kontynuuj poprzednią odpowiedź od miejsca w którym przerwałeś. '
+          'Twoja częściowa odpowiedź: "${last.content}". '
+          'Dokończ ją naturalnie, nie powtarzaj początku.',
+    );
+    final historyForApi = [...state.messages, continueMsg];
+
+    state = state.copyWith(
+      isStreaming: true,
+      streamingContent: '',
+      streamingReasoning: '',
+      clearError: true,
+    );
+
+    _cancelToken = CancelToken();
+    _wasStopped = false;
+    final chatApi = ref.read(chatRepositoryProvider);
+
+    try {
+      await for (final chunk in chatApi.streamCompletion(
+        baseUrl: target.baseUrl,
+        apiKey: target.apiKey,
+        model: target.model,
+        messages: historyForApi,
+        cancelToken: _cancelToken,
+      )) {
+        if (chunk.done) break;
+        state = state.copyWith(
+          streamingContent: chunk.contentDelta != null
+              ? state.streamingContent + chunk.contentDelta!
+              : null,
+          streamingReasoning: chunk.reasoningDelta != null
+              ? state.streamingReasoning + chunk.reasoningDelta!
+              : null,
+        );
       }
+      await _commitContinuation(repo, partialId);
+    } catch (e) {
+      await _commitContinuation(repo, partialId);
+      state = state.copyWith(error: e.toString());
     }
   }
 
   void stop() {
+    _wasStopped = true;
     _cancelToken?.cancel();
   }
 
@@ -215,7 +279,6 @@ class ChatController extends Notifier<ChatState> {
   }) async {
     final content = state.streamingContent;
     final reasoning = state.streamingReasoning;
-
     if (content.isEmpty && reasoning.isEmpty) {
       state = state.copyWith(
         isStreaming: false,
@@ -224,7 +287,6 @@ class ChatController extends Notifier<ChatState> {
       );
       return;
     }
-
     final assistantId = await repo.appendMessage(
       chatId: chatId,
       role: 'assistant',
@@ -234,11 +296,49 @@ class ChatController extends Notifier<ChatState> {
       modelUsed: model,
       isPartial: isPartial,
     );
-
-    final msgs = [...state.messages, ChatMessage('assistant', content)];
+    final msgs = [
+      ...state.messages,
+      ChatMessage('assistant', content, isPartial: isPartial),
+    ];
     state = state.copyWith(
       messages: msgs,
       lastMessageId: assistantId,
+      isStreaming: false,
+      streamingContent: '',
+      streamingReasoning: '',
+    );
+  }
+
+  Future<void> _commitContinuation(
+    MessageRepository repo,
+    String partialId,
+  ) async {
+    final addition = state.streamingContent;
+    final additionReasoning = state.streamingReasoning;
+    if (addition.isEmpty && additionReasoning.isEmpty) {
+      state = state.copyWith(
+        isStreaming: false,
+        streamingContent: '',
+        streamingReasoning: '',
+      );
+      return;
+    }
+    await repo.appendContinuation(
+      partialId,
+      addition,
+      additionalReasoning: additionReasoning,
+    );
+    final msgs = [...state.messages];
+    final last = msgs.removeLast();
+    // Jeśli user znowu nacisnął Stop podczas resume — zostaw partial=true,
+    // bo appendContinuation z bazy zawsze ustawia 0; UI dostanie poprawną flagę,
+    // baza zostanie zaktualizowana przy następnym dokończeniu lub edycji.
+    final stillPartial = _wasStopped;
+    msgs.add(
+      ChatMessage(last.role, last.content + addition, isPartial: stillPartial),
+    );
+    state = state.copyWith(
+      messages: msgs,
       isStreaming: false,
       streamingContent: '',
       streamingReasoning: '',
