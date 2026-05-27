@@ -32,7 +32,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final targetAsync = ref.watch(chatTargetProvider);
     final chat = ref.watch(chatControllerProvider);
 
-    // Auto-scroll na dół przy nowej treści.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
         _scroll.jumpTo(_scroll.position.maxScrollExtent);
@@ -47,6 +46,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           orElse: () => const Text('Atrament'),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.add_comment_outlined),
+            tooltip: 'Nowa rozmowa',
+            onPressed: chat.isStreaming
+                ? null
+                : () => ref.read(chatControllerProvider.notifier).newChat(),
+          ),
           IconButton(
             icon: const Icon(Icons.dns),
             tooltip: 'Serwery',
@@ -118,7 +124,6 @@ class _MessageList extends StatelessWidget {
           final m = chat.messages[i];
           return _Bubble(text: m.content, isUser: m.role == 'user');
         }
-        // Ostatni element: streamingowa odpowiedź assistant na żywo.
         return _Bubble(
           text: chat.streamingContent.isEmpty && chat.isStreaming
               ? '…'

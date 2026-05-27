@@ -49,3 +49,50 @@ final class ChatRepositoryProvider
 }
 
 String _$chatRepositoryHash() => r'f387326596315816fc6945584a7f7d41b2cf70f2';
+
+@ProviderFor(messageRepository)
+final messageRepositoryProvider = MessageRepositoryProvider._();
+
+final class MessageRepositoryProvider
+    extends
+        $FunctionalProvider<
+          MessageRepository,
+          MessageRepository,
+          MessageRepository
+        >
+    with $Provider<MessageRepository> {
+  MessageRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'messageRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$messageRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<MessageRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  MessageRepository create(Ref ref) {
+    return messageRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MessageRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MessageRepository>(value),
+    );
+  }
+}
+
+String _$messageRepositoryHash() => r'197221c7aef046386027e211a330693ea8947ae5';

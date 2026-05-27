@@ -5,15 +5,13 @@ import '../../../core/providers/providers.dart';
 import '../../profiles/data/profile_providers.dart';
 import '../data/chat_models.dart';
 import '../data/chat_providers.dart';
+import '../data/message_repository.dart';
 
-/// Cel rozmowy — reaktywny: obserwuje aktywny profil i przelicza target.
-/// StreamProvider (nie FutureProvider+.first) — eliminuje wyścig przy starcie
-/// i odświeża czat gdy zmienisz aktywny serwer, bez restartu.
+/// Cel rozmowy — reaktywny (StreamProvider zamiast FutureProvider.first).
 final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
   final repo = ref.watch(profileRepositoryProvider);
   return repo.watchActiveProfileId().asyncMap((activeId) async {
     if (activeId == null) return null;
-
     final profiles = await repo.getAllProfiles();
     Profile? profile;
     for (final p in profiles) {
@@ -23,7 +21,6 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
       }
     }
     if (profile == null) return null;
-
     final apiKey = await repo.getApiKey(profile.id);
     final models = await ref
         .read(apiClientProvider)
@@ -38,6 +35,8 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
 });
 
 class ChatState {
+  final String? chatId;
+  final String? lastMessageId;
   final List<ChatMessage> messages;
   final String streamingContent;
   final String streamingReasoning;
@@ -45,6 +44,8 @@ class ChatState {
   final String? error;
 
   const ChatState({
+    this.chatId,
+    this.lastMessageId,
     this.messages = const [],
     this.streamingContent = '',
     this.streamingReasoning = '',
@@ -53,14 +54,19 @@ class ChatState {
   });
 
   ChatState copyWith({
+    String? chatId,
+    String? lastMessageId,
     List<ChatMessage>? messages,
     String? streamingContent,
     String? streamingReasoning,
     bool? isStreaming,
     String? error,
     bool clearError = false,
+    bool clearChatId = false,
   }) {
     return ChatState(
+      chatId: clearChatId ? null : (chatId ?? this.chatId),
+      lastMessageId: clearChatId ? null : (lastMessageId ?? this.lastMessageId),
       messages: messages ?? this.messages,
       streamingContent: streamingContent ?? this.streamingContent,
       streamingReasoning: streamingReasoning ?? this.streamingReasoning,
@@ -78,7 +84,33 @@ class ChatController extends Notifier<ChatState> {
   CancelToken? _cancelToken;
 
   @override
-  ChatState build() => const ChatState();
+  ChatState build() {
+    Future.microtask(_loadLatestChat);
+    return const ChatState();
+  }
+
+  Future<void> _loadLatestChat() async {
+    try {
+      final repo = ref.read(messageRepositoryProvider);
+      final latest = await repo.getLatestChat();
+      if (latest == null) return;
+      final dbMsgs = await repo.getMessages(latest.id);
+      state = state.copyWith(
+        chatId: latest.id,
+        lastMessageId: latest.activeLeafMessageId,
+        messages: dbMsgs
+            .map((m) => ChatMessage(m.role, m.content ?? ''))
+            .toList(),
+      );
+    } catch (_) {
+      // Pusty stan to akceptowalny fallback.
+    }
+  }
+
+  void newChat() {
+    if (state.isStreaming) return;
+    state = const ChatState();
+  }
 
   Future<void> send(String text) async {
     if (state.isStreaming || text.trim().isEmpty) return;
@@ -89,8 +121,22 @@ class ChatController extends Notifier<ChatState> {
       return;
     }
 
+    final repo = ref.read(messageRepositoryProvider);
+
+    var chatId = state.chatId;
+    chatId ??= await repo.createChat();
+
+    final userId = await repo.appendMessage(
+      chatId: chatId,
+      role: 'user',
+      content: text.trim(),
+      parentId: state.lastMessageId,
+    );
+
     final history = [...state.messages, ChatMessage('user', text.trim())];
     state = state.copyWith(
+      chatId: chatId,
+      lastMessageId: userId,
       messages: history,
       isStreaming: true,
       streamingContent: '',
@@ -99,10 +145,10 @@ class ChatController extends Notifier<ChatState> {
     );
 
     _cancelToken = CancelToken();
-    final repo = ref.read(chatRepositoryProvider);
+    final chatApi = ref.read(chatRepositoryProvider);
 
     try {
-      await for (final chunk in repo.streamCompletion(
+      await for (final chunk in chatApi.streamCompletion(
         baseUrl: target.baseUrl,
         apiKey: target.apiKey,
         model: target.model,
@@ -119,29 +165,67 @@ class ChatController extends Notifier<ChatState> {
               : null,
         );
       }
-      _finalize();
+      await _commitAssistant(
+        repo,
+        chatId,
+        userId,
+        target.model,
+        isPartial: false,
+      );
     } catch (e) {
-      _finalize();
-      state = state.copyWith(error: e.toString());
+      await _commitAssistant(
+        repo,
+        chatId,
+        userId,
+        target.model,
+        isPartial: true,
+      );
+      if (e is! DioException || e.type != DioExceptionType.cancel) {
+        state = state.copyWith(error: e.toString());
+      }
     }
   }
 
   void stop() {
     _cancelToken?.cancel();
-    _finalize();
   }
 
-  void _finalize() {
+  Future<void> _commitAssistant(
+    MessageRepository repo,
+    String chatId,
+    String parentUserId,
+    String model, {
+    required bool isPartial,
+  }) async {
     final content = state.streamingContent;
-    final msgs = [...state.messages];
-    if (content.isNotEmpty) {
-      msgs.add(ChatMessage('assistant', content));
+    final reasoning = state.streamingReasoning;
+
+    if (content.isEmpty && reasoning.isEmpty) {
+      state = state.copyWith(
+        isStreaming: false,
+        streamingContent: '',
+        streamingReasoning: '',
+      );
+      return;
     }
+
+    final assistantId = await repo.appendMessage(
+      chatId: chatId,
+      role: 'assistant',
+      content: content,
+      reasoning: reasoning.isEmpty ? null : reasoning,
+      parentId: parentUserId,
+      modelUsed: model,
+      isPartial: isPartial,
+    );
+
+    final msgs = [...state.messages, ChatMessage('assistant', content)];
     state = state.copyWith(
       messages: msgs,
+      lastMessageId: assistantId,
+      isStreaming: false,
       streamingContent: '',
       streamingReasoning: '',
-      isStreaming: false,
     );
   }
 }
