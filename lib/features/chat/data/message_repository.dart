@@ -2,9 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/database/database.dart';
 
-/// Persystencja rozmów: tworzenie czatów, zapis wiadomości, wczytywanie.
-/// Invariant (manifest 9): każdy append aktualizuje active_leaf_message_id
-/// oraz updated_at chatu — w jednej operacji.
 class MessageRepository {
   final AppDatabase _db;
   MessageRepository(this._db);
@@ -26,11 +23,9 @@ class MessageRepository {
     return id;
   }
 
-  /// Dodaje wiadomość + aktualizuje active_leaf i updated_at chatu.
-  /// Performance-note 9.5: content commitowany RAZ (per wiadomość, nie per chunk).
   Future<String> appendMessage({
     required String chatId,
-    required String role, // 'user' | 'assistant' | 'system'
+    required String role,
     required String content,
     String? reasoning,
     String? parentId,
@@ -56,11 +51,52 @@ class MessageRepository {
           ),
         );
 
-    // INVARIANT (manifest 9): active_leaf wskazuje na ostatnią wiadomość w gałęzi.
+    final chat = await (_db.select(
+      _db.chats,
+    )..where((c) => c.id.equals(chatId))).getSingleOrNull();
+    String? newTitle;
+    if (chat != null &&
+        (chat.title == null || chat.title!.isEmpty) &&
+        role == 'user') {
+      newTitle = _autoTitle(content);
+    }
+
     await (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
-      ChatsCompanion(activeLeafMessageId: Value(id), updatedAt: Value(now)),
+      ChatsCompanion(
+        activeLeafMessageId: Value(id),
+        updatedAt: Value(now),
+        title: newTitle != null ? Value(newTitle) : const Value.absent(),
+      ),
     );
     return id;
+  }
+
+  static String _autoTitle(String content) {
+    final clean = content.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (clean.length <= 40) return clean;
+    final cut = clean.substring(0, 40);
+    final lastSpace = cut.lastIndexOf(' ');
+    final base = lastSpace > 20 ? cut.substring(0, lastSpace) : cut;
+    return '$base…';
+  }
+
+  Future<void> updateChatTitle(String chatId, String title) {
+    return (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
+      ChatsCompanion(title: Value(title.trim().isEmpty ? null : title.trim())),
+    );
+  }
+
+  /// Usuwa czat wraz z wiadomościami.
+  /// Manifest 9 ma messages.parent_id ON DELETE RESTRICT (chroni przed
+  /// przypadkowym usunięciem wiadomości-rodzica). To wchodzi w konflikt z
+  /// CASCADE delete chatu — w transakcji najpierw zerwiemy więzy parent_id,
+  /// potem delete chatu uruchomi czysto CASCADE na chat_id.
+  Future<void> deleteChat(String chatId) async {
+    await _db.transaction(() async {
+      await (_db.update(_db.messages)..where((m) => m.chatId.equals(chatId)))
+          .write(const MessagesCompanion(parentId: Value(null)));
+      await (_db.delete(_db.chats)..where((c) => c.id.equals(chatId))).go();
+    });
   }
 
   Future<List<Message>> getMessages(String chatId) {
@@ -70,8 +106,19 @@ class MessageRepository {
         .get();
   }
 
-  /// Najnowszy używany czat (po updated_at). Używane do auto-load przy starcie
-  /// w wersji jednoekranowej — przy liście czatów (krok 2) to przestanie być potrzebne.
+  Future<Chat?> getChat(String chatId) {
+    return (_db.select(
+      _db.chats,
+    )..where((c) => c.id.equals(chatId))).getSingleOrNull();
+  }
+
+  Stream<List<Chat>> watchChats() {
+    return (_db.select(_db.chats)..orderBy([
+          (c) => OrderingTerm(expression: c.updatedAt, mode: OrderingMode.desc),
+        ]))
+        .watch();
+  }
+
   Future<Chat?> getLatestChat() {
     return (_db.select(_db.chats)
           ..orderBy([

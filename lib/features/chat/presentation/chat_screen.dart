@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../profiles/presentation/profiles_screen.dart';
 import 'chat_controller.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -27,6 +26,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.read(chatControllerProvider.notifier).send(text);
   }
 
+  Future<void> _editTitle() async {
+    final chat = ref.read(chatControllerProvider);
+    if (chat.chatId == null) return; // jeszcze nie ma czatu w bazie
+    final ctrl = TextEditingController(text: chat.title ?? '');
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Zmień nazwę rozmowy'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Anuluj'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, ctrl.text),
+            child: const Text('Zapisz'),
+          ),
+        ],
+      ),
+    );
+    if (result != null) {
+      await ref.read(chatControllerProvider.notifier).updateTitle(result);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final targetAsync = ref.watch(chatTargetProvider);
@@ -38,29 +67,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
     });
 
+    final titleText =
+        chat.title ?? (chat.chatId == null ? 'Nowa rozmowa' : 'Bez nazwy');
+    final serverName = targetAsync.maybeWhen(
+      data: (t) => t?.profileName,
+      orElse: () => null,
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: targetAsync.maybeWhen(
-          data: (t) =>
-              Text(t == null ? 'Atrament' : 'Atrament — ${t.profileName}'),
-          orElse: () => const Text('Atrament'),
+        title: GestureDetector(
+          onTap: _editTitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                titleText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 18),
+              ),
+              if (serverName != null)
+                Text(
+                  serverName,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                ),
+            ],
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_comment_outlined),
-            tooltip: 'Nowa rozmowa',
-            onPressed: chat.isStreaming
-                ? null
-                : () => ref.read(chatControllerProvider.notifier).newChat(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.dns),
-            tooltip: 'Serwery',
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const ProfilesScreen())),
-          ),
-        ],
       ),
       body: targetAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -263,17 +301,8 @@ class _NoServer extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               error ??
-                  'Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami, '
-                      'by zacząć rozmowę.',
+                  'Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami.',
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              icon: const Icon(Icons.dns),
-              label: const Text('Zarządzaj serwerami'),
-              onPressed: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const ProfilesScreen())),
             ),
           ],
         ),
