@@ -1,9 +1,10 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'connection.dart';
 
 part 'database.g.dart';
 
-// ── Tabele ──────────────────────────────────────────────────────────
+// ── Tabele ──────────────────────────────────────────────────────────────────
 
 class Profiles extends Table {
   TextColumn get id => text()();
@@ -69,10 +70,12 @@ class Messages extends Table {
   IntColumn get tokensIn => integer().nullable()();
   IntColumn get tokensOut => integer().nullable()();
   RealColumn get tokensPerSec => real().nullable()();
+  // v2 (migracja v1→v2): RESTRICT → SET NULL.
+  // Usunięcie rodzica ustawia parent_id dzieci na NULL zamiast blokować delete.
   TextColumn get parentId => text().nullable().references(
     Messages,
     #id,
-    onDelete: KeyAction.restrict,
+    onDelete: KeyAction.setNull,
   )();
   BoolColumn get isPartial => boolean().withDefault(const Constant(false))();
   IntColumn get createdAt => integer()();
@@ -141,7 +144,7 @@ class UserVariables extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-// ── Baza ────────────────────────────────────────────────────────────
+// ── Baza ──────────────────────────────────────────────────────────────────
 
 @DriftDatabase(
   tables: [
@@ -159,7 +162,43 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  // ── Obiekty FTS na `messages` — JEDNO źródło prawdy ──────────────────────
+  // Używane przez onCreate (świeża v2) ORAZ onUpgrade (migracja v1→v2).
+  // Dzięki temu odtworzone w migracji triggery/indeksy są identyczne z onCreate.
+  // (Te obiekty są customStatement → niewidzialne dla Drift, więc migracja
+  //  musi je ręcznie zdjąć i odtworzyć — patrz onUpgrade.)
+
+  Future<void> _createMessagesFtsTriggers() async {
+    await customStatement('''
+      CREATE TRIGGER messages_fts_ai AFTER INSERT ON messages BEGIN
+        INSERT INTO messages_fts(content, reasoning, message_id, chat_id)
+        VALUES (new.content, COALESCE(new.reasoning, ''), new.id, new.chat_id);
+      END;''');
+    await customStatement('''
+      CREATE TRIGGER messages_fts_ad AFTER DELETE ON messages BEGIN
+        DELETE FROM messages_fts WHERE message_id = old.id;
+      END;''');
+    await customStatement('''
+      CREATE TRIGGER messages_fts_au AFTER UPDATE OF content, reasoning ON messages BEGIN
+        DELETE FROM messages_fts WHERE message_id = old.id;
+        INSERT INTO messages_fts(content, reasoning, message_id, chat_id)
+        VALUES (new.content, COALESCE(new.reasoning, ''), new.id, new.chat_id);
+      END;''');
+  }
+
+  Future<void> _createMessagesIndexes() async {
+    await customStatement(
+      'CREATE INDEX idx_messages_chat_created ON messages(chat_id, created_at);',
+    );
+    await customStatement(
+      'CREATE INDEX idx_messages_parent ON messages(parent_id);',
+    );
+    await customStatement(
+      'CREATE INDEX idx_messages_model ON messages(model_used);',
+    );
+  }
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -176,24 +215,10 @@ class AppDatabase extends _$AppDatabase {
         'title, chat_id UNINDEXED);',
       );
 
-      // Triggery messages → messages_fts
-      await customStatement('''
-            CREATE TRIGGER messages_fts_ai AFTER INSERT ON messages BEGIN
-              INSERT INTO messages_fts(content, reasoning, message_id, chat_id)
-              VALUES (new.content, COALESCE(new.reasoning, ''), new.id, new.chat_id);
-            END;''');
-      await customStatement('''
-            CREATE TRIGGER messages_fts_ad AFTER DELETE ON messages BEGIN
-              DELETE FROM messages_fts WHERE message_id = old.id;
-            END;''');
-      await customStatement('''
-            CREATE TRIGGER messages_fts_au AFTER UPDATE OF content, reasoning ON messages BEGIN
-              DELETE FROM messages_fts WHERE message_id = old.id;
-              INSERT INTO messages_fts(content, reasoning, message_id, chat_id)
-              VALUES (new.content, COALESCE(new.reasoning, ''), new.id, new.chat_id);
-            END;''');
+      // Triggery messages → messages_fts (źródło prawdy: helper)
+      await _createMessagesFtsTriggers();
 
-      // Triggery chats → chats_fts
+      // Triggery chats → chats_fts (migracja v1→v2 ich nie dotyka, zostają inline)
       await customStatement('''
             CREATE TRIGGER chats_fts_ai AFTER INSERT ON chats BEGIN
               INSERT INTO chats_fts(title, chat_id) VALUES (COALESCE(new.title, ''), new.id);
@@ -208,7 +233,7 @@ class AppDatabase extends _$AppDatabase {
               INSERT INTO chats_fts(title, chat_id) VALUES (COALESCE(new.title, ''), new.id);
             END;''');
 
-      // Indeksy (manifest sekcja 9)
+      // Indeksy
       await customStatement(
         'CREATE INDEX idx_profiles_last_used ON profiles(last_used_at DESC);',
       );
@@ -221,15 +246,7 @@ class AppDatabase extends _$AppDatabase {
       await customStatement(
         'CREATE INDEX idx_chats_folder ON chats(folder_id);',
       );
-      await customStatement(
-        'CREATE INDEX idx_messages_chat_created ON messages(chat_id, created_at);',
-      );
-      await customStatement(
-        'CREATE INDEX idx_messages_parent ON messages(parent_id);',
-      );
-      await customStatement(
-        'CREATE INDEX idx_messages_model ON messages(model_used);',
-      );
+      await _createMessagesIndexes(); // messages: źródło prawdy: helper
       await customStatement(
         'CREATE INDEX idx_attachments_message ON message_attachments(message_id);',
       );
@@ -240,9 +257,48 @@ class AppDatabase extends _$AppDatabase {
         'CREATE INDEX idx_prompts_library_view ON prompt_library(category, is_favorite DESC, usage_count DESC);',
       );
     },
+    onUpgrade: (m, from, to) async {
+      // PRAGMA foreign_keys MUSI być poza transakcją (SQLite ignoruje ją w transakcji).
+      // Przebudowa tabeli wymaga wyłączonych FK (self-ref parent_id + CASCADE z attachments).
+      await customStatement('PRAGMA foreign_keys = OFF');
+
+      await transaction(() async {
+        if (from < 2) {
+          // v1→v2: messages.parent_id RESTRICT → SET NULL.
+          // SQLite nie umie zmienić FK constraint przez ALTER → przebudowa tabeli (TableMigration).
+          // Triggery/indeksy FTS na messages są customStatement (Drift ich nie zna):
+          // zdejmujemy PRZED, odtwarzamy PO kopiowaniu danych — triggery NA KOŃCU,
+          // żeby INSERT-SELECT podczas przebudowy nie zaindeksował istniejących wierszy drugi raz.
+          await customStatement('DROP TRIGGER IF EXISTS messages_fts_ai;');
+          await customStatement('DROP TRIGGER IF EXISTS messages_fts_ad;');
+          await customStatement('DROP TRIGGER IF EXISTS messages_fts_au;');
+          await customStatement(
+            'DROP INDEX IF EXISTS idx_messages_chat_created;',
+          );
+          await customStatement('DROP INDEX IF EXISTS idx_messages_parent;');
+          await customStatement('DROP INDEX IF EXISTS idx_messages_model;');
+
+          // Przebudowa messages z nową regułą FK (parent_id SET NULL) + kopia danych
+          await m.alterTable(TableMigration(messages));
+
+          // Odtworzenie (kolejność: indeksy, potem triggery NA KOŃCU)
+          await _createMessagesIndexes();
+          await _createMessagesFtsTriggers();
+        }
+      });
+
+      // Po migracji, POZA transakcją: asercja że nie ma osieroconych FK
+      if (kDebugMode) {
+        final badFks = await customSelect('PRAGMA foreign_key_check').get();
+        assert(
+          badFks.isEmpty,
+          'FK violations po migracji: ${badFks.map((e) => e.data)}',
+        );
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
-      // TODO (manifest 9.1): downgrade detection + backup przed migracją — dochodzi gdy schemaVersion > 1
+      // TODO (Commit B, manifest 9.1 zasada 3): downgrade detection + backup przed migracją
     },
   );
 }

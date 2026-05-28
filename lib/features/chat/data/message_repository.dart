@@ -115,12 +115,11 @@ class MessageRepository {
     );
   }
 
+  /// v2: workaround zbędny. FK messages.chat_id -> chats ON DELETE CASCADE
+  /// usuwa wiadomości, a messages.parent_id -> messages ON DELETE SET NULL
+  /// zdejmuje blokadę, którą dawał RESTRICT (nie trzeba ręcznie zerować parent_id).
   Future<void> deleteChat(String chatId) async {
-    await _db.transaction(() async {
-      await (_db.update(_db.messages)..where((m) => m.chatId.equals(chatId)))
-          .write(const MessagesCompanion(parentId: Value(null)));
-      await (_db.delete(_db.chats)..where((c) => c.id.equals(chatId))).go();
-    });
+    await (_db.delete(_db.chats)..where((c) => c.id.equals(chatId))).go();
   }
 
   Future<List<Message>> getMessages(String chatId) {
