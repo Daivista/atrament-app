@@ -1,12 +1,15 @@
+import 'dart:io';
+
+import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqlite3/sqlite3.dart';
 import 'package:atrament_app/core/database/database.dart';
+import 'package:atrament_app/core/database/connection.dart';
 import 'generated_migrations/schema.dart';
 import 'generated_migrations/schema_v1.dart';
 
-// Warstwa FTS v1 — te same customStatement co w onCreate. Helper SchemaV1 zna
-// tylko 8 tabel (FTS jest customStatement, niewidzialne dla Drift), więc żeby
-// test odtwarzał REALNĄ v1 (a nie modelową), doszywamy ją ręcznie przed migracją.
 const _v1FtsLayer = <String>[
   'CREATE VIRTUAL TABLE messages_fts USING fts5(content, reasoning, message_id UNINDEXED, chat_id UNINDEXED);',
   'CREATE VIRTUAL TABLE chats_fts USING fts5(title, chat_id UNINDEXED);',
@@ -51,8 +54,6 @@ void main() {
     verifier = SchemaVerifier(GeneratedHelper());
   });
 
-  // TEST 1 — struktura + FK. migrateAndValidate porównuje schemat po migracji
-  // ze SchemaV2: potwierdza parent_id RESTRICT->SET NULL i nietknięte kolumny.
   test('struktura: migracja v1 -> v2 zgodna ze SchemaV2', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
@@ -60,11 +61,9 @@ void main() {
     await db.close();
   });
 
-  // TEST 2 — dane + FTS + zachowanie FK na REALNEJ v1 (8 tabel + warstwa FTS).
   test('dane i FTS przeżywają migrację, komplet obiektów wraca', () async {
     final schema = await verifier.schemaAt(1);
 
-    // 1. Odtwórz realną v1: warstwa FTS + dane (łańcuch parent_id: m2 -> m1)
     final v1db = DatabaseAtV1(schema.newConnection());
     for (final stmt in _v1FtsLayer) {
       await v1db.customStatement(stmt);
@@ -82,11 +81,9 @@ void main() {
     );
     await v1db.close();
 
-    // 2. Migracja v1 -> v2 (otwarcie AppDatabase na bazie v1 odpala onUpgrade)
     final db = AppDatabase(schema.newConnection());
-    await db.customSelect('SELECT 1').get(); // wymusza otwarcie + migrację
+    await db.customSelect('SELECT 1').get();
 
-    // 3a. Dane przeżyły, łańcuch parent_id nietknięty
     final msgs = await db
         .customSelect('SELECT id, parent_id FROM messages ORDER BY created_at')
         .get();
@@ -94,7 +91,6 @@ void main() {
     expect(msgs[0].read<String>('id'), 'm1');
     expect(msgs[1].read<String?>('parent_id'), 'm1');
 
-    // 3b. FK SET NULL behawioralnie: usuń rodzica m1 -> parent_id m2 = NULL (nie blokada)
     await db.customStatement("DELETE FROM messages WHERE id = 'm1';");
     final m2 = await db
         .customSelect("SELECT parent_id FROM messages WHERE id = 'm2'")
@@ -105,7 +101,6 @@ void main() {
       reason: 'SET NULL: dziecko zostaje, parent_id wyzerowany',
     );
 
-    // 3c. Komplet obiektów po migracji (sqlite_master — Drift ich nie zna)
     final triggers = await db
         .customSelect("SELECT name FROM sqlite_master WHERE type = 'trigger'")
         .get();
@@ -125,7 +120,6 @@ void main() {
         .get();
     expect(indexes.length, 10, reason: '10 indeksów aplikacji');
 
-    // 3d. FTS dalej strzela (trigger messages_fts_ai działa po migracji)
     await db.customStatement(
       "INSERT INTO messages (id, chat_id, role, content, is_partial, created_at) "
       "VALUES ('m3', 'c1', 'user', 'unikalnefraza', 0, 3);",
@@ -142,5 +136,74 @@ void main() {
     );
 
     await db.close();
+  });
+
+  // TEST 3 (Commit B) — downgrade detection: baza nowsza niż appka.
+  test('downgrade: nowsza baza rzuca DatabaseDowngradeException', () async {
+    final raw = sqlite3.openInMemory();
+    raw.execute('PRAGMA user_version = 99'); // udajemy bazę z przyszłej wersji
+    final db = AppDatabase(NativeDatabase.opened(raw));
+    await expectLater(
+      db.customSelect('SELECT 1').get(),
+      throwsA(isA<DatabaseDowngradeException>()),
+    );
+    await db.close();
+  });
+
+  // TEST 4 (Commit B) — backup przed migracją: kopiuje + trzyma tylko najnowszy.
+  test('backup: kopiuje bazę przed migracją i sprząta stare', () async {
+    final dir = await Directory.systemTemp.createTemp('atrament_backup_test');
+    try {
+      final dbFile = File(p.join(dir.path, 'atrament.db'));
+
+      // Baza "v1" z zawartością
+      final raw = sqlite3.open(dbFile.path);
+      raw.execute('PRAGMA user_version = 1');
+      raw.execute('CREATE TABLE t (x);');
+      raw.execute("INSERT INTO t VALUES ('dane');");
+      raw.dispose();
+
+      // Stary backup który ma zostać sprzątnięty
+      final backupsDir = Directory(p.join(dir.path, 'backups'));
+      await backupsDir.create(recursive: true);
+      await File(
+        p.join(backupsDir.path, 'db_v0.sqlite'),
+      ).writeAsString('stary');
+
+      await backupBeforeMigration(
+        dbFile: dbFile,
+        baseDir: dir,
+        targetVersion: 2,
+      );
+
+      expect(
+        await File(p.join(backupsDir.path, 'db_v1.sqlite')).exists(),
+        isTrue,
+        reason: 'backup oczekującej migracji powstał',
+      );
+      expect(
+        await File(p.join(backupsDir.path, 'db_v0.sqlite')).exists(),
+        isFalse,
+        reason: 'stary backup sprzątnięty',
+      );
+
+      // Baza już w wersji docelowej -> brak nowego backupu
+      final raw2 = sqlite3.open(dbFile.path);
+      raw2.execute('PRAGMA user_version = 2');
+      raw2.dispose();
+      final countBefore = backupsDir.listSync().length;
+      await backupBeforeMigration(
+        dbFile: dbFile,
+        baseDir: dir,
+        targetVersion: 2,
+      );
+      expect(
+        backupsDir.listSync().length,
+        countBefore,
+        reason: 'brak migracji -> brak backupu',
+      );
+    } finally {
+      await dir.delete(recursive: true);
+    }
   });
 }

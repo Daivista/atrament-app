@@ -162,13 +162,12 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => kAppSchemaVersion;
 
   // ── Obiekty FTS na `messages` — JEDNO źródło prawdy ──────────────────────
   // Używane przez onCreate (świeża v2) ORAZ onUpgrade (migracja v1→v2).
-  // Dzięki temu odtworzone w migracji triggery/indeksy są identyczne z onCreate.
-  // (Te obiekty są customStatement → niewidzialne dla Drift, więc migracja
-  //  musi je ręcznie zdjąć i odtworzyć — patrz onUpgrade.)
+  // (customStatement → niewidzialne dla Drift, więc migracja musi je ręcznie
+  //  zdjąć i odtworzyć — patrz onUpgrade.)
 
   Future<void> _createMessagesFtsTriggers() async {
     await customStatement('''
@@ -205,7 +204,6 @@ class AppDatabase extends _$AppDatabase {
     onCreate: (m) async {
       await m.createAll();
 
-      // FTS5 — Drift nie tworzy virtual tables przez createAll(), robimy ręcznie
       await customStatement(
         'CREATE VIRTUAL TABLE messages_fts USING fts5('
         'content, reasoning, message_id UNINDEXED, chat_id UNINDEXED);',
@@ -215,10 +213,8 @@ class AppDatabase extends _$AppDatabase {
         'title, chat_id UNINDEXED);',
       );
 
-      // Triggery messages → messages_fts (źródło prawdy: helper)
       await _createMessagesFtsTriggers();
 
-      // Triggery chats → chats_fts (migracja v1→v2 ich nie dotyka, zostają inline)
       await customStatement('''
             CREATE TRIGGER chats_fts_ai AFTER INSERT ON chats BEGIN
               INSERT INTO chats_fts(title, chat_id) VALUES (COALESCE(new.title, ''), new.id);
@@ -233,7 +229,6 @@ class AppDatabase extends _$AppDatabase {
               INSERT INTO chats_fts(title, chat_id) VALUES (COALESCE(new.title, ''), new.id);
             END;''');
 
-      // Indeksy
       await customStatement(
         'CREATE INDEX idx_profiles_last_used ON profiles(last_used_at DESC);',
       );
@@ -246,7 +241,7 @@ class AppDatabase extends _$AppDatabase {
       await customStatement(
         'CREATE INDEX idx_chats_folder ON chats(folder_id);',
       );
-      await _createMessagesIndexes(); // messages: źródło prawdy: helper
+      await _createMessagesIndexes();
       await customStatement(
         'CREATE INDEX idx_attachments_message ON message_attachments(message_id);',
       );
@@ -258,17 +253,10 @@ class AppDatabase extends _$AppDatabase {
       );
     },
     onUpgrade: (m, from, to) async {
-      // PRAGMA foreign_keys MUSI być poza transakcją (SQLite ignoruje ją w transakcji).
-      // Przebudowa tabeli wymaga wyłączonych FK (self-ref parent_id + CASCADE z attachments).
       await customStatement('PRAGMA foreign_keys = OFF');
 
       await transaction(() async {
         if (from < 2) {
-          // v1→v2: messages.parent_id RESTRICT → SET NULL.
-          // SQLite nie umie zmienić FK constraint przez ALTER → przebudowa tabeli (TableMigration).
-          // Triggery/indeksy FTS na messages są customStatement (Drift ich nie zna):
-          // zdejmujemy PRZED, odtwarzamy PO kopiowaniu danych — triggery NA KOŃCU,
-          // żeby INSERT-SELECT podczas przebudowy nie zaindeksował istniejących wierszy drugi raz.
           await customStatement('DROP TRIGGER IF EXISTS messages_fts_ai;');
           await customStatement('DROP TRIGGER IF EXISTS messages_fts_ad;');
           await customStatement('DROP TRIGGER IF EXISTS messages_fts_au;');
@@ -278,16 +266,13 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('DROP INDEX IF EXISTS idx_messages_parent;');
           await customStatement('DROP INDEX IF EXISTS idx_messages_model;');
 
-          // Przebudowa messages z nową regułą FK (parent_id SET NULL) + kopia danych
           await m.alterTable(TableMigration(messages));
 
-          // Odtworzenie (kolejność: indeksy, potem triggery NA KOŃCU)
           await _createMessagesIndexes();
           await _createMessagesFtsTriggers();
         }
       });
 
-      // Po migracji, POZA transakcją: asercja że nie ma osieroconych FK
       if (kDebugMode) {
         final badFks = await customSelect('PRAGMA foreign_key_check').get();
         assert(
@@ -297,8 +282,15 @@ class AppDatabase extends _$AppDatabase {
       }
     },
     beforeOpen: (details) async {
+      // Commit B: downgrade detection — starsza appka na nowszej bazie.
+      if (details.versionBefore != null &&
+          details.versionBefore! > schemaVersion) {
+        throw DatabaseDowngradeException(
+          from: details.versionBefore!,
+          to: schemaVersion,
+        );
+      }
       await customStatement('PRAGMA foreign_keys = ON');
-      // TODO (Commit B, manifest 9.1 zasada 3): downgrade detection + backup przed migracją
     },
   );
 }
