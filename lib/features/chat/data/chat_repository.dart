@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../../../core/network/sse_parser.dart';
 import 'chat_models.dart';
+import 'chat_parameters.dart';
 
 class ChatRepository {
   final Dio _dio;
@@ -9,23 +10,48 @@ class ChatRepository {
     : _dio =
           dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 10)));
 
+  /// Strumień odpowiedzi z `/v1/chat/completions`.
+  ///
+  /// Sesja A1: `parameters` opcjonalne dla backward-compat. Gdy podane,
+  /// wszystkie non-null pola idą do payloadu (manifest sekcja 6, KRYTYCZNA
+  /// PUŁAPKA: parametry inference wysyłane jawnie, bez polegania na presetach
+  /// LM Studio). NULL pola pomijamy — to świadoma decyzja "zostaw default
+  /// serwera" (np. nieustawiony seed = losowy serwerowy, nie nasz hardcoded 0).
   Stream<ChatChunk> streamCompletion({
     required String baseUrl,
     String? apiKey,
     required String model,
     required List<ChatMessage> messages,
+    ChatParameters? parameters,
     CancelToken? cancelToken,
   }) async* {
     final url = '${_normalizeBase(baseUrl)}/v1/chat/completions';
 
+    final payload = <String, dynamic>{
+      'model': model,
+      'messages': messages.map((m) => m.toJson()).toList(),
+      'stream': true,
+    };
+
+    if (parameters != null) {
+      final pmap = parameters.toJson();
+      // Filtr null: nie wysyłamy "wartości nieustawionej" do API.
+      pmap.removeWhere((k, v) => v == null);
+      // ChatParameters.toJson() ma płaski klucz `reasoning_effort`
+      // (spójność z bazą JSON-blob). API OpenAI/LM Studio oczekuje nested
+      // `reasoning: { effort: '<low|medium|high>' }` (manifest sekcja 6,
+      // linia 225-226).
+      if (pmap.containsKey('reasoning_effort')) {
+        final effort = pmap.remove('reasoning_effort');
+        pmap['reasoning'] = {'effort': effort};
+      }
+      payload.addAll(pmap);
+    }
+
     try {
       final response = await _dio.post(
         url,
-        data: {
-          'model': model,
-          'messages': messages.map((m) => m.toJson()).toList(),
-          'stream': true,
-        },
+        data: payload,
         options: Options(
           responseType: ResponseType.stream,
           receiveTimeout: Duration.zero,

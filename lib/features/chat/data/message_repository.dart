@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/database/database.dart';
+import 'chat_parameters.dart';
 
 class MessageRepository {
   final AppDatabase _db;
@@ -23,6 +25,8 @@ class MessageRepository {
     return id;
   }
 
+  /// Dodaje wiadomość do rozmowy. Sesja A1: opcjonalny `parameters` zapisuje
+  /// snapshot do `messages.parameters_json` (audit z czasu wysłania).
   Future<String> appendMessage({
     required String chatId,
     required String role,
@@ -30,6 +34,7 @@ class MessageRepository {
     String? reasoning,
     String? parentId,
     String? modelUsed,
+    ChatParameters? parameters,
     bool isPartial = false,
   }) async {
     final id = const Uuid().v4();
@@ -48,6 +53,9 @@ class MessageRepository {
             parentId: Value(parentId),
             modelUsed: Value(modelUsed),
             isPartial: Value(isPartial),
+            parametersJson: Value(
+              parameters != null ? jsonEncode(parameters.toJson()) : null,
+            ),
           ),
         );
 
@@ -73,6 +81,8 @@ class MessageRepository {
 
   /// Resume flow (manifest 7.6): konkatenacja dokończenia do partial.
   /// Perf-note 9.5: jeden UPDATE po streamie, nie per chunk.
+  /// Uwaga: parameters_json NIE jest aktualizowany — snapshot zostaje z czasu
+  /// pierwotnego wysłania (continuation to recovery, nie nowy snapshot).
   Future<void> appendContinuation(
     String messageId,
     String additionalContent, {
@@ -112,6 +122,54 @@ class MessageRepository {
   Future<void> updateChatTitle(String chatId, String title) {
     return (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
       ChatsCompanion(title: Value(title.trim().isEmpty ? null : title.trim())),
+    );
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Sesja A1 — parametry inference per rozmowa (manifest sekcja 6 + 9.2).
+  // chats.parameters_json przechowuje ChatParameters jako JSON. NULL = rozmowa
+  // nigdy nie miała jawnie ustawionych parametrów — fallback do ChatParameters().
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Odczyt parametrów rozmowy. NULL lub błąd parsowania → ChatParameters()
+  /// (hardcoded defaults z manifestu sekcja 9.2).
+  Future<ChatParameters> getChatParameters(String chatId) async {
+    final chat = await (_db.select(
+      _db.chats,
+    )..where((c) => c.id.equals(chatId))).getSingleOrNull();
+    if (chat == null || chat.parametersJson == null) {
+      return const ChatParameters();
+    }
+    try {
+      final json = jsonDecode(chat.parametersJson!) as Map<String, dynamic>;
+      return ChatParameters.fromJson(json);
+    } catch (_) {
+      // Defensywny fallback — uszkodzony JSON nie powinien crashować appki.
+      return const ChatParameters();
+    }
+  }
+
+  /// Zapis parametrów rozmowy (wywoływane przez ChatParametersSheet w A2).
+  Future<void> updateChatParameters(String chatId, ChatParameters params) {
+    return (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
+      ChatsCompanion(parametersJson: Value(jsonEncode(params.toJson()))),
+    );
+  }
+
+  /// Zmiana modelu przypisanego do rozmowy. NULL = "użyj domyślnego z profilu"
+  /// (czyli models.first w chat_target — dzisiejsze zachowanie).
+  Future<void> updateChatModel(String chatId, String? modelId) {
+    return (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
+      ChatsCompanion(modelId: Value(modelId)),
+    );
+  }
+
+  /// Zmiana system promptu rozmowy. Pusty string traktowany jak NULL (cleanup).
+  Future<void> updateChatSystemPrompt(String chatId, String? systemPrompt) {
+    final cleaned = systemPrompt?.trim();
+    final value = (cleaned == null || cleaned.isEmpty) ? null : cleaned;
+    return (_db.update(_db.chats)..where((c) => c.id.equals(chatId))).write(
+      ChatsCompanion(systemPrompt: Value(value)),
     );
   }
 
