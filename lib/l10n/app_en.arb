@@ -4,6 +4,8 @@
   "commonCancel": "Cancel",
   "commonSave": "Save",
   "commonDelete": "Delete",
+  "commonCopy": "Copy",
+  "commonCopied": "Copied",
   "commonUnnamedChat": "Untitled",
   "commonNewChat": "New conversation",
 

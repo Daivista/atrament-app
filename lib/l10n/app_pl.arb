@@ -13,6 +13,14 @@
   "@commonDelete": {
     "description": "Przycisk/akcja usunięcia w dialogach i menu"
   },
+  "commonCopy": "Kopiuj",
+  "@commonCopy": {
+    "description": "Przycisk kopiowania kodu w bloku ``` do schowka"
+  },
+  "commonCopied": "Skopiowano",
+  "@commonCopied": {
+    "description": "Snackbar potwierdzający skopiowanie"
+  },
   "commonUnnamedChat": "Bez nazwy",
   "@commonUnnamedChat": {
     "description": "Fallback tytułu rozmowy gdy brak tytułu"

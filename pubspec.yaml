@@ -27,6 +27,7 @@ dependencies:
   riverpod_annotation: ^4.0.2
   gpt_markdown: ^1.1.7
   intl: any
+  re_highlight: ^0.0.3
 
 dev_dependencies:
   flutter_test:

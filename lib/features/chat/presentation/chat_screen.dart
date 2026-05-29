@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import '../../../core/theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/code_block.dart';
 import '../../../shared/widgets/empty_state.dart';
 import 'chat_controller.dart';
 
@@ -151,9 +153,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   width: double.infinity,
                   color: Theme.of(context).colorScheme.errorContainer,
                   padding: const EdgeInsets.all(Spacing.sm),
-                  // Komunikat błędu pochodzi z chat_controller.dart (warstwa data),
-                  // która nie ma BuildContext do AppLocalizations. Tymczas: hardcoded PL.
-                  // Tracked TODO: refactor ChatState.error z String? na typed/key.
                   child: Text(
                     chat.error!,
                     style: TextStyle(
@@ -236,6 +235,8 @@ class _Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
+    // Treść do renderowania: tekst + ewentualny kursor strumienia.
+    final body = text + (streaming ? ' ▋' : '');
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Opacity(
@@ -268,7 +269,21 @@ class _Bubble extends StatelessWidget {
                 ),
                 const Divider(height: 12),
               ],
-              Text(text + (streaming ? ' ▋' : '')),
+              // User → plain Text (rzadko piszą markdown, prostszy render).
+              // Assistant → GptMarkdown z naszym CodeBlock przez codeBuilder.
+              // Niezamknięty ``` w trakcie streamingu obsługuje gpt_markdown
+              // natywnie (zweryfikowane empirycznie w Kroku przed Step 2).
+              if (isUser)
+                Text(body)
+              else
+                GptMarkdown(
+                  body,
+                  codeBuilder: (context, name, code, closed) => CodeBlock(
+                    language: name,
+                    code: code,
+                    closed: closed,
+                  ),
+                ),
             ],
           ),
         ),
@@ -328,9 +343,6 @@ class _Composer extends StatelessWidget {
   }
 }
 
-/// Pusty stan dla braku aktywnego serwera albo błędu połączenia. Cienkie
-/// opakowanie nad wspólnym EmptyState — dobiera tytuł/hint na podstawie
-/// obecności komunikatu błędu.
 class _NoServer extends StatelessWidget {
   final String? error;
   const _NoServer({this.error});

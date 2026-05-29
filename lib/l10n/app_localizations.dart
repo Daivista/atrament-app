@@ -116,6 +116,18 @@ abstract class AppLocalizations {
   /// **'Usuń'**
   String get commonDelete;
 
+  /// Przycisk kopiowania kodu w bloku ``` do schowka
+  ///
+  /// In pl, this message translates to:
+  /// **'Kopiuj'**
+  String get commonCopy;
+
+  /// Snackbar potwierdzający skopiowanie
+  ///
+  /// In pl, this message translates to:
+  /// **'Skopiowano'**
+  String get commonCopied;
+
   /// Fallback tytułu rozmowy gdy brak tytułu
   ///
   /// In pl, this message translates to:

@@ -18,6 +18,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get commonDelete => 'Usuń';
 
   @override
+  String get commonCopy => 'Kopiuj';
+
+  @override
+  String get commonCopied => 'Skopiowano';
+
+  @override
   String get commonUnnamedChat => 'Bez nazwy';
 
   @override
