@@ -9,18 +9,22 @@
   "@commonSave": {
     "description": "Przycisk zapisu w dialogach i formularzach"
   },
+  "commonDelete": "Usuń",
+  "@commonDelete": {
+    "description": "Przycisk/akcja usunięcia w dialogach i menu"
+  },
   "commonUnnamedChat": "Bez nazwy",
   "@commonUnnamedChat": {
     "description": "Fallback tytułu rozmowy gdy brak tytułu"
   },
+  "commonNewChat": "Nowa rozmowa",
+  "@commonNewChat": {
+    "description": "Etykieta FAB listy rozmów oraz placeholder tytułu w AppBar dla rozmowy bez id"
+  },
 
   "chatTitleEditDialog": "Zmień nazwę rozmowy",
   "@chatTitleEditDialog": {
-    "description": "Tytuł dialogu edycji nazwy rozmowy"
-  },
-  "chatNewChatTitle": "Nowa rozmowa",
-  "@chatNewChatTitle": {
-    "description": "Placeholder tytułu w AppBar gdy rozmowa jeszcze nie ma id"
+    "description": "Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)"
   },
   "chatResponseInterrupted": "Odpowiedź przerwana",
   "@chatResponseInterrupted": {
@@ -60,6 +64,49 @@
   },
   "chatReasoningLabel": "Myślenie",
   "@chatReasoningLabel": {
-    "description": "Etykieta sekcji reasoning w bańce odpowiedzi (renderowana z emoji 🧠 w widgecie)"
+    "description": "Etykieta sekcji reasoning w bańce (renderowana z emoji 🧠 w widgecie)"
+  },
+
+  "chatsListServersTooltip": "Serwery",
+  "@chatsListServersTooltip": {
+    "description": "Tooltip przycisku zarządzania serwerami w AppBar listy rozmów"
+  },
+  "chatsListError": "Błąd: {error}",
+  "@chatsListError": {
+    "description": "Komunikat błędu gdy stream rozmów rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "chatsListRename": "Zmień nazwę",
+  "@chatsListRename": {
+    "description": "Pozycja w popup menu rozmowy — otwiera dialog edycji nazwy"
+  },
+  "chatsListEmpty": "Brak rozmów",
+  "@chatsListEmpty": {
+    "description": "Tytuł pustego stanu listy rozmów"
+  },
+  "chatsListEmptyHint": "Stuknij \"Nowa rozmowa\", by zacząć pierwszą.",
+  "@chatsListEmptyHint": {
+    "description": "Podpowiedź pod tytułem 'Brak rozmów'"
+  },
+  "chatsListDeleteConfirmTitle": "Usunąć rozmowę?",
+  "@chatsListDeleteConfirmTitle": {
+    "description": "Tytuł dialogu potwierdzenia usunięcia rozmowy"
+  },
+  "chatsListDeleteConfirmContent": "Rozmowa \"{title}\" zostanie usunięta wraz ze wszystkimi wiadomościami.",
+  "@chatsListDeleteConfirmContent": {
+    "description": "Treść dialogu potwierdzenia usunięcia, z nazwą rozmowy",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "chatsListToday": "Dziś",
+  "@chatsListToday": {
+    "description": "Prefix dla dzisiejszej godziny w subtitle rozmowy. Tracked TODO: pełne formatowanie daty per locale przez intl DateFormat — obecnie format DD.MM.YYYY hardcoded"
   }
 }

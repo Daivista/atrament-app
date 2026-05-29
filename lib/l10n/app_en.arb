@@ -3,10 +3,11 @@
 
   "commonCancel": "Cancel",
   "commonSave": "Save",
+  "commonDelete": "Delete",
   "commonUnnamedChat": "Untitled",
+  "commonNewChat": "New conversation",
 
   "chatTitleEditDialog": "Rename conversation",
-  "chatNewChatTitle": "New conversation",
   "chatResponseInterrupted": "Response interrupted",
   "chatContinueButton": "Continue",
   "chatNoActiveServerTitle": "No active server",
@@ -16,5 +17,14 @@
   "chatComposerHint": "Write a message…",
   "chatStopTooltip": "Stop",
   "chatSendTooltip": "Send",
-  "chatReasoningLabel": "Thinking"
+  "chatReasoningLabel": "Thinking",
+
+  "chatsListServersTooltip": "Servers",
+  "chatsListError": "Error: {error}",
+  "chatsListRename": "Rename",
+  "chatsListEmpty": "No conversations",
+  "chatsListEmptyHint": "Tap \"New conversation\" to start your first.",
+  "chatsListDeleteConfirmTitle": "Delete conversation?",
+  "chatsListDeleteConfirmContent": "Conversation \"{title}\" will be deleted along with all messages.",
+  "chatsListToday": "Today"
 }

@@ -15,13 +15,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonSave => 'Save';
 
   @override
+  String get commonDelete => 'Delete';
+
+  @override
   String get commonUnnamedChat => 'Untitled';
 
   @override
-  String get chatTitleEditDialog => 'Rename conversation';
+  String get commonNewChat => 'New conversation';
 
   @override
-  String get chatNewChatTitle => 'New conversation';
+  String get chatTitleEditDialog => 'Rename conversation';
 
   @override
   String get chatResponseInterrupted => 'Response interrupted';
@@ -53,4 +56,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatReasoningLabel => 'Thinking';
+
+  @override
+  String get chatsListServersTooltip => 'Servers';
+
+  @override
+  String chatsListError(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get chatsListRename => 'Rename';
+
+  @override
+  String get chatsListEmpty => 'No conversations';
+
+  @override
+  String get chatsListEmptyHint =>
+      'Tap \"New conversation\" to start your first.';
+
+  @override
+  String get chatsListDeleteConfirmTitle => 'Delete conversation?';
+
+  @override
+  String chatsListDeleteConfirmContent(String title) {
+    return 'Conversation \"$title\" will be deleted along with all messages.';
+  }
+
+  @override
+  String get chatsListToday => 'Today';
 }

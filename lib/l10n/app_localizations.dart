@@ -110,23 +110,29 @@ abstract class AppLocalizations {
   /// **'Zapisz'**
   String get commonSave;
 
+  /// Przycisk/akcja usunięcia w dialogach i menu
+  ///
+  /// In pl, this message translates to:
+  /// **'Usuń'**
+  String get commonDelete;
+
   /// Fallback tytułu rozmowy gdy brak tytułu
   ///
   /// In pl, this message translates to:
   /// **'Bez nazwy'**
   String get commonUnnamedChat;
 
-  /// Tytuł dialogu edycji nazwy rozmowy
+  /// Etykieta FAB listy rozmów oraz placeholder tytułu w AppBar dla rozmowy bez id
+  ///
+  /// In pl, this message translates to:
+  /// **'Nowa rozmowa'**
+  String get commonNewChat;
+
+  /// Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)
   ///
   /// In pl, this message translates to:
   /// **'Zmień nazwę rozmowy'**
   String get chatTitleEditDialog;
-
-  /// Placeholder tytułu w AppBar gdy rozmowa jeszcze nie ma id
-  ///
-  /// In pl, this message translates to:
-  /// **'Nowa rozmowa'**
-  String get chatNewChatTitle;
 
   /// Banner gdy ostatnia odpowiedź modelu jest częściowa (resume flow)
   ///
@@ -182,11 +188,59 @@ abstract class AppLocalizations {
   /// **'Wyślij'**
   String get chatSendTooltip;
 
-  /// Etykieta sekcji reasoning w bańce odpowiedzi (renderowana z emoji 🧠 w widgecie)
+  /// Etykieta sekcji reasoning w bańce (renderowana z emoji 🧠 w widgecie)
   ///
   /// In pl, this message translates to:
   /// **'Myślenie'**
   String get chatReasoningLabel;
+
+  /// Tooltip przycisku zarządzania serwerami w AppBar listy rozmów
+  ///
+  /// In pl, this message translates to:
+  /// **'Serwery'**
+  String get chatsListServersTooltip;
+
+  /// Komunikat błędu gdy stream rozmów rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Błąd: {error}'**
+  String chatsListError(Object error);
+
+  /// Pozycja w popup menu rozmowy — otwiera dialog edycji nazwy
+  ///
+  /// In pl, this message translates to:
+  /// **'Zmień nazwę'**
+  String get chatsListRename;
+
+  /// Tytuł pustego stanu listy rozmów
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak rozmów'**
+  String get chatsListEmpty;
+
+  /// Podpowiedź pod tytułem 'Brak rozmów'
+  ///
+  /// In pl, this message translates to:
+  /// **'Stuknij \"Nowa rozmowa\", by zacząć pierwszą.'**
+  String get chatsListEmptyHint;
+
+  /// Tytuł dialogu potwierdzenia usunięcia rozmowy
+  ///
+  /// In pl, this message translates to:
+  /// **'Usunąć rozmowę?'**
+  String get chatsListDeleteConfirmTitle;
+
+  /// Treść dialogu potwierdzenia usunięcia, z nazwą rozmowy
+  ///
+  /// In pl, this message translates to:
+  /// **'Rozmowa \"{title}\" zostanie usunięta wraz ze wszystkimi wiadomościami.'**
+  String chatsListDeleteConfirmContent(String title);
+
+  /// Prefix dla dzisiejszej godziny w subtitle rozmowy. Tracked TODO: pełne formatowanie daty per locale przez intl DateFormat — obecnie format DD.MM.YYYY hardcoded
+  ///
+  /// In pl, this message translates to:
+  /// **'Dziś'**
+  String get chatsListToday;
 }
 
 class _AppLocalizationsDelegate

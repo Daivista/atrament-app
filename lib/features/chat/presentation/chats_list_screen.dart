@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/empty_state.dart';
 import '../../profiles/presentation/profiles_screen.dart';
 import '../data/chat_providers.dart';
 import 'chat_controller.dart';
-import 'chat_screen.dart';
 
 class ChatsListScreen extends ConsumerWidget {
   const ChatsListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
     final chatsAsync = ref.watch(chatsListProvider);
     return Scaffold(
       appBar: AppBar(
+        // 'Atrament' jest nazwą marki — nie tłumaczone celowo.
         title: const Text('Atrament'),
         actions: [
           IconButton(
             icon: const Icon(Icons.dns),
-            tooltip: 'Serwery',
+            tooltip: loc.chatsListServersTooltip,
+            // ProfilesScreen i AddProfileScreen nie są jeszcze w main.dart routes —
+            // refactor profili poza scope Kroku 2, świadoma niespójność tymczasowa.
             onPressed: () => Navigator.of(
               context,
             ).push(MaterialPageRoute(builder: (_) => const ProfilesScreen())),
@@ -27,9 +32,15 @@ class ChatsListScreen extends ConsumerWidget {
       ),
       body: chatsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Błąd: $e')),
+        error: (e, _) => Center(child: Text(loc.chatsListError(e))),
         data: (chats) {
-          if (chats.isEmpty) return const _EmptyState();
+          if (chats.isEmpty) {
+            return EmptyState(
+              icon: Icons.forum_outlined,
+              title: loc.chatsListEmpty,
+              body: loc.chatsListEmptyHint,
+            );
+          }
           return ListView.builder(
             itemCount: chats.length,
             itemBuilder: (context, i) {
@@ -39,16 +50,22 @@ class ChatsListScreen extends ConsumerWidget {
                   child: Icon(Icons.chat_bubble_outline),
                 ),
                 title: Text(
-                  c.title ?? 'Bez nazwy',
+                  c.title ?? loc.commonUnnamedChat,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                subtitle: Text(_formatDate(c.updatedAt)),
+                subtitle: Text(_formatDate(c.updatedAt, loc)),
                 trailing: PopupMenuButton<String>(
-                  onSelected: (v) => _onAction(context, ref, v, c),
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(value: 'rename', child: Text('Zmień nazwę')),
-                    PopupMenuItem(value: 'delete', child: Text('Usuń')),
+                  onSelected: (v) => _onAction(context, ref, v, c, loc),
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'rename',
+                      child: Text(loc.chatsListRename),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(loc.commonDelete),
+                    ),
                   ],
                 ),
                 onTap: () => _openChat(context, ref, c.id),
@@ -60,7 +77,7 @@ class ChatsListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _newChat(context, ref),
         icon: const Icon(Icons.add_comment_outlined),
-        label: const Text('Nowa rozmowa'),
+        label: Text(loc.commonNewChat),
       ),
     );
   }
@@ -72,16 +89,12 @@ class ChatsListScreen extends ConsumerWidget {
   ) async {
     await ref.read(chatControllerProvider.notifier).loadChat(chatId);
     if (!context.mounted) return;
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const ChatScreen()));
+    Navigator.of(context).pushNamed('/chat');
   }
 
   void _newChat(BuildContext context, WidgetRef ref) {
     ref.read(chatControllerProvider.notifier).newChat();
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const ChatScreen()));
+    Navigator.of(context).pushNamed('/chat');
   }
 
   Future<void> _onAction(
@@ -89,10 +102,11 @@ class ChatsListScreen extends ConsumerWidget {
     WidgetRef ref,
     String action,
     Chat c,
+    AppLocalizations loc,
   ) async {
     switch (action) {
       case 'rename':
-        final newName = await _askName(context, c.title ?? '');
+        final newName = await _askName(context, c.title ?? '', loc);
         if (newName != null) {
           await ref
               .read(messageRepositoryProvider)
@@ -102,18 +116,18 @@ class ChatsListScreen extends ConsumerWidget {
         final ok = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Usunąć rozmowę?'),
+            title: Text(loc.chatsListDeleteConfirmTitle),
             content: Text(
-              'Rozmowa „${c.title ?? "bez nazwy"}" zostanie usunięta wraz ze wszystkimi wiadomościami.',
+              loc.chatsListDeleteConfirmContent(c.title ?? loc.commonUnnamedChat),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Anuluj'),
+                child: Text(loc.commonCancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Usuń'),
+                child: Text(loc.commonDelete),
               ),
             ],
           ),
@@ -124,12 +138,16 @@ class ChatsListScreen extends ConsumerWidget {
     }
   }
 
-  Future<String?> _askName(BuildContext context, String current) {
+  Future<String?> _askName(
+    BuildContext context,
+    String current,
+    AppLocalizations loc,
+  ) {
     final ctrl = TextEditingController(text: current);
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Zmień nazwę rozmowy'),
+        title: Text(loc.chatTitleEditDialog),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -138,51 +156,28 @@ class ChatsListScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Anuluj'),
+            child: Text(loc.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text),
-            child: const Text('Zapisz'),
+            child: Text(loc.commonSave),
           ),
         ],
       ),
     );
   }
 
-  String _formatDate(int millis) {
+  /// Format daty: dziś → "Dziś HH:MM" / "Today HH:MM"; inny dzień → DD.MM.YYYY HH:MM.
+  /// Tracked TODO: pełne formatowanie per locale przez intl DateFormat — obecnie
+  /// format DD.MM.YYYY hardcoded (międzynarodowy, nie US MM/DD).
+  String _formatDate(int millis, AppLocalizations loc) {
     final d = DateTime.fromMillisecondsSinceEpoch(millis);
     final now = DateTime.now();
     if (d.year == now.year && d.month == now.month && d.day == now.day) {
-      return 'Dziś ${_two(d.hour)}:${_two(d.minute)}';
+      return '${loc.chatsListToday} ${_two(d.hour)}:${_two(d.minute)}';
     }
     return '${_two(d.day)}.${_two(d.month)}.${d.year} ${_two(d.hour)}:${_two(d.minute)}';
   }
 
   String _two(int n) => n.toString().padLeft(2, '0');
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.forum_outlined, size: 64, color: cs.outline),
-          const SizedBox(height: 16),
-          Text('Brak rozmów', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48),
-            child: Text(
-              'Stuknij „Nowa rozmowa", by zacząć pierwszą.',
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

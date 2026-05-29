@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../shared/widgets/empty_state.dart';
 import 'chat_controller.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -65,16 +66,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
     });
 
-    final titleText =
-        chat.title ??
-        (chat.chatId == null ? loc.chatNewChatTitle : loc.commonUnnamedChat);
+    final titleText = chat.title ??
+        (chat.chatId == null ? loc.commonNewChat : loc.commonUnnamedChat);
     final serverName = targetAsync.maybeWhen(
       data: (t) => t?.profileName,
       orElse: () => null,
     );
 
-    final lastIsPartial =
-        chat.messages.isNotEmpty &&
+    final lastIsPartial = chat.messages.isNotEmpty &&
         chat.messages.last.isPartial &&
         chat.messages.last.role == 'assistant' &&
         !chat.isStreaming;
@@ -153,10 +152,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   color: Theme.of(context).colorScheme.errorContainer,
                   padding: const EdgeInsets.all(Spacing.sm),
                   // Komunikat błędu pochodzi z chat_controller.dart (warstwa data),
-                  // która nie ma BuildContext do AppLocalizations.of(context).
-                  // Tymczas: hardcoded PL ze stanu kontrolera. Tracked TODO:
-                  // refactor ChatState.error z String? na typed/key, żeby UI
-                  // mogło tłumaczyć po kluczu.
+                  // która nie ma BuildContext do AppLocalizations. Tymczas: hardcoded PL.
+                  // Tracked TODO: refactor ChatState.error z String? na typed/key.
                   child: Text(
                     chat.error!,
                     style: TextStyle(
@@ -186,8 +183,7 @@ class _MessageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final showStreaming =
-        chat.isStreaming ||
+    final showStreaming = chat.isStreaming ||
         chat.streamingContent.isNotEmpty ||
         chat.streamingReasoning.isNotEmpty;
     final itemCount = chat.messages.length + (showStreaming ? 1 : 0);
@@ -332,6 +328,9 @@ class _Composer extends StatelessWidget {
   }
 }
 
+/// Pusty stan dla braku aktywnego serwera albo błędu połączenia. Cienkie
+/// opakowanie nad wspólnym EmptyState — dobiera tytuł/hint na podstawie
+/// obecności komunikatu błędu.
 class _NoServer extends StatelessWidget {
   final String? error;
   const _NoServer({this.error});
@@ -339,30 +338,12 @@ class _NoServer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
-    final cs = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Spacing.xl),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.cloud_off, size: 64, color: cs.outline),
-            const SizedBox(height: Spacing.lg),
-            Text(
-              error == null
-                  ? loc.chatNoActiveServerTitle
-                  : loc.chatCannotConnectTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Spacing.sm),
-            Text(
-              error ?? loc.chatNoActiveServerHint,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+    return EmptyState(
+      icon: Icons.cloud_off,
+      title: error == null
+          ? loc.chatNoActiveServerTitle
+          : loc.chatCannotConnectTitle,
+      body: error ?? loc.chatNoActiveServerHint,
     );
   }
 }

@@ -15,13 +15,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get commonSave => 'Zapisz';
 
   @override
+  String get commonDelete => 'Usuń';
+
+  @override
   String get commonUnnamedChat => 'Bez nazwy';
 
   @override
-  String get chatTitleEditDialog => 'Zmień nazwę rozmowy';
+  String get commonNewChat => 'Nowa rozmowa';
 
   @override
-  String get chatNewChatTitle => 'Nowa rozmowa';
+  String get chatTitleEditDialog => 'Zmień nazwę rozmowy';
 
   @override
   String get chatResponseInterrupted => 'Odpowiedź przerwana';
@@ -53,4 +56,33 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatReasoningLabel => 'Myślenie';
+
+  @override
+  String get chatsListServersTooltip => 'Serwery';
+
+  @override
+  String chatsListError(Object error) {
+    return 'Błąd: $error';
+  }
+
+  @override
+  String get chatsListRename => 'Zmień nazwę';
+
+  @override
+  String get chatsListEmpty => 'Brak rozmów';
+
+  @override
+  String get chatsListEmptyHint =>
+      'Stuknij \"Nowa rozmowa\", by zacząć pierwszą.';
+
+  @override
+  String get chatsListDeleteConfirmTitle => 'Usunąć rozmowę?';
+
+  @override
+  String chatsListDeleteConfirmContent(String title) {
+    return 'Rozmowa \"$title\" zostanie usunięta wraz ze wszystkimi wiadomościami.';
+  }
+
+  @override
+  String get chatsListToday => 'Dziś';
 }
