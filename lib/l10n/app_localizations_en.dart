@@ -30,6 +30,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNewChat => 'New conversation';
 
   @override
+  String get themeModeSystem => 'Theme: system';
+
+  @override
+  String get themeModeLight => 'Theme: light';
+
+  @override
+  String get themeModeDark => 'Theme: dark';
+
+  @override
   String get chatTitleEditDialog => 'Rename conversation';
 
   @override

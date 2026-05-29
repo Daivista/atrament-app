@@ -30,6 +30,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get commonNewChat => 'Nowa rozmowa';
 
   @override
+  String get themeModeSystem => 'Motyw: systemowy';
+
+  @override
+  String get themeModeLight => 'Motyw: jasny';
+
+  @override
+  String get themeModeDark => 'Motyw: ciemny';
+
+  @override
   String get chatTitleEditDialog => 'Zmień nazwę rozmowy';
 
   @override

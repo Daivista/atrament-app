@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
+import '../../../core/providers/theme_mode_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../profiles/presentation/profiles_screen.dart';
@@ -14,11 +15,18 @@ class ChatsListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
     final chatsAsync = ref.watch(chatsListProvider);
+    final themeMode = ref.watch(themeModeProvider);
     return Scaffold(
       appBar: AppBar(
         // 'Atrament' jest nazwą marki — nie tłumaczone celowo.
         title: const Text('Atrament'),
         actions: [
+          IconButton(
+            icon: Icon(_themeIcon(themeMode)),
+            tooltip: _themeTooltip(themeMode, loc),
+            onPressed: () =>
+                ref.read(themeModeProvider.notifier).cycle(),
+          ),
           IconButton(
             icon: const Icon(Icons.dns),
             tooltip: loc.chatsListServersTooltip,
@@ -80,6 +88,31 @@ class ChatsListScreen extends ConsumerWidget {
         label: Text(loc.commonNewChat),
       ),
     );
+  }
+
+  /// Ikona aktualnego trybu motywu. Cycle: system → light → dark.
+  IconData _themeIcon(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.system:
+        return Icons.brightness_auto;
+      case ThemeMode.light:
+        return Icons.light_mode;
+      case ThemeMode.dark:
+        return Icons.dark_mode;
+    }
+  }
+
+  /// Tooltip pokazuje *aktualny* tryb (nie następny). User wie co jest teraz,
+  /// kliknięcie cyklicznie zmienia na kolejny stan.
+  String _themeTooltip(ThemeMode mode, AppLocalizations loc) {
+    switch (mode) {
+      case ThemeMode.system:
+        return loc.themeModeSystem;
+      case ThemeMode.light:
+        return loc.themeModeLight;
+      case ThemeMode.dark:
+        return loc.themeModeDark;
+    }
   }
 
   Future<void> _openChat(

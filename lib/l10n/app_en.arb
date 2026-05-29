@@ -9,6 +9,10 @@
   "commonUnnamedChat": "Untitled",
   "commonNewChat": "New conversation",
 
+  "themeModeSystem": "Theme: system",
+  "themeModeLight": "Theme: light",
+  "themeModeDark": "Theme: dark",
+
   "chatTitleEditDialog": "Rename conversation",
   "chatResponseInterrupted": "Response interrupted",
   "chatContinueButton": "Continue",

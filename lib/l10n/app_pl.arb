@@ -30,6 +30,19 @@
     "description": "Etykieta FAB listy rozmów oraz placeholder tytułu w AppBar dla rozmowy bez id"
   },
 
+  "themeModeSystem": "Motyw: systemowy",
+  "@themeModeSystem": {
+    "description": "Tooltip przycisku motywu w AppBar — stan systemowy (default, idzie za ustawieniem Androida)"
+  },
+  "themeModeLight": "Motyw: jasny",
+  "@themeModeLight": {
+    "description": "Tooltip przycisku motywu — wymuszony jasny"
+  },
+  "themeModeDark": "Motyw: ciemny",
+  "@themeModeDark": {
+    "description": "Tooltip przycisku motywu — wymuszony ciemny"
+  },
+
   "chatTitleEditDialog": "Zmień nazwę rozmowy",
   "@chatTitleEditDialog": {
     "description": "Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)"

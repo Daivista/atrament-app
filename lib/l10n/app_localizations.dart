@@ -140,6 +140,24 @@ abstract class AppLocalizations {
   /// **'Nowa rozmowa'**
   String get commonNewChat;
 
+  /// Tooltip przycisku motywu w AppBar — stan systemowy (default, idzie za ustawieniem Androida)
+  ///
+  /// In pl, this message translates to:
+  /// **'Motyw: systemowy'**
+  String get themeModeSystem;
+
+  /// Tooltip przycisku motywu — wymuszony jasny
+  ///
+  /// In pl, this message translates to:
+  /// **'Motyw: jasny'**
+  String get themeModeLight;
+
+  /// Tooltip przycisku motywu — wymuszony ciemny
+  ///
+  /// In pl, this message translates to:
+  /// **'Motyw: ciemny'**
+  String get themeModeDark;
+
   /// Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)
   ///
   /// In pl, this message translates to:
