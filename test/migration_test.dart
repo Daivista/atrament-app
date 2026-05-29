@@ -161,7 +161,7 @@ void main() {
       raw.execute('PRAGMA user_version = 1');
       raw.execute('CREATE TABLE t (x);');
       raw.execute("INSERT INTO t VALUES ('dane');");
-      raw.dispose();
+      raw.close();
 
       // Stary backup który ma zostać sprzątnięty
       final backupsDir = Directory(p.join(dir.path, 'backups'));
@@ -190,7 +190,7 @@ void main() {
       // Baza już w wersji docelowej -> brak nowego backupu
       final raw2 = sqlite3.open(dbFile.path);
       raw2.execute('PRAGMA user_version = 2');
-      raw2.dispose();
+      raw2.close();
       final countBefore = backupsDir.listSync().length;
       await backupBeforeMigration(
         dbFile: dbFile,

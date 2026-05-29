@@ -44,7 +44,7 @@ Future<void> backupBeforeMigration({
       currentVersion =
           probe.select('PRAGMA user_version').first['user_version'] as int;
     } finally {
-      probe.dispose();
+      probe.close();
     }
   } catch (_) {
     return; // nie udało się odczytać wersji — pomijamy backup, nie blokujemy startu

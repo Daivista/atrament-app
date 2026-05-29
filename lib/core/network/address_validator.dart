@@ -2,6 +2,7 @@
 /// Ironia (i sedno decyzji v1.6.6): CIDR działa tu w Dart, czego
 /// Android network_security_config.xml nie potrafi. Bezpieczeństwo
 /// przeniesione z warstwy XML do warstwy aplikacji.
+library;
 
 /// Czy host w URL należy do prywatnej/lokalnej sieci.
 bool isPrivateAddress(String url) {
