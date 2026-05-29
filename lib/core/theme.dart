@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Tokeny spacing — wierne mapowanie z istniejących użyć w projekcie.
-/// Nie zmieniaj wartości bez świadomej decyzji wizualnej (4-pt grid byłby
-/// alternatywą; obecnie utrzymujemy 1:1 z kodem dnia 0).
+/// Nie zmieniaj wartości bez świadomej decyzji wizualnej.
 class Spacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -11,13 +10,8 @@ class Spacing {
   static const double xl = 24;
 }
 
-/// Semantyczne kolory recovery/warning (resume flow banner, utracony klucz API).
-/// Cztery sloty, nawet jeśli w Kroku 1 nie wszystkie są jeszcze używane —
-/// definicja kompletna teraz jest tańsza niż dokładanie pól później.
-///
-/// Krok 1 — paleta IDENTYCZNA light/dark, mapuje obecne Colors.orange.shade*
-/// (zachowanie 1:1, zero zmian wizualnych). Krok 2 — empirycznie poprawny
-/// ciemny wariant przy refactorze chat_screen, gdy widać banner na żywym tle.
+/// Semantyczne kolory recovery/warning (banner "Odpowiedź przerwana",
+/// utracony klucz API). Cztery sloty, jeden zestaw per motyw.
 class AppColors extends ThemeExtension<AppColors> {
   final Color warning;
   final Color warningContainer;
@@ -31,14 +25,22 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.onWarningContainer,
   });
 
-  // Domyślny zestaw — wierne odwzorowanie obecnych Colors.orange.shade*.
-  // shade800 ≈ #EF6C00 (warning), shade50 ≈ #FFF3E0 (container),
-  // shade900 ≈ #E65100 (onContainer), biel na shade800 dla onWarning.
-  static const _defaults = AppColors(
+  // Wariant jasny — odwzorowanie obecnych Colors.orange.shade*.
+  static const _light = AppColors(
     warning: Color(0xFFEF6C00),
     warningContainer: Color(0xFFFFF3E0),
     onWarning: Color(0xFFFFFFFF),
     onWarningContainer: Color(0xFFE65100),
+  );
+
+  // Wariant ciemny — zweryfikowany empirycznie na żywym ekranie (sub-commit 1):
+  // ciepły brąz jako tło bannera + jasny amber jako tekst/ikona, dobry kontrast
+  // na ciemnym surface bez krzyczenia.
+  static const _dark = AppColors(
+    warning: Color(0xFFFFB74D),
+    warningContainer: Color(0xFF3D2E1F),
+    onWarning: Color(0xFF000000),
+    onWarningContainer: Color(0xFFFFCC80),
   );
 
   @override
@@ -76,19 +78,33 @@ class AppColors extends ThemeExtension<AppColors> {
   }
 }
 
-/// Fabryki motywów z zarejestrowanym AppColors extension.
+/// Fabryki motywów z zarejestrowanym AppColors extension i wzmocnionym
+/// AppBar (M3 default zlewa AppBar z surface w trybie dark; wymuszamy
+/// surfaceContainer dla wizualnej hierarchii).
 class AppTheme {
-  static ThemeData dark() => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-    colorSchemeSeed: Colors.indigo,
-    extensions: const [AppColors._defaults],
-  );
+  static ThemeData dark() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: Colors.indigo,
+      brightness: Brightness.dark,
+    );
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      appBarTheme: AppBarTheme(backgroundColor: scheme.surfaceContainer),
+      extensions: const [AppColors._dark],
+    );
+  }
 
-  static ThemeData light() => ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.light,
-    colorSchemeSeed: Colors.indigo,
-    extensions: const [AppColors._defaults],
-  );
+  static ThemeData light() {
+    final scheme = ColorScheme.fromSeed(
+      seedColor: Colors.indigo,
+      brightness: Brightness.light,
+    );
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: scheme,
+      appBarTheme: AppBarTheme(backgroundColor: scheme.surfaceContainer),
+      extensions: const [AppColors._light],
+    );
+  }
 }

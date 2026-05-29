@@ -1,3 +1,65 @@
 {
-  "@@locale": "pl"
+  "@@locale": "pl",
+
+  "commonCancel": "Anuluj",
+  "@commonCancel": {
+    "description": "Przycisk anulowania w dialogach"
+  },
+  "commonSave": "Zapisz",
+  "@commonSave": {
+    "description": "Przycisk zapisu w dialogach i formularzach"
+  },
+  "commonUnnamedChat": "Bez nazwy",
+  "@commonUnnamedChat": {
+    "description": "Fallback tytułu rozmowy gdy brak tytułu"
+  },
+
+  "chatTitleEditDialog": "Zmień nazwę rozmowy",
+  "@chatTitleEditDialog": {
+    "description": "Tytuł dialogu edycji nazwy rozmowy"
+  },
+  "chatNewChatTitle": "Nowa rozmowa",
+  "@chatNewChatTitle": {
+    "description": "Placeholder tytułu w AppBar gdy rozmowa jeszcze nie ma id"
+  },
+  "chatResponseInterrupted": "Odpowiedź przerwana",
+  "@chatResponseInterrupted": {
+    "description": "Banner gdy ostatnia odpowiedź modelu jest częściowa (resume flow)"
+  },
+  "chatContinueButton": "Kontynuuj",
+  "@chatContinueButton": {
+    "description": "Przycisk w bannerze odpowiedzi przerwanej — wznawia generowanie"
+  },
+  "chatNoActiveServerTitle": "Brak aktywnego serwera",
+  "@chatNoActiveServerTitle": {
+    "description": "Tytuł pustego ekranu gdy żaden profil nie jest aktywny"
+  },
+  "chatCannotConnectTitle": "Nie można połączyć",
+  "@chatCannotConnectTitle": {
+    "description": "Tytuł pustego ekranu gdy aktywny profil rzucił błąd połączenia"
+  },
+  "chatNoActiveServerHint": "Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami.",
+  "@chatNoActiveServerHint": {
+    "description": "Podpowiedź pod tytułem 'Brak aktywnego serwera'"
+  },
+  "chatEmptyHint": "Napisz wiadomość, by zacząć rozmowę.",
+  "@chatEmptyHint": {
+    "description": "Pusty ekran rozmowy zanim user wyśle pierwszą wiadomość"
+  },
+  "chatComposerHint": "Napisz wiadomość…",
+  "@chatComposerHint": {
+    "description": "Placeholder w polu wpisywania wiadomości"
+  },
+  "chatStopTooltip": "Zatrzymaj",
+  "@chatStopTooltip": {
+    "description": "Tooltip przycisku zatrzymania strumieniowania odpowiedzi"
+  },
+  "chatSendTooltip": "Wyślij",
+  "@chatSendTooltip": {
+    "description": "Tooltip przycisku wysłania wiadomości"
+  },
+  "chatReasoningLabel": "Myślenie",
+  "@chatReasoningLabel": {
+    "description": "Etykieta sekcji reasoning w bańce odpowiedzi (renderowana z emoji 🧠 w widgecie)"
+  }
 }

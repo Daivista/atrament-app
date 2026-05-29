@@ -1,3 +1,20 @@
 {
-  "@@locale": "en"
+  "@@locale": "en",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonUnnamedChat": "Untitled",
+
+  "chatTitleEditDialog": "Rename conversation",
+  "chatNewChatTitle": "New conversation",
+  "chatResponseInterrupted": "Response interrupted",
+  "chatContinueButton": "Continue",
+  "chatNoActiveServerTitle": "No active server",
+  "chatCannotConnectTitle": "Connection failed",
+  "chatNoActiveServerHint": "Set an active server (star) in server management.",
+  "chatEmptyHint": "Write a message to start the conversation.",
+  "chatComposerHint": "Write a message…",
+  "chatStopTooltip": "Stop",
+  "chatSendTooltip": "Send",
+  "chatReasoningLabel": "Thinking"
 }

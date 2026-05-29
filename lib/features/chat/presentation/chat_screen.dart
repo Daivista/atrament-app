@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import 'chat_controller.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -12,13 +14,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
-  @override
-  void dispose() {
-    _input.dispose();
-    _scroll.dispose();
-    super.dispose();
-  }
-
   void _send() {
     final text = _input.text;
     if (text.trim().isEmpty) return;
@@ -27,13 +22,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   Future<void> _editTitle() async {
+    final loc = AppLocalizations.of(context);
     final chat = ref.read(chatControllerProvider);
     if (chat.chatId == null) return;
     final ctrl = TextEditingController(text: chat.title ?? '');
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Zmień nazwę rozmowy'),
+        title: Text(loc.chatTitleEditDialog),
         content: TextField(
           controller: ctrl,
           autofocus: true,
@@ -42,11 +38,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Anuluj'),
+            child: Text(loc.commonCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, ctrl.text),
-            child: const Text('Zapisz'),
+            child: Text(loc.commonSave),
           ),
         ],
       ),
@@ -58,6 +54,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final targetAsync = ref.watch(chatTargetProvider);
     final chat = ref.watch(chatControllerProvider);
 
@@ -68,7 +66,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
 
     final titleText =
-        chat.title ?? (chat.chatId == null ? 'Nowa rozmowa' : 'Bez nazwy');
+        chat.title ??
+        (chat.chatId == null ? loc.chatNewChatTitle : loc.commonUnnamedChat);
     final serverName = targetAsync.maybeWhen(
       data: (t) => t?.profileName,
       orElse: () => null,
@@ -119,23 +118,28 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               if (lastIsPartial)
                 Container(
                   width: double.infinity,
-                  color: Colors.orange.shade50,
+                  color: appColors.warningContainer,
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
+                    horizontal: Spacing.md,
+                    vertical: Spacing.sm,
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.pause_circle_outline,
-                        color: Colors.orange.shade800,
+                        color: appColors.warning,
                         size: 18,
                       ),
-                      const SizedBox(width: 8),
-                      const Expanded(child: Text('Odpowiedź przerwana')),
+                      const SizedBox(width: Spacing.sm),
+                      Expanded(
+                        child: Text(
+                          loc.chatResponseInterrupted,
+                          style: TextStyle(color: appColors.onWarningContainer),
+                        ),
+                      ),
                       TextButton.icon(
                         icon: const Icon(Icons.play_arrow),
-                        label: const Text('Kontynuuj'),
+                        label: Text(loc.chatContinueButton),
                         onPressed: () => ref
                             .read(chatControllerProvider.notifier)
                             .continueLast(),
@@ -147,7 +151,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 Container(
                   width: double.infinity,
                   color: Theme.of(context).colorScheme.errorContainer,
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(Spacing.sm),
+                  // Komunikat błędu pochodzi z chat_controller.dart (warstwa data),
+                  // która nie ma BuildContext do AppLocalizations.of(context).
+                  // Tymczas: hardcoded PL ze stanu kontrolera. Tracked TODO:
+                  // refactor ChatState.error z String? na typed/key, żeby UI
+                  // mogło tłumaczyć po kluczu.
                   child: Text(
                     chat.error!,
                     style: TextStyle(
@@ -176,6 +185,7 @@ class _MessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final showStreaming =
         chat.isStreaming ||
         chat.streamingContent.isNotEmpty ||
@@ -183,12 +193,12 @@ class _MessageList extends StatelessWidget {
     final itemCount = chat.messages.length + (showStreaming ? 1 : 0);
 
     if (itemCount == 0) {
-      return const Center(child: Text('Napisz wiadomość, by zacząć rozmowę.'));
+      return Center(child: Text(loc.chatEmptyHint));
     }
 
     return ListView.builder(
       controller: scroll,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(Spacing.md),
       itemCount: itemCount,
       itemBuilder: (context, i) {
         if (i < chat.messages.length) {
@@ -228,14 +238,15 @@ class _Bubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Opacity(
         opacity: isPartial ? 0.75 : 1.0,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.symmetric(vertical: Spacing.xs),
+          padding: const EdgeInsets.all(Spacing.md),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
@@ -248,7 +259,7 @@ class _Bubble extends StatelessWidget {
             children: [
               if (reasoning.isNotEmpty) ...[
                 Text(
-                  '🧠 Myślenie',
+                  '🧠 ${loc.chatReasoningLabel}',
                   style: TextStyle(fontSize: 11, color: cs.outline),
                 ),
                 Text(
@@ -284,9 +295,10 @@ class _Composer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(Spacing.sm),
         child: Row(
           children: [
             Expanded(
@@ -294,24 +306,24 @@ class _Composer extends StatelessWidget {
                 controller: input,
                 minLines: 1,
                 maxLines: 5,
-                decoration: const InputDecoration(
-                  hintText: 'Napisz wiadomość…',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: loc.chatComposerHint,
+                  border: const OutlineInputBorder(),
                 ),
                 onSubmitted: (_) => isStreaming ? null : onSend(),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: Spacing.sm),
             isStreaming
                 ? IconButton.filled(
                     icon: const Icon(Icons.stop),
                     onPressed: onStop,
-                    tooltip: 'Zatrzymaj',
+                    tooltip: loc.chatStopTooltip,
                   )
                 : IconButton.filled(
                     icon: const Icon(Icons.send),
                     onPressed: onSend,
-                    tooltip: 'Wyślij',
+                    tooltip: loc.chatSendTooltip,
                   ),
           ],
         ),
@@ -326,24 +338,26 @@ class _NoServer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(Spacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.cloud_off, size: 64, color: cs.outline),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.lg),
             Text(
-              error == null ? 'Brak aktywnego serwera' : 'Nie można połączyć',
+              error == null
+                  ? loc.chatNoActiveServerTitle
+                  : loc.chatCannotConnectTitle,
               style: Theme.of(context).textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             Text(
-              error ??
-                  'Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami.',
+              error ?? loc.chatNoActiveServerHint,
               textAlign: TextAlign.center,
             ),
           ],

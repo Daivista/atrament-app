@@ -97,6 +97,96 @@ abstract class AppLocalizations {
     Locale('en'),
     Locale('pl'),
   ];
+
+  /// Przycisk anulowania w dialogach
+  ///
+  /// In pl, this message translates to:
+  /// **'Anuluj'**
+  String get commonCancel;
+
+  /// Przycisk zapisu w dialogach i formularzach
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisz'**
+  String get commonSave;
+
+  /// Fallback tytułu rozmowy gdy brak tytułu
+  ///
+  /// In pl, this message translates to:
+  /// **'Bez nazwy'**
+  String get commonUnnamedChat;
+
+  /// Tytuł dialogu edycji nazwy rozmowy
+  ///
+  /// In pl, this message translates to:
+  /// **'Zmień nazwę rozmowy'**
+  String get chatTitleEditDialog;
+
+  /// Placeholder tytułu w AppBar gdy rozmowa jeszcze nie ma id
+  ///
+  /// In pl, this message translates to:
+  /// **'Nowa rozmowa'**
+  String get chatNewChatTitle;
+
+  /// Banner gdy ostatnia odpowiedź modelu jest częściowa (resume flow)
+  ///
+  /// In pl, this message translates to:
+  /// **'Odpowiedź przerwana'**
+  String get chatResponseInterrupted;
+
+  /// Przycisk w bannerze odpowiedzi przerwanej — wznawia generowanie
+  ///
+  /// In pl, this message translates to:
+  /// **'Kontynuuj'**
+  String get chatContinueButton;
+
+  /// Tytuł pustego ekranu gdy żaden profil nie jest aktywny
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak aktywnego serwera'**
+  String get chatNoActiveServerTitle;
+
+  /// Tytuł pustego ekranu gdy aktywny profil rzucił błąd połączenia
+  ///
+  /// In pl, this message translates to:
+  /// **'Nie można połączyć'**
+  String get chatCannotConnectTitle;
+
+  /// Podpowiedź pod tytułem 'Brak aktywnego serwera'
+  ///
+  /// In pl, this message translates to:
+  /// **'Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami.'**
+  String get chatNoActiveServerHint;
+
+  /// Pusty ekran rozmowy zanim user wyśle pierwszą wiadomość
+  ///
+  /// In pl, this message translates to:
+  /// **'Napisz wiadomość, by zacząć rozmowę.'**
+  String get chatEmptyHint;
+
+  /// Placeholder w polu wpisywania wiadomości
+  ///
+  /// In pl, this message translates to:
+  /// **'Napisz wiadomość…'**
+  String get chatComposerHint;
+
+  /// Tooltip przycisku zatrzymania strumieniowania odpowiedzi
+  ///
+  /// In pl, this message translates to:
+  /// **'Zatrzymaj'**
+  String get chatStopTooltip;
+
+  /// Tooltip przycisku wysłania wiadomości
+  ///
+  /// In pl, this message translates to:
+  /// **'Wyślij'**
+  String get chatSendTooltip;
+
+  /// Etykieta sekcji reasoning w bańce odpowiedzi (renderowana z emoji 🧠 w widgecie)
+  ///
+  /// In pl, this message translates to:
+  /// **'Myślenie'**
+  String get chatReasoningLabel;
 }
 
 class _AppLocalizationsDelegate
