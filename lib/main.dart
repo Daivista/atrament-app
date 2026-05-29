@@ -1,20 +1,34 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:atrament_app/l10n/app_localizations.dart';
+import 'package:atrament_app/core/theme.dart';
 
 void main() => runApp(const AtramentApp());
 
 class AtramentApp extends StatelessWidget {
   const AtramentApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Atrament',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        colorSchemeSeed: Colors.indigo,
-      ),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ThemeMode.dark, // default dark; theme settings później
+      // i18n: PL gdy system PL, else EN. Sekcja 7.9 manifestu.
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('pl'), Locale('en')],
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        if (deviceLocale?.languageCode == 'pl') return const Locale('pl');
+        return const Locale('en');
+      },
       home: const StreamTestScreen(),
     );
   }
@@ -23,9 +37,9 @@ class AtramentApp extends StatelessWidget {
 // Sample z blokiem kodu w środku — testuje (a) i (c)
 const _shortSample = r'''
 # Odpowiedź modelu
- 
+
 Krótkie intro przed kodem, **pogrubienie** i `inline code`.
- 
+
 ```dart
 void main() {
   final items = [1, 2, 3];
@@ -34,7 +48,7 @@ void main() {
   }
 }
 ```
- 
+
 Tekst po bloku kodu. Lista:
 - raz
 - dwa
@@ -54,7 +68,6 @@ class _StreamTestScreenState extends State<StreamTestScreen> {
   String _info = '';
   final _sw = Stopwatch();
 
-  // Długi blok kodu >500 linii — testuje (b) perf
   String _longSample() {
     final sb = StringBuffer(
       '# Długi blok kodu (perf)\n\nPrzed blokiem.\n\n```dart\n',
@@ -115,7 +128,6 @@ class _StreamTestScreenState extends State<StreamTestScreen> {
     });
   }
 
-  // Fallback: niezamknięty ``` → dolep wirtualny domykający (tylko do renderu, nie do bazy)
   String _render() {
     if (!_autoClose) return _buffer;
     final fences = '```'.allMatches(_buffer).length;
