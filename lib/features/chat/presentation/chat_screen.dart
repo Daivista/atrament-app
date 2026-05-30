@@ -20,6 +20,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
+  /// Per-message expanded state dla sekcji rozumowania. Default = collapsed
+  /// (empty set). Streaming bubble force-expanded niezależnie od set.
+  /// Po zakończeniu streaming (transition isStreaming true→false), index
+  /// just-completed message auto-dodawany do setu — żeby user nie tracił
+  /// widoku rozumowania który właśnie obejrzał generujący się.
+  final Set<int> _expandedReasoning = {};
+
   void _send() {
     final text = _input.text;
     if (text.trim().isEmpty) return;
@@ -58,8 +65,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  /// Kopiuje treść assistant message do schowka + krótki SnackBar.
-  /// Używane przez PopupMenu „Kopiuj" w bańkach.
   void _copyMessage(String content) {
     final loc = AppLocalizations.of(context);
     Clipboard.setData(ClipboardData(text: content));
@@ -71,10 +76,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
   }
 
-  /// Otwiera ReportResponseDialog dla wiadomości pod danym indeksem.
-  /// Dialog sam pobiera treść + poprzednią user message z chatControllerProvider.
   void _reportMessage(int messageIndex) {
     ReportResponseDialog.show(context, messageIndex);
+  }
+
+  /// Toggle per-message reasoning section. Streaming bubble nie używa tego
+  /// (jest force-expanded niezależnie).
+  void _toggleReasoning(int index) {
+    setState(() {
+      if (_expandedReasoning.contains(index)) {
+        _expandedReasoning.remove(index);
+      } else {
+        _expandedReasoning.add(index);
+      }
+    });
   }
 
   @override
@@ -83,6 +98,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final appColors = Theme.of(context).extension<AppColors>()!;
     final targetAsync = ref.watch(chatTargetProvider);
     final chat = ref.watch(chatControllerProvider);
+
+    // Sesja F decyzja projektowa: TLDR-first UX. Po zakończeniu streaming
+    // reasoning section AUTO-ZWIJA się (AnimatedSize smooth collapse) bo
+    // mainstream user chce odpowiedzi, nie procesu myślowego. Power user
+    // ma jeden tap (chevron) żeby zobaczyć tok rozumowania. Konsekwentne
+    // z reload behavior — historic messages default collapsed.
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
@@ -128,8 +149,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           ),
         ),
         actions: [
-          // Sesja A2: settings icon otwiera ChatParametersSheet z dropdownem
-          // modelu + 3 trybami parametrów + system prompt.
           IconButton(
             icon: const Icon(Icons.tune),
             tooltip: loc.chatParametersTooltip,
@@ -150,6 +169,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   chat: chat,
                   onCopyMessage: _copyMessage,
                   onReportMessage: _reportMessage,
+                  expandedReasoning: _expandedReasoning,
+                  onToggleReasoning: _toggleReasoning,
                 ),
               ),
               if (lastIsPartial)
@@ -215,11 +236,16 @@ class _MessageList extends StatelessWidget {
   final ChatState chat;
   final void Function(String content) onCopyMessage;
   final void Function(int messageIndex) onReportMessage;
+  final Set<int> expandedReasoning;
+  final void Function(int messageIndex) onToggleReasoning;
+
   const _MessageList({
     required this.scroll,
     required this.chat,
     required this.onCopyMessage,
     required this.onReportMessage,
+    required this.expandedReasoning,
+    required this.onToggleReasoning,
   });
 
   @override
@@ -241,18 +267,21 @@ class _MessageList extends StatelessWidget {
       itemBuilder: (context, i) {
         if (i < chat.messages.length) {
           final m = chat.messages[i];
-          // Menu (copy/report) tylko dla assistant + non-partial.
-          // Partial messages mogą być w trakcie resume — nie chcemy raportować
-          // niezakończonej odpowiedzi.
           final showMenu = m.role == 'assistant' && !m.isPartial;
           return _Bubble(
             text: m.content,
             isUser: m.role == 'user',
             isPartial: m.isPartial,
+            reasoning: m.reasoning ?? '',
+            isReasoningExpanded: expandedReasoning.contains(i),
+            onToggleReasoning: (m.reasoning != null && m.reasoning!.isNotEmpty)
+                ? () => onToggleReasoning(i)
+                : null,
             onCopy: showMenu ? () => onCopyMessage(m.content) : null,
             onReport: showMenu ? () => onReportMessage(i) : null,
           );
         }
+        // Streaming bubble — reasoning auto-expanded niezależnie od set.
         return _Bubble(
           text: chat.streamingContent.isEmpty && chat.isStreaming
               ? '…'
@@ -272,14 +301,19 @@ class _Bubble extends StatelessWidget {
   final String reasoning;
   final bool streaming;
   final bool isPartial;
+  final bool isReasoningExpanded;
+  final VoidCallback? onToggleReasoning;
   final VoidCallback? onCopy;
   final VoidCallback? onReport;
+
   const _Bubble({
     required this.text,
     required this.isUser,
     this.reasoning = '',
     this.streaming = false,
     this.isPartial = false,
+    this.isReasoningExpanded = false,
+    this.onToggleReasoning,
     this.onCopy,
     this.onReport,
   });
@@ -290,6 +324,7 @@ class _Bubble extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final body = text + (streaming ? ' ▋' : '');
     final showMenu = onCopy != null || onReport != null;
+    final hasReasoning = reasoning.isNotEmpty;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Opacity(
@@ -307,20 +342,20 @@ class _Bubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (reasoning.isNotEmpty) ...[
-                Text(
-                  '🧠 ${loc.chatReasoningLabel}',
-                  style: TextStyle(fontSize: 11, color: cs.outline),
+              // Sesja F: reasoning UI dopracowanie — sekcja jako akordeon
+              // z chevron icon + smooth animation + subtle background.
+              // Tylko gdy reasoning niepusty. Streaming = force-expanded
+              // z spinnerem zamiast chevron. Historic = collapse/expand
+              // przez tap, default collapsed (chyba że auto-expanded po
+              // zakończeniu streaming w parent state).
+              if (hasReasoning) ...[
+                _ReasoningSection(
+                  reasoning: reasoning,
+                  isExpanded: isReasoningExpanded,
+                  streaming: streaming,
+                  onToggle: onToggleReasoning,
                 ),
-                Text(
-                  reasoning,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontStyle: FontStyle.italic,
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-                const Divider(height: 12),
+                const SizedBox(height: Spacing.xs),
               ],
               if (isUser)
                 Text(body)
@@ -333,8 +368,6 @@ class _Bubble extends StatelessWidget {
                     closed: closed,
                   ),
                 ),
-              // Menu actions w prawym dolnym rogu bańki — Copy + Report.
-              // Tylko dla assistant + non-partial + non-streaming.
               if (showMenu) ...[
                 const SizedBox(height: 4),
                 Align(
@@ -380,6 +413,127 @@ class _Bubble extends StatelessWidget {
                   ),
                 ),
               ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Akordeon sekcji rozumowania (chain-of-thought) modeli reasoning-capable.
+///
+/// Dwa tryby:
+/// - **Streaming** (gdy bubble jest w trakcie generowania) — force-expanded,
+///   header z spinnerem zamiast chevron, tap zablokowany (nie można zwinąć
+///   w trakcie generowania).
+/// - **Non-streaming** (historic message) — header z chevron icon (rotates
+///   90° przy expanded), tap toggluje state, AnimatedSize smooth animation
+///   na expand/collapse.
+///
+/// Wizualnie: subtle background (`surfaceContainerLow`), border radius,
+/// faint border outline. Tekst reasoning mniejszy + italic + onSurfaceVariant
+/// color — wyraźnie odróżnia się od głównej treści odpowiedzi.
+class _ReasoningSection extends StatelessWidget {
+  final String reasoning;
+  final bool isExpanded;
+  final bool streaming;
+  final VoidCallback? onToggle;
+
+  const _ReasoningSection({
+    required this.reasoning,
+    required this.isExpanded,
+    required this.streaming,
+    this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final cs = Theme.of(context).colorScheme;
+    // Streaming zawsze expanded; non-streaming kontroluje parent state przez
+    // isExpanded. Brak tap-to-toggle podczas streaming (onTap=null).
+    final effectivelyExpanded = streaming || isExpanded;
+    final canToggle = !streaming && onToggle != null;
+    return Material(
+      color: cs.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: canToggle ? onToggle : null,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: cs.outlineVariant, width: 0.5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                child: Row(
+                  children: [
+                    const Text('🧠', style: TextStyle(fontSize: 12)),
+                    const SizedBox(width: 6),
+                    Text(
+                      loc.chatReasoningLabel,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    if (streaming) ...[
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 10,
+                        height: 10,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1.5,
+                          color: cs.primary,
+                        ),
+                      ),
+                    ],
+                    const Spacer(),
+                    if (!streaming)
+                      AnimatedRotation(
+                        turns: effectivelyExpanded ? 0.25 : 0,
+                        duration: const Duration(milliseconds: 200),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: cs.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              // AnimatedSize zapewnia smooth height transition gdy child
+              // zmienia rozmiar między SizedBox.shrink() (collapsed) a
+              // Padding+Text (expanded).
+              AnimatedSize(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: effectivelyExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 8),
+                        child: Text(
+                          reasoning,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic,
+                            color: cs.onSurfaceVariant,
+                            height: 1.4,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
             ],
           ),
         ),

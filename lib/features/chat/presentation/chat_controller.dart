@@ -34,9 +34,6 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
       return ChatTarget(
         baseUrl: profile.baseUrl,
         apiKey: apiKey,
-        // models.first to fallback dla rozmów które nie mają jeszcze przypisanego
-        // modelu (chats.model_id NULL). Po sesji A2 dropdown w ChatParametersSheet
-        // pozwala user explicit wybrać model — wtedy state.modelId override.
         model: models.first,
         availableModels: models,
         profileName: profile.name,
@@ -57,10 +54,9 @@ class ChatState {
   final String streamingReasoning;
   final bool isStreaming;
   final String? error;
-  // ── Sesja A1: parametry rozmowy, system prompt, wybrany model ──
   final ChatParameters parameters;
   final String? systemPrompt;
-  final String? modelId; // null = użyj target.model (models.first)
+  final String? modelId;
 
   const ChatState({
     this.chatId,
@@ -89,10 +85,6 @@ class ChatState {
     ChatParameters? parameters,
     String? systemPrompt,
     String? modelId,
-    // ── A2: flagi do resetowania nullable pól na null (sentinel pattern) ──
-    // Zwykle `systemPrompt ?? this.systemPrompt` nie pozwala ustawić explicit
-    // null (bo null traktowane jest jako "nie zmieniaj"). Flagi pozwalają to
-    // obejść gdy user czyści system prompt lub resetuje model w UI sheet.
     bool clearSystemPrompt = false,
     bool clearModelId = false,
   }) {
@@ -136,10 +128,17 @@ class ChatController extends Notifier<ChatState> {
         chatId: chat.id,
         lastMessageId: chat.activeLeafMessageId,
         title: chat.title,
+        // Sesja F: surfac'ujemy reasoning z DB do state. Wcześniej było
+        // ignorowane — historic messages traciły reasoning po reloadzie
+        // rozmowy, więc reasoning UI działało tylko podczas streaming.
         messages: dbMsgs
             .map(
-              (m) =>
-                  ChatMessage(m.role, m.content ?? '', isPartial: m.isPartial),
+              (m) => ChatMessage(
+                m.role,
+                m.content ?? '',
+                reasoning: m.reasoning,
+                isPartial: m.isPartial,
+              ),
             )
             .toList(),
         parameters: params,
@@ -171,13 +170,6 @@ class ChatController extends Notifier<ChatState> {
     LogBuffer().info('chat', 'Updated title: id=$id');
   }
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Sesja A2 — aktualizacja konfiguracji rozmowy z ChatParametersSheet.
-  // Każda metoda: update state + persist do bazy jeśli chatId istnieje.
-  // Gdy chatId == null (nowa rozmowa, jeszcze nie wysłana wiadomość) — tylko
-  // state. Persist do bazy nastąpi przy pierwszym send() (patrz blok w send).
-  // ──────────────────────────────────────────────────────────────────────────
-
   Future<void> updateParameters(ChatParameters params) async {
     state = state.copyWith(parameters: params);
     final id = state.chatId;
@@ -206,7 +198,6 @@ class ChatController extends Notifier<ChatState> {
           .read(messageRepositoryProvider)
           .updateChatSystemPrompt(id, value);
     }
-    // Loggujemy że system prompt został zmieniony, ALE NIE treść (privacy).
     LogBuffer().info(
       'param',
       'Updated system prompt: chatId=$id, length=${value?.length ?? 0}',
@@ -241,10 +232,6 @@ class ChatController extends Notifier<ChatState> {
     var chatId = state.chatId;
     chatId ??= await repo.createChat();
 
-    // Jeśli rozmowa właśnie utworzona przez send(), persist konfigurację
-    // ustawioną w state PRZED wysłaniem (user mógł otworzyć ChatParametersSheet
-    // dla nowej rozmowy, zmienić parametry, zamknąć sheet, potem wysłać).
-    // Bez tego state-level config byłby zignorowany przy persistance.
     if (wasNewChat) {
       LogBuffer().info('chat', 'Created new chat: id=$chatId');
       if (state.parameters != const ChatParameters()) {
@@ -279,7 +266,6 @@ class ChatController extends Notifier<ChatState> {
 
     final modelToUse = chat?.modelId ?? target.model;
 
-    // Loggujemy wysyłkę — metadata bez treści (length zamiast content).
     LogBuffer().info(
       'chat',
       'Send: chatId=$chatId, model=$modelToUse, '
@@ -462,9 +448,17 @@ class ChatController extends Notifier<ChatState> {
       parameters: parameters,
       isPartial: isPartial,
     );
+    // Sesja F: zapisujemy reasoning w state.messages tak samo jak w DB,
+    // żeby UI mogło pokazać sekcję reasoning dla świeżo zakończonej
+    // wiadomości po `isStreaming` flip false (oraz po reload).
     final msgs = [
       ...state.messages,
-      ChatMessage('assistant', content, isPartial: isPartial),
+      ChatMessage(
+        'assistant',
+        content,
+        reasoning: reasoning.isEmpty ? null : reasoning,
+        isPartial: isPartial,
+      ),
     ];
     state = state.copyWith(
       messages: msgs,
@@ -497,8 +491,17 @@ class ChatController extends Notifier<ChatState> {
     final msgs = [...state.messages];
     final last = msgs.removeLast();
     final stillPartial = _wasStopped;
+    // Sesja F: konkatenujemy reasoning tak samo jak content, żeby state
+    // odpowiadał DB (gdzie appendContinuation łączy oba).
+    final mergedReasoning =
+        (last.reasoning ?? '') + additionReasoning;
     msgs.add(
-      ChatMessage(last.role, last.content + addition, isPartial: stillPartial),
+      ChatMessage(
+        last.role,
+        last.content + addition,
+        reasoning: mergedReasoning.isEmpty ? null : mergedReasoning,
+        isPartial: stillPartial,
+      ),
     );
     state = state.copyWith(
       messages: msgs,
