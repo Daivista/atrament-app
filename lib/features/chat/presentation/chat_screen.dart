@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/code_block.dart';
 import '../../../shared/widgets/empty_state.dart';
 import 'chat_controller.dart';
+import 'chat_parameters_sheet.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -105,6 +106,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ],
           ),
         ),
+        actions: [
+          // Sesja A2: settings icon otwiera ChatParametersSheet z dropdownem
+          // modelu + 3 trybami parametrów + system prompt.
+          IconButton(
+            icon: const Icon(Icons.tune),
+            tooltip: loc.chatParametersTooltip,
+            onPressed: () => ChatParametersSheet.show(context),
+          ),
+        ],
       ),
       body: targetAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -235,7 +245,6 @@ class _Bubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    // Treść do renderowania: tekst + ewentualny kursor strumienia.
     final body = text + (streaming ? ' ▋' : '');
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -269,10 +278,6 @@ class _Bubble extends StatelessWidget {
                 ),
                 const Divider(height: 12),
               ],
-              // User → plain Text (rzadko piszą markdown, prostszy render).
-              // Assistant → GptMarkdown z naszym CodeBlock przez codeBuilder.
-              // Niezamknięty ``` w trakcie streamingu obsługuje gpt_markdown
-              // natywnie (zweryfikowane empirycznie w Kroku przed Step 2).
               if (isUser)
                 Text(body)
               else

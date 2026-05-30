@@ -73,6 +73,87 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatReasoningLabel => 'Thinking';
 
   @override
+  String get chatParametersTooltip => 'Conversation parameters';
+
+  @override
+  String get chatParametersTitle => 'Conversation parameters';
+
+  @override
+  String get chatParametersModel => 'Model';
+
+  @override
+  String get chatParametersModeSimple => 'Simple';
+
+  @override
+  String get chatParametersModeMedium => 'Medium';
+
+  @override
+  String get chatParametersModeAdvanced => 'Advanced';
+
+  @override
+  String get chatParametersCreativity => 'Creativity';
+
+  @override
+  String get chatParametersCreativityPrecise => 'precise (0.2)';
+
+  @override
+  String get chatParametersCreativityCreative => 'creative (1.2)';
+
+  @override
+  String get chatParametersSystemPrompt => 'System prompt (optional)';
+
+  @override
+  String get chatParametersSystemPromptHint => 'You are a helpful assistant...';
+
+  @override
+  String get chatParametersMaxTokens => 'Max tokens';
+
+  @override
+  String get chatParametersTopP => 'Top-P';
+
+  @override
+  String get chatParametersTopK => 'Top-K';
+
+  @override
+  String get chatParametersMinP => 'Min-P';
+
+  @override
+  String get chatParametersSeed => 'Seed';
+
+  @override
+  String get chatParametersRepeatPenalty => 'Repeat penalty';
+
+  @override
+  String get chatParametersFrequencyPenalty => 'Frequency penalty';
+
+  @override
+  String get chatParametersPresencePenalty => 'Presence penalty';
+
+  @override
+  String get chatParametersStop => 'Stop sequences';
+
+  @override
+  String get chatParametersStopHint => 'e.g. END, STOP, ###';
+
+  @override
+  String get chatParametersReasoningEffort => 'Reasoning effort';
+
+  @override
+  String get chatParametersReasoningNone => '—';
+
+  @override
+  String get chatParametersReasoningLow => 'low';
+
+  @override
+  String get chatParametersReasoningMedium => 'medium';
+
+  @override
+  String get chatParametersReasoningHigh => 'high';
+
+  @override
+  String get chatParametersDefaultHint => 'server default';
+
+  @override
   String get chatsListServersTooltip => 'Servers';
 
   @override

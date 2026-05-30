@@ -88,6 +88,115 @@
     "description": "Etykieta sekcji reasoning w bańce (renderowana z emoji 🧠 w widgecie)"
   },
 
+  "chatParametersTooltip": "Parametry rozmowy",
+  "@chatParametersTooltip": {
+    "description": "Tooltip ikony tune w AppBar chat_screen — otwiera ChatParametersSheet"
+  },
+  "chatParametersTitle": "Parametry rozmowy",
+  "@chatParametersTitle": {
+    "description": "Tytuł bottom sheet ChatParametersSheet"
+  },
+  "chatParametersModel": "Model",
+  "@chatParametersModel": {
+    "description": "Label sekcji wyboru modelu w sheet"
+  },
+  "chatParametersModeSimple": "Prosty",
+  "@chatParametersModeSimple": {
+    "description": "Tryb UI parametrów: tylko suwak Kreatywność + system prompt"
+  },
+  "chatParametersModeMedium": "Średni",
+  "@chatParametersModeMedium": {
+    "description": "Tryb UI parametrów: + max_tokens, seed"
+  },
+  "chatParametersModeAdvanced": "Zaawansowany",
+  "@chatParametersModeAdvanced": {
+    "description": "Tryb UI parametrów: wszystkie 13 parametrów"
+  },
+  "chatParametersCreativity": "Kreatywność",
+  "@chatParametersCreativity": {
+    "description": "Label suwaka Kreatywność (mapping temperature 0.2-1.2, intuicyjnie dla nowych użytkowników)"
+  },
+  "chatParametersCreativityPrecise": "precyzyjny (0.2)",
+  "@chatParametersCreativityPrecise": {
+    "description": "Etykieta pod lewym końcem suwaka Kreatywność"
+  },
+  "chatParametersCreativityCreative": "kreatywny (1.2)",
+  "@chatParametersCreativityCreative": {
+    "description": "Etykieta pod prawym końcem suwaka Kreatywność"
+  },
+  "chatParametersSystemPrompt": "System prompt (opcjonalnie)",
+  "@chatParametersSystemPrompt": {
+    "description": "Label sekcji edycji system promptu"
+  },
+  "chatParametersSystemPromptHint": "Jesteś pomocnym asystentem...",
+  "@chatParametersSystemPromptHint": {
+    "description": "Placeholder w polu textarea system prompt"
+  },
+  "chatParametersMaxTokens": "Maks. tokenów",
+  "@chatParametersMaxTokens": {
+    "description": "Label pola max_tokens (limit długości odpowiedzi)"
+  },
+  "chatParametersTopP": "Top-P",
+  "@chatParametersTopP": {
+    "description": "Label pola top_p (nucleus sampling)"
+  },
+  "chatParametersTopK": "Top-K",
+  "@chatParametersTopK": {
+    "description": "Label pola top_k"
+  },
+  "chatParametersMinP": "Min-P",
+  "@chatParametersMinP": {
+    "description": "Label pola min_p"
+  },
+  "chatParametersSeed": "Seed",
+  "@chatParametersSeed": {
+    "description": "Label pola seed (deterministyczne generowanie)"
+  },
+  "chatParametersRepeatPenalty": "Repeat penalty",
+  "@chatParametersRepeatPenalty": {
+    "description": "Label suwaka repeat_penalty"
+  },
+  "chatParametersFrequencyPenalty": "Frequency penalty",
+  "@chatParametersFrequencyPenalty": {
+    "description": "Label suwaka frequency_penalty"
+  },
+  "chatParametersPresencePenalty": "Presence penalty",
+  "@chatParametersPresencePenalty": {
+    "description": "Label suwaka presence_penalty"
+  },
+  "chatParametersStop": "Stop sequences",
+  "@chatParametersStop": {
+    "description": "Label pola stop (lista sekwencji zatrzymujących generowanie)"
+  },
+  "chatParametersStopHint": "np. END, STOP, ###",
+  "@chatParametersStopHint": {
+    "description": "Placeholder dla pola stop (comma-separated)"
+  },
+  "chatParametersReasoningEffort": "Reasoning effort",
+  "@chatParametersReasoningEffort": {
+    "description": "Label segmented button dla reasoning_effort (modele rozumujące)"
+  },
+  "chatParametersReasoningNone": "—",
+  "@chatParametersReasoningNone": {
+    "description": "Wartość 'None' dla reasoning_effort (nie wysyłaj parametru)"
+  },
+  "chatParametersReasoningLow": "low",
+  "@chatParametersReasoningLow": {
+    "description": "Wartość 'low' dla reasoning_effort"
+  },
+  "chatParametersReasoningMedium": "medium",
+  "@chatParametersReasoningMedium": {
+    "description": "Wartość 'medium' dla reasoning_effort"
+  },
+  "chatParametersReasoningHigh": "high",
+  "@chatParametersReasoningHigh": {
+    "description": "Wartość 'high' dla reasoning_effort"
+  },
+  "chatParametersDefaultHint": "domyślne serwera",
+  "@chatParametersDefaultHint": {
+    "description": "Hint w pustych polach numerycznych — komunikuje że pusta wartość = nie wysyłaj parametru = serwer użyje swojego defaulta"
+  },
+
   "chatsListServersTooltip": "Serwery",
   "@chatsListServersTooltip": {
     "description": "Tooltip przycisku zarządzania serwerami w AppBar listy rozmów"

@@ -28,11 +28,11 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
     return ChatTarget(
       baseUrl: profile.baseUrl,
       apiKey: apiKey,
-      // models.first to dziś hardcoded fallback. Rozmowa może mieć własny
-      // chats.model_id — wtedy ChatController preferuje ten nad target.model
-      // (sesja A1). Tracked TODO: ChatTarget powinien wystawić full models list
-      // dla dropdown UI w A2.
+      // models.first to fallback dla rozmów które nie mają jeszcze przypisanego
+      // modelu (chats.model_id NULL). Po sesji A2 dropdown w ChatParametersSheet
+      // pozwala user explicit wybrać model — wtedy state.modelId override.
       model: models.first,
+      availableModels: models,
       profileName: profile.name,
     );
   });
@@ -79,6 +79,12 @@ class ChatState {
     ChatParameters? parameters,
     String? systemPrompt,
     String? modelId,
+    // ── A2: flagi do resetowania nullable pól na null (sentinel pattern) ──
+    // Zwykle `systemPrompt ?? this.systemPrompt` nie pozwala ustawić explicit
+    // null (bo null traktowane jest jako "nie zmieniaj"). Flagi pozwalają to
+    // obejść gdy user czyści system prompt lub resetuje model w UI sheet.
+    bool clearSystemPrompt = false,
+    bool clearModelId = false,
   }) {
     return ChatState(
       chatId: chatId ?? this.chatId,
@@ -90,8 +96,8 @@ class ChatState {
       isStreaming: isStreaming ?? this.isStreaming,
       error: clearError ? null : (error ?? this.error),
       parameters: parameters ?? this.parameters,
-      systemPrompt: systemPrompt ?? this.systemPrompt,
-      modelId: modelId ?? this.modelId,
+      systemPrompt: clearSystemPrompt ? null : (systemPrompt ?? this.systemPrompt),
+      modelId: clearModelId ? null : (modelId ?? this.modelId),
     );
   }
 }
@@ -102,9 +108,6 @@ final chatControllerProvider = NotifierProvider<ChatController, ChatState>(
 
 class ChatController extends Notifier<ChatState> {
   CancelToken? _cancelToken;
-  // Flaga: user nacisnął Stop. Repo połyka cancel cicho (nie rzuca), więc bez
-  // tej flagi nie odróżnimy "normalne done" od "anulowano" — i partial nie
-  // dostałby flagi isPartial. Resetowana na false na początku każdego send/continueLast.
   bool _wasStopped = false;
 
   @override
@@ -148,6 +151,47 @@ class ChatController extends Notifier<ChatState> {
     state = state.copyWith(title: title.trim().isEmpty ? null : title.trim());
   }
 
+  // ──────────────────────────────────────────────────────────────────────────
+  // Sesja A2 — aktualizacja konfiguracji rozmowy z ChatParametersSheet.
+  // Każda metoda: update state + persist do bazy jeśli chatId istnieje.
+  // Gdy chatId == null (nowa rozmowa, jeszcze nie wysłana wiadomość) — tylko
+  // state. Persist do bazy nastąpi przy pierwszym send() (patrz blok w send).
+  // ──────────────────────────────────────────────────────────────────────────
+
+  Future<void> updateParameters(ChatParameters params) async {
+    state = state.copyWith(parameters: params);
+    final id = state.chatId;
+    if (id != null) {
+      await ref.read(messageRepositoryProvider).updateChatParameters(id, params);
+    }
+  }
+
+  Future<void> updateSystemPrompt(String? systemPrompt) async {
+    final cleaned = systemPrompt?.trim();
+    final value = (cleaned == null || cleaned.isEmpty) ? null : cleaned;
+    state = state.copyWith(
+      systemPrompt: value,
+      clearSystemPrompt: value == null,
+    );
+    final id = state.chatId;
+    if (id != null) {
+      await ref
+          .read(messageRepositoryProvider)
+          .updateChatSystemPrompt(id, value);
+    }
+  }
+
+  Future<void> updateModel(String? modelId) async {
+    state = state.copyWith(
+      modelId: modelId,
+      clearModelId: modelId == null,
+    );
+    final id = state.chatId;
+    if (id != null) {
+      await ref.read(messageRepositoryProvider).updateChatModel(id, modelId);
+    }
+  }
+
   Future<void> send(String text) async {
     if (state.isStreaming || text.trim().isEmpty) return;
 
@@ -159,8 +203,25 @@ class ChatController extends Notifier<ChatState> {
 
     final repo = ref.read(messageRepositoryProvider);
 
+    final wasNewChat = state.chatId == null;
     var chatId = state.chatId;
     chatId ??= await repo.createChat();
+
+    // Jeśli rozmowa właśnie utworzona przez send(), persist konfigurację
+    // ustawioną w state PRZED wysłaniem (user mógł otworzyć ChatParametersSheet
+    // dla nowej rozmowy, zmienić parametry, zamknąć sheet, potem wysłać).
+    // Bez tego state-level config byłby zignorowany przy persistance.
+    if (wasNewChat) {
+      if (state.parameters != const ChatParameters()) {
+        await repo.updateChatParameters(chatId, state.parameters);
+      }
+      if (state.systemPrompt != null && state.systemPrompt!.isNotEmpty) {
+        await repo.updateChatSystemPrompt(chatId, state.systemPrompt);
+      }
+      if (state.modelId != null) {
+        await repo.updateChatModel(chatId, state.modelId);
+      }
+    }
 
     final userId = await repo.appendMessage(
       chatId: chatId,
@@ -171,11 +232,9 @@ class ChatController extends Notifier<ChatState> {
     );
     final chat = await repo.getChat(chatId);
 
-    // State.messages (UI): bez system message — user go nie widzi w bańkach.
     final newUserMsg = ChatMessage('user', text.trim());
     final stateMessages = [...state.messages, newUserMsg];
 
-    // API messages: dodaj system na początku jeśli chat ma system_prompt.
     final systemPrompt = chat?.systemPrompt;
     final apiMessages = <ChatMessage>[
       if (systemPrompt != null && systemPrompt.isNotEmpty)
@@ -183,8 +242,6 @@ class ChatController extends Notifier<ChatState> {
       ...stateMessages,
     ];
 
-    // Preferuj chat.model_id (jeśli ustawiony przez UI A2), fallback do
-    // dzisiejszego models.first z target.
     final modelToUse = chat?.modelId ?? target.model;
 
     state = state.copyWith(
@@ -221,8 +278,6 @@ class ChatController extends Notifier<ChatState> {
               : null,
         );
       }
-      // Po wyjściu z pętli sprawdzamy CZY user anulował.
-      // Repo połyka cancel cicho, więc tutaj rozróżniamy.
       await _commitAssistant(
         repo,
         chatId,
@@ -382,9 +437,6 @@ class ChatController extends Notifier<ChatState> {
     );
     final msgs = [...state.messages];
     final last = msgs.removeLast();
-    // Jeśli user znowu nacisnął Stop podczas resume — zostaw partial=true,
-    // bo appendContinuation z bazy zawsze ustawia 0; UI dostanie poprawną flagę,
-    // baza zostanie zaktualizowana przy następnym dokończeniu lub edycji.
     final stillPartial = _wasStopped;
     msgs.add(
       ChatMessage(last.role, last.content + addition, isPartial: stillPartial),

@@ -73,6 +73,87 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatReasoningLabel => 'Myślenie';
 
   @override
+  String get chatParametersTooltip => 'Parametry rozmowy';
+
+  @override
+  String get chatParametersTitle => 'Parametry rozmowy';
+
+  @override
+  String get chatParametersModel => 'Model';
+
+  @override
+  String get chatParametersModeSimple => 'Prosty';
+
+  @override
+  String get chatParametersModeMedium => 'Średni';
+
+  @override
+  String get chatParametersModeAdvanced => 'Zaawansowany';
+
+  @override
+  String get chatParametersCreativity => 'Kreatywność';
+
+  @override
+  String get chatParametersCreativityPrecise => 'precyzyjny (0.2)';
+
+  @override
+  String get chatParametersCreativityCreative => 'kreatywny (1.2)';
+
+  @override
+  String get chatParametersSystemPrompt => 'System prompt (opcjonalnie)';
+
+  @override
+  String get chatParametersSystemPromptHint => 'Jesteś pomocnym asystentem...';
+
+  @override
+  String get chatParametersMaxTokens => 'Maks. tokenów';
+
+  @override
+  String get chatParametersTopP => 'Top-P';
+
+  @override
+  String get chatParametersTopK => 'Top-K';
+
+  @override
+  String get chatParametersMinP => 'Min-P';
+
+  @override
+  String get chatParametersSeed => 'Seed';
+
+  @override
+  String get chatParametersRepeatPenalty => 'Repeat penalty';
+
+  @override
+  String get chatParametersFrequencyPenalty => 'Frequency penalty';
+
+  @override
+  String get chatParametersPresencePenalty => 'Presence penalty';
+
+  @override
+  String get chatParametersStop => 'Stop sequences';
+
+  @override
+  String get chatParametersStopHint => 'np. END, STOP, ###';
+
+  @override
+  String get chatParametersReasoningEffort => 'Reasoning effort';
+
+  @override
+  String get chatParametersReasoningNone => '—';
+
+  @override
+  String get chatParametersReasoningLow => 'low';
+
+  @override
+  String get chatParametersReasoningMedium => 'medium';
+
+  @override
+  String get chatParametersReasoningHigh => 'high';
+
+  @override
+  String get chatParametersDefaultHint => 'domyślne serwera';
+
+  @override
   String get chatsListServersTooltip => 'Serwery';
 
   @override

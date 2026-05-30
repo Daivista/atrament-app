@@ -224,6 +224,168 @@ abstract class AppLocalizations {
   /// **'Myślenie'**
   String get chatReasoningLabel;
 
+  /// Tooltip ikony tune w AppBar chat_screen — otwiera ChatParametersSheet
+  ///
+  /// In pl, this message translates to:
+  /// **'Parametry rozmowy'**
+  String get chatParametersTooltip;
+
+  /// Tytuł bottom sheet ChatParametersSheet
+  ///
+  /// In pl, this message translates to:
+  /// **'Parametry rozmowy'**
+  String get chatParametersTitle;
+
+  /// Label sekcji wyboru modelu w sheet
+  ///
+  /// In pl, this message translates to:
+  /// **'Model'**
+  String get chatParametersModel;
+
+  /// Tryb UI parametrów: tylko suwak Kreatywność + system prompt
+  ///
+  /// In pl, this message translates to:
+  /// **'Prosty'**
+  String get chatParametersModeSimple;
+
+  /// Tryb UI parametrów: + max_tokens, seed
+  ///
+  /// In pl, this message translates to:
+  /// **'Średni'**
+  String get chatParametersModeMedium;
+
+  /// Tryb UI parametrów: wszystkie 13 parametrów
+  ///
+  /// In pl, this message translates to:
+  /// **'Zaawansowany'**
+  String get chatParametersModeAdvanced;
+
+  /// Label suwaka Kreatywność (mapping temperature 0.2-1.2, intuicyjnie dla nowych użytkowników)
+  ///
+  /// In pl, this message translates to:
+  /// **'Kreatywność'**
+  String get chatParametersCreativity;
+
+  /// Etykieta pod lewym końcem suwaka Kreatywność
+  ///
+  /// In pl, this message translates to:
+  /// **'precyzyjny (0.2)'**
+  String get chatParametersCreativityPrecise;
+
+  /// Etykieta pod prawym końcem suwaka Kreatywność
+  ///
+  /// In pl, this message translates to:
+  /// **'kreatywny (1.2)'**
+  String get chatParametersCreativityCreative;
+
+  /// Label sekcji edycji system promptu
+  ///
+  /// In pl, this message translates to:
+  /// **'System prompt (opcjonalnie)'**
+  String get chatParametersSystemPrompt;
+
+  /// Placeholder w polu textarea system prompt
+  ///
+  /// In pl, this message translates to:
+  /// **'Jesteś pomocnym asystentem...'**
+  String get chatParametersSystemPromptHint;
+
+  /// Label pola max_tokens (limit długości odpowiedzi)
+  ///
+  /// In pl, this message translates to:
+  /// **'Maks. tokenów'**
+  String get chatParametersMaxTokens;
+
+  /// Label pola top_p (nucleus sampling)
+  ///
+  /// In pl, this message translates to:
+  /// **'Top-P'**
+  String get chatParametersTopP;
+
+  /// Label pola top_k
+  ///
+  /// In pl, this message translates to:
+  /// **'Top-K'**
+  String get chatParametersTopK;
+
+  /// Label pola min_p
+  ///
+  /// In pl, this message translates to:
+  /// **'Min-P'**
+  String get chatParametersMinP;
+
+  /// Label pola seed (deterministyczne generowanie)
+  ///
+  /// In pl, this message translates to:
+  /// **'Seed'**
+  String get chatParametersSeed;
+
+  /// Label suwaka repeat_penalty
+  ///
+  /// In pl, this message translates to:
+  /// **'Repeat penalty'**
+  String get chatParametersRepeatPenalty;
+
+  /// Label suwaka frequency_penalty
+  ///
+  /// In pl, this message translates to:
+  /// **'Frequency penalty'**
+  String get chatParametersFrequencyPenalty;
+
+  /// Label suwaka presence_penalty
+  ///
+  /// In pl, this message translates to:
+  /// **'Presence penalty'**
+  String get chatParametersPresencePenalty;
+
+  /// Label pola stop (lista sekwencji zatrzymujących generowanie)
+  ///
+  /// In pl, this message translates to:
+  /// **'Stop sequences'**
+  String get chatParametersStop;
+
+  /// Placeholder dla pola stop (comma-separated)
+  ///
+  /// In pl, this message translates to:
+  /// **'np. END, STOP, ###'**
+  String get chatParametersStopHint;
+
+  /// Label segmented button dla reasoning_effort (modele rozumujące)
+  ///
+  /// In pl, this message translates to:
+  /// **'Reasoning effort'**
+  String get chatParametersReasoningEffort;
+
+  /// Wartość 'None' dla reasoning_effort (nie wysyłaj parametru)
+  ///
+  /// In pl, this message translates to:
+  /// **'—'**
+  String get chatParametersReasoningNone;
+
+  /// Wartość 'low' dla reasoning_effort
+  ///
+  /// In pl, this message translates to:
+  /// **'low'**
+  String get chatParametersReasoningLow;
+
+  /// Wartość 'medium' dla reasoning_effort
+  ///
+  /// In pl, this message translates to:
+  /// **'medium'**
+  String get chatParametersReasoningMedium;
+
+  /// Wartość 'high' dla reasoning_effort
+  ///
+  /// In pl, this message translates to:
+  /// **'high'**
+  String get chatParametersReasoningHigh;
+
+  /// Hint w pustych polach numerycznych — komunikuje że pusta wartość = nie wysyłaj parametru = serwer użyje swojego defaulta
+  ///
+  /// In pl, this message translates to:
+  /// **'domyślne serwera'**
+  String get chatParametersDefaultHint;
+
   /// Tooltip przycisku zarządzania serwerami w AppBar listy rozmów
   ///
   /// In pl, this message translates to:
