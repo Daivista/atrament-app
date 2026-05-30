@@ -181,4 +181,122 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get chatsListToday => 'Dziś';
+
+  @override
+  String get profilesScreenTitle => 'Serwery';
+
+  @override
+  String profilesScreenError(Object error) {
+    return 'Błąd: $error';
+  }
+
+  @override
+  String get profilesScreenKeyLost =>
+      'Klucz API utracony — wybierz Edytuj, by wpisać ponownie';
+
+  @override
+  String get profilesScreenActionActivate => 'Ustaw jako aktywny';
+
+  @override
+  String get profilesScreenActionDeactivate => 'Usuń oznaczenie aktywnego';
+
+  @override
+  String get profilesScreenActionEdit => 'Edytuj';
+
+  @override
+  String get profilesScreenAddProfile => 'Dodaj serwer';
+
+  @override
+  String get profilesScreenDeleteConfirmTitle => 'Usunąć serwer?';
+
+  @override
+  String profilesScreenDeleteConfirmContent(String name) {
+    return 'Profil „$name\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.';
+  }
+
+  @override
+  String get profilesScreenEmpty => 'Brak serwerów';
+
+  @override
+  String get profilesScreenEmptyHint =>
+      'Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.';
+
+  @override
+  String get addProfileTitleNew => 'Dodaj serwer';
+
+  @override
+  String get addProfileTitleEdit => 'Edytuj serwer';
+
+  @override
+  String get addProfileNameLabel => 'Nazwa (opcjonalna)';
+
+  @override
+  String get addProfileNameHint => 'np. LM Studio - laptop';
+
+  @override
+  String get addProfileUrlLabel => 'Adres serwera';
+
+  @override
+  String get addProfileMissingUrl => 'Podaj adres serwera.';
+
+  @override
+  String get addProfileCleartextTitle => 'Połączenie nieszyfrowane';
+
+  @override
+  String get addProfileCleartextContent =>
+      'Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?';
+
+  @override
+  String get addProfileContinue => 'Kontynuuj';
+
+  @override
+  String get addProfileApiKeyLost =>
+      'Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.';
+
+  @override
+  String get addProfileApiKeyLabel => 'Klucz API (opcjonalny)';
+
+  @override
+  String get addProfileApiKeyHintExisting =>
+      'zapisany — zostaw puste by nie zmieniać';
+
+  @override
+  String get addProfileApiKeyHintNew => 'dla serwerów wymagających autoryzacji';
+
+  @override
+  String get addProfileClearKey => 'Usuń zapisany klucz API';
+
+  @override
+  String get addProfileConnecting => 'Łączenie…';
+
+  @override
+  String get addProfileTestConnection => 'Testuj połączenie';
+
+  @override
+  String addProfileConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count modeli dostępnych',
+      many: '$count modeli dostępnych',
+      few: '$count modele dostępne',
+      one: '$count model dostępny',
+      zero: 'brak dostępnych modeli',
+    );
+    return '✅ Połączono — $_temp0:';
+  }
+
+  @override
+  String get addProfileSaving => 'Zapisywanie…';
+
+  @override
+  String get addProfileSaveChanges => 'Zapisz zmiany';
+
+  @override
+  String get addProfileSaveNew => 'Zapisz serwer';
+
+  @override
+  String addProfileSaveError(String error) {
+    return 'Błąd zapisu: $error';
+  }
 }

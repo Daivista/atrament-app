@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
 import '../../../core/network/address_validator.dart';
 import '../../../core/providers/providers.dart';
+import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/profile_providers.dart';
 
 class AddProfileScreen extends ConsumerStatefulWidget {
@@ -43,9 +45,10 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   }
 
   Future<void> _connect() async {
+    final loc = AppLocalizations.of(context);
     final url = _url.text.trim();
     if (url.isEmpty) {
-      setState(() => _error = 'Podaj adres serwera.');
+      setState(() => _error = loc.addProfileMissingUrl);
       return;
     }
     if (shouldWarnCleartext(url)) {
@@ -73,23 +76,20 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   }
 
   Future<bool?> _showCleartextWarning() {
+    final loc = AppLocalizations.of(context);
     return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Połączenie nieszyfrowane'),
-        content: const Text(
-          'Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, '
-          'rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle '
-          'bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?',
-        ),
+        title: Text(loc.addProfileCleartextTitle),
+        content: Text(loc.addProfileCleartextContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Anuluj'),
+            child: Text(loc.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Kontynuuj'),
+            child: Text(loc.addProfileContinue),
           ),
         ],
       ),
@@ -97,6 +97,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   }
 
   Future<void> _save() async {
+    final loc = AppLocalizations.of(context);
     setState(() => _saving = true);
     try {
       final repo = ref.read(profileRepositoryProvider);
@@ -125,7 +126,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = 'Błąd zapisu: $e';
+          _error = loc.addProfileSaveError(e.toString());
         });
       }
     }
@@ -133,49 +134,57 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final canSave = _isEditing || _models != null;
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edytuj serwer' : 'Dodaj serwer'),
+        title: Text(
+          _isEditing ? loc.addProfileTitleEdit : loc.addProfileTitleNew,
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
             controller: _name,
-            decoration: const InputDecoration(
-              labelText: 'Nazwa (opcjonalna)',
-              hintText: 'np. LM Studio - laptop',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.addProfileNameLabel,
+              hintText: loc.addProfileNameHint,
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _url,
             keyboardType: TextInputType.url,
-            decoration: const InputDecoration(
-              labelText: 'Adres serwera',
+            decoration: InputDecoration(
+              labelText: loc.addProfileUrlLabel,
+              // Hardcoded — przykład IP/portu, nieprzetłumaczalny.
               hintText: 'http://192.168.1.100:1234',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
           if (_isEditing && _needsReentry) ...[
+            // Theme-aware warning card: AppColors.warningContainer/warning/
+            // onWarningContainer zamiast Colors.orange.shadeXXX, żeby
+            // dostosowywało się do dark/light motywu (sub-commit dnia 6
+            // ustanowił ten wzorzec dla bannera "Odpowiedź przerwana").
             Card(
-              color: Colors.orange.shade100,
+              color: appColors.warningContainer,
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    Icon(Icons.warning_amber, color: Colors.orange.shade800),
+                    Icon(Icons.warning_amber, color: appColors.warning),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Klucz API tego serwera został utracony (np. po przywróceniu '
-                        'kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.',
+                        loc.addProfileApiKeyLost,
                         style: TextStyle(
-                          color: Colors.orange.shade900,
+                          color: appColors.onWarningContainer,
                           fontSize: 13,
                         ),
                       ),
@@ -191,10 +200,10 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
             obscureText: true,
             enabled: !_clearKey,
             decoration: InputDecoration(
-              labelText: 'Klucz API (opcjonalny)',
+              labelText: loc.addProfileApiKeyLabel,
               hintText: _isEditing && _hadKey
-                  ? 'zapisany — zostaw puste by nie zmieniać'
-                  : 'dla serwerów wymagających autoryzacji',
+                  ? loc.addProfileApiKeyHintExisting
+                  : loc.addProfileApiKeyHintNew,
               border: const OutlineInputBorder(),
             ),
           ),
@@ -205,7 +214,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
               contentPadding: EdgeInsets.zero,
               value: _clearKey,
               onChanged: (v) => setState(() => _clearKey = v ?? false),
-              title: const Text('Usuń zapisany klucz API'),
+              title: Text(loc.addProfileClearKey),
             ),
           ],
           const SizedBox(height: 24),
@@ -218,7 +227,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.wifi_tethering),
-            label: Text(_connecting ? 'Łączenie…' : 'Testuj połączenie'),
+            label: Text(
+              _connecting ? loc.addProfileConnecting : loc.addProfileTestConnection,
+            ),
           ),
           if (_error != null) ...[
             const SizedBox(height: 16),
@@ -236,7 +247,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
           if (_models != null) ...[
             const SizedBox(height: 24),
             Text(
-              '✅ Połączono — ${_models!.length} modeli dostępnych:',
+              loc.addProfileConnected(_models!.length),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
@@ -255,8 +266,8 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
               icon: const Icon(Icons.save),
               label: Text(
                 _saving
-                    ? 'Zapisywanie…'
-                    : (_isEditing ? 'Zapisz zmiany' : 'Zapisz serwer'),
+                    ? loc.addProfileSaving
+                    : (_isEditing ? loc.addProfileSaveChanges : loc.addProfileSaveNew),
               ),
             ),
           ],

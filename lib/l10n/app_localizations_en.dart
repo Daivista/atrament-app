@@ -181,4 +181,119 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatsListToday => 'Today';
+
+  @override
+  String get profilesScreenTitle => 'Servers';
+
+  @override
+  String profilesScreenError(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get profilesScreenKeyLost =>
+      'API key lost — choose Edit to enter again';
+
+  @override
+  String get profilesScreenActionActivate => 'Set as active';
+
+  @override
+  String get profilesScreenActionDeactivate => 'Remove active mark';
+
+  @override
+  String get profilesScreenActionEdit => 'Edit';
+
+  @override
+  String get profilesScreenAddProfile => 'Add server';
+
+  @override
+  String get profilesScreenDeleteConfirmTitle => 'Delete server?';
+
+  @override
+  String profilesScreenDeleteConfirmContent(String name) {
+    return 'Profile \"$name\" will be deleted along with its API key. This action cannot be undone.';
+  }
+
+  @override
+  String get profilesScreenEmpty => 'No servers';
+
+  @override
+  String get profilesScreenEmptyHint =>
+      'Add your first LLM server (LM Studio, Ollama…) to start chatting.';
+
+  @override
+  String get addProfileTitleNew => 'New server';
+
+  @override
+  String get addProfileTitleEdit => 'Edit server';
+
+  @override
+  String get addProfileNameLabel => 'Name (optional)';
+
+  @override
+  String get addProfileNameHint => 'e.g. LM Studio - laptop';
+
+  @override
+  String get addProfileUrlLabel => 'Server address';
+
+  @override
+  String get addProfileMissingUrl => 'Enter the server address.';
+
+  @override
+  String get addProfileCleartextTitle => 'Unencrypted connection';
+
+  @override
+  String get addProfileCleartextContent =>
+      'You\'re connecting via HTTP to a public address. Data (API key, conversations) may be intercepted. For local networks this is usually safe, for public ones we recommend HTTPS.\n\nContinue?';
+
+  @override
+  String get addProfileContinue => 'Continue';
+
+  @override
+  String get addProfileApiKeyLost =>
+      'The API key for this server was lost (e.g. after restoring from backup). Enter it again below to restore the connection.';
+
+  @override
+  String get addProfileApiKeyLabel => 'API key (optional)';
+
+  @override
+  String get addProfileApiKeyHintExisting => 'saved — leave empty to keep';
+
+  @override
+  String get addProfileApiKeyHintNew => 'for servers requiring authorization';
+
+  @override
+  String get addProfileClearKey => 'Remove saved API key';
+
+  @override
+  String get addProfileConnecting => 'Connecting…';
+
+  @override
+  String get addProfileTestConnection => 'Test connection';
+
+  @override
+  String addProfileConnected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count models available',
+      one: '1 model available',
+      zero: 'no models available',
+    );
+    return '✅ Connected — $_temp0:';
+  }
+
+  @override
+  String get addProfileSaving => 'Saving…';
+
+  @override
+  String get addProfileSaveChanges => 'Save changes';
+
+  @override
+  String get addProfileSaveNew => 'Save server';
+
+  @override
+  String addProfileSaveError(String error) {
+    return 'Save error: $error';
+  }
 }

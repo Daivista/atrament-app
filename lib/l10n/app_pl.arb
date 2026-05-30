@@ -238,5 +238,155 @@
   "chatsListToday": "Dziś",
   "@chatsListToday": {
     "description": "Prefix dla dzisiejszej godziny w subtitle rozmowy. Tracked TODO: pełne formatowanie daty per locale przez intl DateFormat — obecnie format DD.MM.YYYY hardcoded"
+  },
+
+  "profilesScreenTitle": "Serwery",
+  "@profilesScreenTitle": {
+    "description": "AppBar tytuł ekranu listy profili (sub-ekran z chats_list). Kontekstowy 'co user robi', nie powtórka brandu — konwencja sub-ekranów."
+  },
+  "profilesScreenError": "Błąd: {error}",
+  "@profilesScreenError": {
+    "description": "Komunikat błędu gdy stream profili rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
+  "profilesScreenKeyLost": "Klucz API utracony — wybierz Edytuj, by wpisać ponownie",
+  "@profilesScreenKeyLost": {
+    "description": "Subtitle profilu gdy apiKeyNeedsReentry = true (klucz zgubiony np. po restore z backup). Tekst zawiera meta-referencję do akcji menu 'Edytuj' — przy tłumaczeniu trzymać spójność z profilesScreenActionEdit."
+  },
+  "profilesScreenActionActivate": "Ustaw jako aktywny",
+  "@profilesScreenActionActivate": {
+    "description": "Popup menu akcja na profilu — ustawia jako aktywny (gwiazdka)"
+  },
+  "profilesScreenActionDeactivate": "Usuń oznaczenie aktywnego",
+  "@profilesScreenActionDeactivate": {
+    "description": "Popup menu akcja — odznacza aktywność profilu (gdy obecnie aktywny)"
+  },
+  "profilesScreenActionEdit": "Edytuj",
+  "@profilesScreenActionEdit": {
+    "description": "Popup menu akcja — otwiera AddProfileScreen w trybie edycji"
+  },
+  "profilesScreenAddProfile": "Dodaj serwer",
+  "@profilesScreenAddProfile": {
+    "description": "Label FAB na liście profili — otwiera AddProfileScreen w trybie nowego profilu"
+  },
+  "profilesScreenDeleteConfirmTitle": "Usunąć serwer?",
+  "@profilesScreenDeleteConfirmTitle": {
+    "description": "Tytuł dialogu potwierdzenia usunięcia profilu"
+  },
+  "profilesScreenDeleteConfirmContent": "Profil „{name}\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.",
+  "@profilesScreenDeleteConfirmContent": {
+    "description": "Treść dialogu potwierdzenia usunięcia, z nazwą profilu",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesScreenEmpty": "Brak serwerów",
+  "@profilesScreenEmpty": {
+    "description": "Tytuł pustego stanu listy profili"
+  },
+  "profilesScreenEmptyHint": "Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.",
+  "@profilesScreenEmptyHint": {
+    "description": "Podpowiedź pod tytułem 'Brak serwerów'"
+  },
+
+  "addProfileTitleNew": "Dodaj serwer",
+  "@addProfileTitleNew": {
+    "description": "AppBar tytuł AddProfileScreen w trybie tworzenia nowego profilu"
+  },
+  "addProfileTitleEdit": "Edytuj serwer",
+  "@addProfileTitleEdit": {
+    "description": "AppBar tytuł AddProfileScreen w trybie edycji istniejącego profilu"
+  },
+  "addProfileNameLabel": "Nazwa (opcjonalna)",
+  "@addProfileNameLabel": {
+    "description": "Label pola nazwy profilu — opcjonalne (fallback do URL)"
+  },
+  "addProfileNameHint": "np. LM Studio - laptop",
+  "@addProfileNameHint": {
+    "description": "Hint dla pola nazwy — przykład nazwy własnej"
+  },
+  "addProfileUrlLabel": "Adres serwera",
+  "@addProfileUrlLabel": {
+    "description": "Label pola URL — wymagane"
+  },
+  "addProfileMissingUrl": "Podaj adres serwera.",
+  "@addProfileMissingUrl": {
+    "description": "Validation error gdy user kliknie 'Testuj połączenie' z pustym URL"
+  },
+  "addProfileCleartextTitle": "Połączenie nieszyfrowane",
+  "@addProfileCleartextTitle": {
+    "description": "Tytuł dialogu ostrzegającego przed HTTP do publicznego adresu"
+  },
+  "addProfileCleartextContent": "Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?",
+  "@addProfileCleartextContent": {
+    "description": "Content dialogu cleartext warning — wyjaśnia ryzyko HTTP do publicznego adresu"
+  },
+  "addProfileContinue": "Kontynuuj",
+  "@addProfileContinue": {
+    "description": "Przycisk 'kontynuuj' w cleartext warning (akcja po świadomej zgodzie na ryzyko)"
+  },
+  "addProfileApiKeyLost": "Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.",
+  "@addProfileApiKeyLost": {
+    "description": "Warning card w trybie edycji gdy apiKeyNeedsReentry = true"
+  },
+  "addProfileApiKeyLabel": "Klucz API (opcjonalny)",
+  "@addProfileApiKeyLabel": {
+    "description": "Label pola klucza API"
+  },
+  "addProfileApiKeyHintExisting": "zapisany — zostaw puste by nie zmieniać",
+  "@addProfileApiKeyHintExisting": {
+    "description": "Hint pola klucza w trybie edycji gdy klucz już istnieje"
+  },
+  "addProfileApiKeyHintNew": "dla serwerów wymagających autoryzacji",
+  "@addProfileApiKeyHintNew": {
+    "description": "Hint pola klucza w trybie nowym lub edycji gdy klucz nie istnieje"
+  },
+  "addProfileClearKey": "Usuń zapisany klucz API",
+  "@addProfileClearKey": {
+    "description": "Label checkboxa do skasowania zapisanego klucza (tylko w edycji gdy klucz istnieje)"
+  },
+  "addProfileConnecting": "Łączenie…",
+  "@addProfileConnecting": {
+    "description": "Label przycisku 'Testuj połączenie' podczas trwającego requestu"
+  },
+  "addProfileTestConnection": "Testuj połączenie",
+  "@addProfileTestConnection": {
+    "description": "Label przycisku testu połączenia (idle state)"
+  },
+  "addProfileConnected": "✅ Połączono — {count, plural, =0{brak dostępnych modeli} one{{count} model dostępny} few{{count} modele dostępne} many{{count} modeli dostępnych} other{{count} modeli dostępnych}}:",
+  "@addProfileConnected": {
+    "description": "Komunikat sukcesu połączenia z liczbą modeli. ICU plural dla polskiego (one/few/many/other), bo 1=model, 2-4=modele, 5+=modeli.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addProfileSaving": "Zapisywanie…",
+  "@addProfileSaving": {
+    "description": "Label przycisku zapisu podczas trwającego writu do bazy"
+  },
+  "addProfileSaveChanges": "Zapisz zmiany",
+  "@addProfileSaveChanges": {
+    "description": "Label przycisku zapisu w trybie edycji"
+  },
+  "addProfileSaveNew": "Zapisz serwer",
+  "@addProfileSaveNew": {
+    "description": "Label przycisku zapisu w trybie nowego profilu"
+  },
+  "addProfileSaveError": "Błąd zapisu: {error}",
+  "@addProfileSaveError": {
+    "description": "Error message gdy zapis do bazy rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

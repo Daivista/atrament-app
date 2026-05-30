@@ -433,6 +433,198 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Dziś'**
   String get chatsListToday;
+
+  /// AppBar tytuł ekranu listy profili (sub-ekran z chats_list). Kontekstowy 'co user robi', nie powtórka brandu — konwencja sub-ekranów.
+  ///
+  /// In pl, this message translates to:
+  /// **'Serwery'**
+  String get profilesScreenTitle;
+
+  /// Komunikat błędu gdy stream profili rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Błąd: {error}'**
+  String profilesScreenError(Object error);
+
+  /// Subtitle profilu gdy apiKeyNeedsReentry = true (klucz zgubiony np. po restore z backup). Tekst zawiera meta-referencję do akcji menu 'Edytuj' — przy tłumaczeniu trzymać spójność z profilesScreenActionEdit.
+  ///
+  /// In pl, this message translates to:
+  /// **'Klucz API utracony — wybierz Edytuj, by wpisać ponownie'**
+  String get profilesScreenKeyLost;
+
+  /// Popup menu akcja na profilu — ustawia jako aktywny (gwiazdka)
+  ///
+  /// In pl, this message translates to:
+  /// **'Ustaw jako aktywny'**
+  String get profilesScreenActionActivate;
+
+  /// Popup menu akcja — odznacza aktywność profilu (gdy obecnie aktywny)
+  ///
+  /// In pl, this message translates to:
+  /// **'Usuń oznaczenie aktywnego'**
+  String get profilesScreenActionDeactivate;
+
+  /// Popup menu akcja — otwiera AddProfileScreen w trybie edycji
+  ///
+  /// In pl, this message translates to:
+  /// **'Edytuj'**
+  String get profilesScreenActionEdit;
+
+  /// Label FAB na liście profili — otwiera AddProfileScreen w trybie nowego profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Dodaj serwer'**
+  String get profilesScreenAddProfile;
+
+  /// Tytuł dialogu potwierdzenia usunięcia profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Usunąć serwer?'**
+  String get profilesScreenDeleteConfirmTitle;
+
+  /// Treść dialogu potwierdzenia usunięcia, z nazwą profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Profil „{name}\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.'**
+  String profilesScreenDeleteConfirmContent(String name);
+
+  /// Tytuł pustego stanu listy profili
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak serwerów'**
+  String get profilesScreenEmpty;
+
+  /// Podpowiedź pod tytułem 'Brak serwerów'
+  ///
+  /// In pl, this message translates to:
+  /// **'Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.'**
+  String get profilesScreenEmptyHint;
+
+  /// AppBar tytuł AddProfileScreen w trybie tworzenia nowego profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Dodaj serwer'**
+  String get addProfileTitleNew;
+
+  /// AppBar tytuł AddProfileScreen w trybie edycji istniejącego profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Edytuj serwer'**
+  String get addProfileTitleEdit;
+
+  /// Label pola nazwy profilu — opcjonalne (fallback do URL)
+  ///
+  /// In pl, this message translates to:
+  /// **'Nazwa (opcjonalna)'**
+  String get addProfileNameLabel;
+
+  /// Hint dla pola nazwy — przykład nazwy własnej
+  ///
+  /// In pl, this message translates to:
+  /// **'np. LM Studio - laptop'**
+  String get addProfileNameHint;
+
+  /// Label pola URL — wymagane
+  ///
+  /// In pl, this message translates to:
+  /// **'Adres serwera'**
+  String get addProfileUrlLabel;
+
+  /// Validation error gdy user kliknie 'Testuj połączenie' z pustym URL
+  ///
+  /// In pl, this message translates to:
+  /// **'Podaj adres serwera.'**
+  String get addProfileMissingUrl;
+
+  /// Tytuł dialogu ostrzegającego przed HTTP do publicznego adresu
+  ///
+  /// In pl, this message translates to:
+  /// **'Połączenie nieszyfrowane'**
+  String get addProfileCleartextTitle;
+
+  /// Content dialogu cleartext warning — wyjaśnia ryzyko HTTP do publicznego adresu
+  ///
+  /// In pl, this message translates to:
+  /// **'Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?'**
+  String get addProfileCleartextContent;
+
+  /// Przycisk 'kontynuuj' w cleartext warning (akcja po świadomej zgodzie na ryzyko)
+  ///
+  /// In pl, this message translates to:
+  /// **'Kontynuuj'**
+  String get addProfileContinue;
+
+  /// Warning card w trybie edycji gdy apiKeyNeedsReentry = true
+  ///
+  /// In pl, this message translates to:
+  /// **'Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.'**
+  String get addProfileApiKeyLost;
+
+  /// Label pola klucza API
+  ///
+  /// In pl, this message translates to:
+  /// **'Klucz API (opcjonalny)'**
+  String get addProfileApiKeyLabel;
+
+  /// Hint pola klucza w trybie edycji gdy klucz już istnieje
+  ///
+  /// In pl, this message translates to:
+  /// **'zapisany — zostaw puste by nie zmieniać'**
+  String get addProfileApiKeyHintExisting;
+
+  /// Hint pola klucza w trybie nowym lub edycji gdy klucz nie istnieje
+  ///
+  /// In pl, this message translates to:
+  /// **'dla serwerów wymagających autoryzacji'**
+  String get addProfileApiKeyHintNew;
+
+  /// Label checkboxa do skasowania zapisanego klucza (tylko w edycji gdy klucz istnieje)
+  ///
+  /// In pl, this message translates to:
+  /// **'Usuń zapisany klucz API'**
+  String get addProfileClearKey;
+
+  /// Label przycisku 'Testuj połączenie' podczas trwającego requestu
+  ///
+  /// In pl, this message translates to:
+  /// **'Łączenie…'**
+  String get addProfileConnecting;
+
+  /// Label przycisku testu połączenia (idle state)
+  ///
+  /// In pl, this message translates to:
+  /// **'Testuj połączenie'**
+  String get addProfileTestConnection;
+
+  /// Komunikat sukcesu połączenia z liczbą modeli. ICU plural dla polskiego (one/few/many/other), bo 1=model, 2-4=modele, 5+=modeli.
+  ///
+  /// In pl, this message translates to:
+  /// **'✅ Połączono — {count, plural, =0{brak dostępnych modeli} one{{count} model dostępny} few{{count} modele dostępne} many{{count} modeli dostępnych} other{{count} modeli dostępnych}}:'**
+  String addProfileConnected(int count);
+
+  /// Label przycisku zapisu podczas trwającego writu do bazy
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisywanie…'**
+  String get addProfileSaving;
+
+  /// Label przycisku zapisu w trybie edycji
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisz zmiany'**
+  String get addProfileSaveChanges;
+
+  /// Label przycisku zapisu w trybie nowego profilu
+  ///
+  /// In pl, this message translates to:
+  /// **'Zapisz serwer'**
+  String get addProfileSaveNew;
+
+  /// Error message gdy zapis do bazy rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Błąd zapisu: {error}'**
+  String addProfileSaveError(String error);
 }
 
 class _AppLocalizationsDelegate

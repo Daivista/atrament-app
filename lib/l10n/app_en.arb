@@ -60,5 +60,46 @@
   "chatsListEmptyHint": "Tap \"New conversation\" to start your first.",
   "chatsListDeleteConfirmTitle": "Delete conversation?",
   "chatsListDeleteConfirmContent": "Conversation \"{title}\" will be deleted along with all messages.",
-  "chatsListToday": "Today"
+  "chatsListToday": "Today",
+
+  "profilesScreenTitle": "Servers",
+  "profilesScreenError": "Error: {error}",
+  "profilesScreenKeyLost": "API key lost — choose Edit to enter again",
+  "profilesScreenActionActivate": "Set as active",
+  "profilesScreenActionDeactivate": "Remove active mark",
+  "profilesScreenActionEdit": "Edit",
+  "profilesScreenAddProfile": "Add server",
+  "profilesScreenDeleteConfirmTitle": "Delete server?",
+  "profilesScreenDeleteConfirmContent": "Profile \"{name}\" will be deleted along with its API key. This action cannot be undone.",
+  "profilesScreenEmpty": "No servers",
+  "profilesScreenEmptyHint": "Add your first LLM server (LM Studio, Ollama…) to start chatting.",
+
+  "addProfileTitleNew": "New server",
+  "addProfileTitleEdit": "Edit server",
+  "addProfileNameLabel": "Name (optional)",
+  "addProfileNameHint": "e.g. LM Studio - laptop",
+  "addProfileUrlLabel": "Server address",
+  "addProfileMissingUrl": "Enter the server address.",
+  "addProfileCleartextTitle": "Unencrypted connection",
+  "addProfileCleartextContent": "You're connecting via HTTP to a public address. Data (API key, conversations) may be intercepted. For local networks this is usually safe, for public ones we recommend HTTPS.\n\nContinue?",
+  "addProfileContinue": "Continue",
+  "addProfileApiKeyLost": "The API key for this server was lost (e.g. after restoring from backup). Enter it again below to restore the connection.",
+  "addProfileApiKeyLabel": "API key (optional)",
+  "addProfileApiKeyHintExisting": "saved — leave empty to keep",
+  "addProfileApiKeyHintNew": "for servers requiring authorization",
+  "addProfileClearKey": "Remove saved API key",
+  "addProfileConnecting": "Connecting…",
+  "addProfileTestConnection": "Test connection",
+  "addProfileConnected": "✅ Connected — {count, plural, =0{no models available} =1{1 model available} other{{count} models available}}:",
+  "@addProfileConnected": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addProfileSaving": "Saving…",
+  "addProfileSaveChanges": "Save changes",
+  "addProfileSaveNew": "Save server",
+  "addProfileSaveError": "Save error: {error}"
 }

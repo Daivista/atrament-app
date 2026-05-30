@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
+import '../../../core/theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/profile_providers.dart';
 import 'add_profile_screen.dart';
 
@@ -9,14 +11,19 @@ class ProfilesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final loc = AppLocalizations.of(context);
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final profilesAsync = ref.watch(profilesListProvider);
     final activeId = ref.watch(activeProfileIdProvider).value;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Atrament — serwery')),
+      // Sub-ekran (Navigator.push z chats_list) — tytuł kontekstowy ("Serwery"),
+      // nie powtarzanie marki ("Atrament"). Konwencja jak chats_list:
+      // główny ekran = brand name, sub-ekran = co user teraz robi.
+      appBar: AppBar(title: Text(loc.profilesScreenTitle)),
       body: profilesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Błąd: $e')),
+        error: (e, _) => Center(child: Text(loc.profilesScreenError(e))),
         data: (profiles) {
           if (profiles.isEmpty) return const _EmptyState();
           return ListView.builder(
@@ -45,15 +52,15 @@ class ProfilesScreen extends ConsumerWidget {
                             Icon(
                               Icons.warning_amber,
                               size: 16,
-                              color: Colors.orange.shade800,
+                              color: appColors.warning,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                'Klucz API utracony — wybierz Edytuj, by wpisać ponownie',
+                                loc.profilesScreenKeyLost,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Colors.orange.shade800,
+                                  color: appColors.warning,
                                 ),
                               ),
                             ),
@@ -63,20 +70,26 @@ class ProfilesScreen extends ConsumerWidget {
                   ],
                 ),
                 trailing: PopupMenuButton<String>(
-                  onSelected: (v) => _onAction(context, ref, v, p),
+                  onSelected: (v) => _onAction(context, ref, v, p, loc),
                   itemBuilder: (_) => [
                     if (!isActive)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'activate',
-                        child: Text('Ustaw jako aktywny'),
+                        child: Text(loc.profilesScreenActionActivate),
                       ),
                     if (isActive)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'deactivate',
-                        child: Text('Usuń oznaczenie aktywnego'),
+                        child: Text(loc.profilesScreenActionDeactivate),
                       ),
-                    const PopupMenuItem(value: 'edit', child: Text('Edytuj')),
-                    const PopupMenuItem(value: 'delete', child: Text('Usuń')),
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Text(loc.profilesScreenActionEdit),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text(loc.commonDelete),
+                    ),
                   ],
                 ),
               );
@@ -89,7 +102,7 @@ class ProfilesScreen extends ConsumerWidget {
           context,
         ).push(MaterialPageRoute(builder: (_) => const AddProfileScreen())),
         icon: const Icon(Icons.add),
-        label: const Text('Dodaj serwer'),
+        label: Text(loc.profilesScreenAddProfile),
       ),
     );
   }
@@ -99,6 +112,7 @@ class ProfilesScreen extends ConsumerWidget {
     WidgetRef ref,
     String action,
     Profile p,
+    AppLocalizations loc,
   ) async {
     final repo = ref.read(profileRepositoryProvider);
     switch (action) {
@@ -114,19 +128,18 @@ class ProfilesScreen extends ConsumerWidget {
         final ok = await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Usunąć serwer?'),
+            title: Text(loc.profilesScreenDeleteConfirmTitle),
             content: Text(
-              'Profil „${p.name}" zostanie usunięty wraz z kluczem API. '
-              'Tej operacji nie można cofnąć.',
+              loc.profilesScreenDeleteConfirmContent(p.name),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Anuluj'),
+                child: Text(loc.commonCancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Usuń'),
+                child: Text(loc.commonDelete),
               ),
             ],
           ),
@@ -140,6 +153,7 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState();
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     return Center(
       child: Column(
@@ -147,13 +161,15 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(Icons.dns_outlined, size: 64, color: cs.outline),
           const SizedBox(height: 16),
-          Text('Brak serwerów', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            loc.profilesScreenEmpty,
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const SizedBox(height: 8),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 48),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
             child: Text(
-              'Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), '
-              'żeby zacząć rozmowę.',
+              loc.profilesScreenEmptyHint,
               textAlign: TextAlign.center,
             ),
           ),
