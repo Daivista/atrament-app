@@ -79,6 +79,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatReportResponse => 'Report response';
 
   @override
+  String get chatRegenerate => 'Regenerate';
+
+  @override
   String get chatParametersTooltip => 'Conversation parameters';
 
   @override

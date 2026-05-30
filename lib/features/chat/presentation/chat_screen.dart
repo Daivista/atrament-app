@@ -20,11 +20,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
 
-  /// Per-message expanded state dla sekcji rozumowania. Default = collapsed
-  /// (empty set). Streaming bubble force-expanded niezależnie od set.
-  /// Po zakończeniu streaming (transition isStreaming true→false), index
-  /// just-completed message auto-dodawany do setu — żeby user nie tracił
-  /// widoku rozumowania który właśnie obejrzał generujący się.
+  /// Per-message expanded state dla sekcji rozumowania (Sesja F).
   final Set<int> _expandedReasoning = {};
 
   void _send() {
@@ -80,8 +76,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ReportResponseDialog.show(context, messageIndex);
   }
 
-  /// Toggle per-message reasoning section. Streaming bubble nie używa tego
-  /// (jest force-expanded niezależnie).
+  /// Sesja G — regenerate triggered z PopupMenu w bańce ostatniej assistant
+  /// message. Bez confirmation — Stop button pozwala przerwać w trakcie.
+  /// MVP F1 replace approach: stara message znika z DB i state, nowa
+  /// streamuje się dla tego samego user pytania.
+  void _regenerateLastMessage() {
+    ref.read(chatControllerProvider.notifier).regenerateLastAssistant();
+  }
+
   void _toggleReasoning(int index) {
     setState(() {
       if (_expandedReasoning.contains(index)) {
@@ -169,6 +171,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   chat: chat,
                   onCopyMessage: _copyMessage,
                   onReportMessage: _reportMessage,
+                  onRegenerateLast: _regenerateLastMessage,
                   expandedReasoning: _expandedReasoning,
                   onToggleReasoning: _toggleReasoning,
                 ),
@@ -236,6 +239,7 @@ class _MessageList extends StatelessWidget {
   final ChatState chat;
   final void Function(String content) onCopyMessage;
   final void Function(int messageIndex) onReportMessage;
+  final VoidCallback onRegenerateLast;
   final Set<int> expandedReasoning;
   final void Function(int messageIndex) onToggleReasoning;
 
@@ -244,6 +248,7 @@ class _MessageList extends StatelessWidget {
     required this.chat,
     required this.onCopyMessage,
     required this.onReportMessage,
+    required this.onRegenerateLast,
     required this.expandedReasoning,
     required this.onToggleReasoning,
   });
@@ -268,6 +273,11 @@ class _MessageList extends StatelessWidget {
         if (i < chat.messages.length) {
           final m = chat.messages[i];
           final showMenu = m.role == 'assistant' && !m.isPartial;
+          // Sesja G: Regeneruj dostępne TYLKO dla ostatniej assistant message
+          // która jest non-partial non-streaming. Wcześniejsze historic
+          // messages mają tylko Copy + Report (regen by wymagał branching).
+          final isLast = i == chat.messages.length - 1;
+          final canRegenerate = isLast && showMenu && !chat.isStreaming;
           return _Bubble(
             text: m.content,
             isUser: m.role == 'user',
@@ -279,9 +289,9 @@ class _MessageList extends StatelessWidget {
                 : null,
             onCopy: showMenu ? () => onCopyMessage(m.content) : null,
             onReport: showMenu ? () => onReportMessage(i) : null,
+            onRegenerate: canRegenerate ? onRegenerateLast : null,
           );
         }
-        // Streaming bubble — reasoning auto-expanded niezależnie od set.
         return _Bubble(
           text: chat.streamingContent.isEmpty && chat.isStreaming
               ? '…'
@@ -305,6 +315,7 @@ class _Bubble extends StatelessWidget {
   final VoidCallback? onToggleReasoning;
   final VoidCallback? onCopy;
   final VoidCallback? onReport;
+  final VoidCallback? onRegenerate;
 
   const _Bubble({
     required this.text,
@@ -316,6 +327,7 @@ class _Bubble extends StatelessWidget {
     this.onToggleReasoning,
     this.onCopy,
     this.onReport,
+    this.onRegenerate,
   });
 
   @override
@@ -323,7 +335,7 @@ class _Bubble extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final body = text + (streaming ? ' ▋' : '');
-    final showMenu = onCopy != null || onReport != null;
+    final showMenu = onCopy != null || onReport != null || onRegenerate != null;
     final hasReasoning = reasoning.isNotEmpty;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -342,12 +354,6 @@ class _Bubble extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Sesja F: reasoning UI dopracowanie — sekcja jako akordeon
-              // z chevron icon + smooth animation + subtle background.
-              // Tylko gdy reasoning niepusty. Streaming = force-expanded
-              // z spinnerem zamiast chevron. Historic = collapse/expand
-              // przez tap, default collapsed (chyba że auto-expanded po
-              // zakończeniu streaming w parent state).
               if (hasReasoning) ...[
                 _ReasoningSection(
                   reasoning: reasoning,
@@ -384,30 +390,49 @@ class _Bubble extends StatelessWidget {
                       ),
                       padding: EdgeInsets.zero,
                       onSelected: (v) {
+                        if (v == 'regenerate' && onRegenerate != null) {
+                          onRegenerate!();
+                        }
                         if (v == 'copy' && onCopy != null) onCopy!();
                         if (v == 'report' && onReport != null) onReport!();
                       },
                       itemBuilder: (_) => [
-                        PopupMenuItem(
-                          value: 'copy',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.copy_outlined, size: 18),
-                              const SizedBox(width: 12),
-                              Text(loc.commonCopy),
-                            ],
+                        // Sesja G: Regeneruj na górze menu — najbardziej
+                        // pro-active akcja (nowa generacja). Dostępna tylko
+                        // dla ostatniej non-partial assistant message.
+                        if (onRegenerate != null)
+                          PopupMenuItem(
+                            value: 'regenerate',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.refresh, size: 18),
+                                const SizedBox(width: 12),
+                                Text(loc.chatRegenerate),
+                              ],
+                            ),
                           ),
-                        ),
-                        PopupMenuItem(
-                          value: 'report',
-                          child: Row(
-                            children: [
-                              const Icon(Icons.flag_outlined, size: 18),
-                              const SizedBox(width: 12),
-                              Text(loc.chatReportResponse),
-                            ],
+                        if (onCopy != null)
+                          PopupMenuItem(
+                            value: 'copy',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.copy_outlined, size: 18),
+                                const SizedBox(width: 12),
+                                Text(loc.commonCopy),
+                              ],
+                            ),
                           ),
-                        ),
+                        if (onReport != null)
+                          PopupMenuItem(
+                            value: 'report',
+                            child: Row(
+                              children: [
+                                const Icon(Icons.flag_outlined, size: 18),
+                                const SizedBox(width: 12),
+                                Text(loc.chatReportResponse),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
@@ -422,18 +447,7 @@ class _Bubble extends StatelessWidget {
 }
 
 /// Akordeon sekcji rozumowania (chain-of-thought) modeli reasoning-capable.
-///
-/// Dwa tryby:
-/// - **Streaming** (gdy bubble jest w trakcie generowania) — force-expanded,
-///   header z spinnerem zamiast chevron, tap zablokowany (nie można zwinąć
-///   w trakcie generowania).
-/// - **Non-streaming** (historic message) — header z chevron icon (rotates
-///   90° przy expanded), tap toggluje state, AnimatedSize smooth animation
-///   na expand/collapse.
-///
-/// Wizualnie: subtle background (`surfaceContainerLow`), border radius,
-/// faint border outline. Tekst reasoning mniejszy + italic + onSurfaceVariant
-/// color — wyraźnie odróżnia się od głównej treści odpowiedzi.
+/// (Sesja F dopracowanie — bez zmian w Sesji G.)
 class _ReasoningSection extends StatelessWidget {
   final String reasoning;
   final bool isExpanded;
@@ -451,8 +465,6 @@ class _ReasoningSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
-    // Streaming zawsze expanded; non-streaming kontroluje parent state przez
-    // isExpanded. Brak tap-to-toggle podczas streaming (onTap=null).
     final effectivelyExpanded = streaming || isExpanded;
     final canToggle = !streaming && onToggle != null;
     return Material(
@@ -512,9 +524,6 @@ class _ReasoningSection extends StatelessWidget {
                   ],
                 ),
               ),
-              // AnimatedSize zapewnia smooth height transition gdy child
-              // zmienia rozmiar między SizedBox.shrink() (collapsed) a
-              // Padding+Text (expanded).
               AnimatedSize(
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,

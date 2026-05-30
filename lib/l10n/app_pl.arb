@@ -31,7 +31,7 @@
   },
   "commonMoreMenu": "Więcej",
   "@commonMoreMenu": {
-    "description": "Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar lub w bańkach wiadomości"
+    "description": "Tooltip dla PopupMenuButton w AppBar lub w bańkach wiadomości"
   },
 
   "themeModeSystem": "Motyw: systemowy",
@@ -89,11 +89,15 @@
   },
   "chatReasoningLabel": "Myślenie",
   "@chatReasoningLabel": {
-    "description": "Etykieta sekcji reasoning w bańce"
+    "description": "Etykieta sekcji reasoning w bańce (akordeon Sesja F)"
   },
   "chatReportResponse": "Raportuj odpowiedź",
   "@chatReportResponse": {
-    "description": "Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog"
+    "description": "Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog (Sesja E)"
+  },
+  "chatRegenerate": "Regeneruj",
+  "@chatRegenerate": {
+    "description": "Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G) — wywołuje regenerację odpowiedzi. Replace approach: stara message znika, nowa generuje się dla tego samego user pytania używając obecnych parametrów"
   },
 
   "chatParametersTooltip": "Parametry rozmowy",
@@ -562,11 +566,11 @@
   },
   "reportResponseDisclaimerContent": "Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.",
   "@reportResponseDisclaimerContent": {
-    "description": "Treść disclaimer privacy — co zostanie / co NIE zostanie udostępnione"
+    "description": "Treść disclaimer privacy"
   },
   "reportResponseShare": "Udostępnij",
   "@reportResponseShare": {
-    "description": "Przycisk submit — otwiera share intent z raportem"
+    "description": "Przycisk submit — otwiera share intent"
   },
   "reportResponseSubject": "Atrament — raport problemu z odpowiedzią",
   "@reportResponseSubject": {

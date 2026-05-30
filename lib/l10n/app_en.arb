@@ -26,6 +26,7 @@
   "chatSendTooltip": "Send",
   "chatReasoningLabel": "Thinking",
   "chatReportResponse": "Report response",
+  "chatRegenerate": "Regenerate",
 
   "chatParametersTooltip": "Conversation parameters",
   "chatParametersTitle": "Conversation parameters",

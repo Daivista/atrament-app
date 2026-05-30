@@ -209,4 +209,37 @@ class MessageRepository {
           ..limit(1))
         .getSingleOrNull();
   }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Sesja G — regeneracja odpowiedzi (MVP F1 replace approach).
+  // User klika "Regeneruj" w PopupMenu ostatniej assistant message → controller
+  // potrzebuje pobrać parent_id (user message) i usunąć starą assistant z DB,
+  // żeby streamować nową odpowiedź dla tego samego user pytania.
+  //
+  // FK semantics z migration v2 obsługują side effects automatycznie:
+  // - chats.active_leaf_message_id → messages (ON DELETE SET NULL): po delete
+  //   activeLeafMessageId staje się NULL, _commitAssistant nowej odpowiedzi
+  //   ustawi go z powrotem na nowy ID
+  // - messages.parent_id → messages (ON DELETE SET NULL): dzieci usuwanej
+  //   wiadomości tracą referencję, nie blokują delete. Dla regeneracji ostatniej
+  //   assistant message (= liść drzewa) nie ma dzieci, więc nieaplikowalne tu.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /// Pobiera pojedynczą wiadomość po ID. Używane przez regenerację żeby znaleźć
+  /// parent_id (user message id) przed usunięciem starej assistant message.
+  Future<Message?> getMessage(String messageId) {
+    return (_db.select(
+      _db.messages,
+    )..where((m) => m.id.equals(messageId))).getSingleOrNull();
+  }
+
+  /// Usuwa pojedynczą wiadomość. FK CASCADE/SET NULL automatycznie obsługują
+  /// referencje (dzieci tracą parent_id, chat traci activeLeafMessageId jeśli
+  /// to ona była ostatnia). Dla regeneracji wywoływane na ostatniej assistant
+  /// message — bezpieczne bo jest liściem drzewa.
+  Future<void> deleteMessage(String messageId) async {
+    await (_db.delete(
+      _db.messages,
+    )..where((m) => m.id.equals(messageId))).go();
+  }
 }

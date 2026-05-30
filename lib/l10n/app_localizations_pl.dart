@@ -79,6 +79,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatReportResponse => 'Raportuj odpowiedź';
 
   @override
+  String get chatRegenerate => 'Regeneruj';
+
+  @override
   String get chatParametersTooltip => 'Parametry rozmowy';
 
   @override

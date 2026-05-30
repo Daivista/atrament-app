@@ -140,7 +140,7 @@ abstract class AppLocalizations {
   /// **'Nowa rozmowa'**
   String get commonNewChat;
 
-  /// Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar lub w bańkach wiadomości
+  /// Tooltip dla PopupMenuButton w AppBar lub w bańkach wiadomości
   ///
   /// In pl, this message translates to:
   /// **'Więcej'**
@@ -224,17 +224,23 @@ abstract class AppLocalizations {
   /// **'Wyślij'**
   String get chatSendTooltip;
 
-  /// Etykieta sekcji reasoning w bańce
+  /// Etykieta sekcji reasoning w bańce (akordeon Sesja F)
   ///
   /// In pl, this message translates to:
   /// **'Myślenie'**
   String get chatReasoningLabel;
 
-  /// Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog
+  /// Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog (Sesja E)
   ///
   /// In pl, this message translates to:
   /// **'Raportuj odpowiedź'**
   String get chatReportResponse;
+
+  /// Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G) — wywołuje regenerację odpowiedzi. Replace approach: stara message znika, nowa generuje się dla tego samego user pytania używając obecnych parametrów
+  ///
+  /// In pl, this message translates to:
+  /// **'Regeneruj'**
+  String get chatRegenerate;
 
   /// Tooltip ikony tune w AppBar chat_screen
   ///
@@ -848,13 +854,13 @@ abstract class AppLocalizations {
   /// **'Co zostanie udostępnione'**
   String get reportResponseDisclaimerTitle;
 
-  /// Treść disclaimer privacy — co zostanie / co NIE zostanie udostępnione
+  /// Treść disclaimer privacy
   ///
   /// In pl, this message translates to:
   /// **'Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.'**
   String get reportResponseDisclaimerContent;
 
-  /// Przycisk submit — otwiera share intent z raportem
+  /// Przycisk submit — otwiera share intent
   ///
   /// In pl, this message translates to:
   /// **'Udostępnij'**

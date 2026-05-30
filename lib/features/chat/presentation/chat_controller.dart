@@ -128,9 +128,6 @@ class ChatController extends Notifier<ChatState> {
         chatId: chat.id,
         lastMessageId: chat.activeLeafMessageId,
         title: chat.title,
-        // Sesja F: surfac'ujemy reasoning z DB do state. Wcześniej było
-        // ignorowane — historic messages traciły reasoning po reloadzie
-        // rozmowy, więc reasoning UI działało tylko podczas streaming.
         messages: dbMsgs
             .map(
               (m) => ChatMessage(
@@ -338,6 +335,156 @@ class ChatController extends Notifier<ChatState> {
     }
   }
 
+  /// Sesja G — regeneracja ostatniej odpowiedzi modelu.
+  ///
+  /// **Replace approach (MVP F1):** stara assistant message znika z DB i state,
+  /// nowa streamuje się dla tego samego user pytania używając obecnych
+  /// parametrów. Tracimy historię regeneracji — F2 może dodać multi-leaf
+  /// (parent_id pattern z manifestu już to obsługuje na poziomie DB).
+  ///
+  /// **Privacy-aware logging:** loguje metadata (chatId, model, deletedAssistantId,
+  /// duration) — NIGDY treść message'y (Sesja C convention).
+  ///
+  /// Validation guards (early return):
+  /// - isStreaming: nie można regenerować podczas streaming
+  /// - messages.length < 2: potrzeba user + assistant pair
+  /// - last.role != 'assistant': tylko assistant messages można regenerować
+  /// - chatId == null: rozmowa nie zapisana w DB (nie powinno się zdarzyć w UI)
+  /// - lastMessageId == null: state corrupted
+  /// - dbAssistant.parentId == null: orphan message (nie powinno się zdarzyć)
+  Future<void> regenerateLastAssistant() async {
+    if (state.isStreaming) {
+      LogBuffer().warn('chat', 'Regenerate aborted: already streaming');
+      return;
+    }
+    if (state.messages.length < 2) {
+      LogBuffer().warn('chat', 'Regenerate aborted: not enough messages');
+      return;
+    }
+    final last = state.messages.last;
+    if (last.role != 'assistant') {
+      LogBuffer().warn('chat', 'Regenerate aborted: last message not assistant');
+      return;
+    }
+    final chatId = state.chatId;
+    final oldAssistantId = state.lastMessageId;
+    if (chatId == null || oldAssistantId == null) {
+      LogBuffer().warn('chat', 'Regenerate aborted: missing chatId or messageId');
+      return;
+    }
+
+    final target = await ref.read(chatTargetProvider.future);
+    if (target == null) {
+      LogBuffer().warn('chat', 'Regenerate aborted: no active server');
+      state = state.copyWith(error: 'Brak aktywnego serwera.');
+      return;
+    }
+
+    final repo = ref.read(messageRepositoryProvider);
+
+    // Pobierz parent_id (user message id) — potrzebny żeby nowa assistant
+    // message wskazywała na ten sam user prompt. Plus do _commitAssistant
+    // wymaga parentUserId.
+    final dbAssistant = await repo.getMessage(oldAssistantId);
+    if (dbAssistant == null) {
+      LogBuffer().error('chat', 'Regenerate aborted: assistant message not in DB');
+      return;
+    }
+    final userMsgId = dbAssistant.parentId;
+    if (userMsgId == null) {
+      LogBuffer().error('chat', 'Regenerate aborted: assistant has no parent');
+      return;
+    }
+
+    // Usuń starą assistant message z DB. FK chats.active_leaf_message_id
+    // (SET NULL on delete) zerwie referencję — _commitAssistant nowej
+    // odpowiedzi przywróci go.
+    await repo.deleteMessage(oldAssistantId);
+
+    // Usuń starą assistant z state.messages. lastMessageId wraca na user msg.
+    final newMessages = state.messages.sublist(0, state.messages.length - 1);
+    state = state.copyWith(
+      messages: newMessages,
+      lastMessageId: userMsgId,
+      isStreaming: true,
+      streamingContent: '',
+      streamingReasoning: '',
+      clearError: true,
+    );
+
+    // Build API messages history — system prompt z chatu + wszystkie messages
+    // bez usuniętej assistant. Konsekwentnie z send() pattern.
+    final chat = await repo.getChat(chatId);
+    final systemPrompt = chat?.systemPrompt;
+    final apiMessages = <ChatMessage>[
+      if (systemPrompt != null && systemPrompt.isNotEmpty)
+        ChatMessage('system', systemPrompt),
+      ...newMessages,
+    ];
+
+    final modelToUse = chat?.modelId ?? target.model;
+
+    LogBuffer().info(
+      'chat',
+      'Regenerate: chatId=$chatId, model=$modelToUse, '
+          'historyCount=${apiMessages.length}, '
+          'deletedAssistantId=$oldAssistantId',
+    );
+
+    _cancelToken = CancelToken();
+    _wasStopped = false;
+    final chatApi = ref.read(chatRepositoryProvider);
+    final regenStart = DateTime.now();
+
+    try {
+      await for (final chunk in chatApi.streamCompletion(
+        baseUrl: target.baseUrl,
+        apiKey: target.apiKey,
+        model: modelToUse,
+        messages: apiMessages,
+        parameters: state.parameters,
+        cancelToken: _cancelToken,
+      )) {
+        if (chunk.done) break;
+        state = state.copyWith(
+          streamingContent: chunk.contentDelta != null
+              ? state.streamingContent + chunk.contentDelta!
+              : null,
+          streamingReasoning: chunk.reasoningDelta != null
+              ? state.streamingReasoning + chunk.reasoningDelta!
+              : null,
+        );
+      }
+      await _commitAssistant(
+        repo,
+        chatId,
+        userMsgId, // parent of NEW assistant = user message (same as old)
+        modelToUse,
+        parameters: state.parameters,
+        isPartial: _wasStopped,
+      );
+      final duration = DateTime.now().difference(regenStart).inMilliseconds;
+      LogBuffer().info(
+        'chat',
+        'Regenerate complete: chatId=$chatId, duration=${duration}ms, '
+            'contentLength=${state.streamingContent.length}, '
+            'reasoningLength=${state.streamingReasoning.length}, '
+            'partial=$_wasStopped',
+      );
+    } catch (e) {
+      await _commitAssistant(
+        repo,
+        chatId,
+        userMsgId,
+        modelToUse,
+        parameters: state.parameters,
+        isPartial: true,
+      );
+      LogBuffer().error('chat', 'Regenerate error: chatId=$chatId, error=$e');
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
   Future<void> continueLast() async {
     if (state.isStreaming) return;
     if (state.messages.isEmpty) return;
@@ -448,9 +595,6 @@ class ChatController extends Notifier<ChatState> {
       parameters: parameters,
       isPartial: isPartial,
     );
-    // Sesja F: zapisujemy reasoning w state.messages tak samo jak w DB,
-    // żeby UI mogło pokazać sekcję reasoning dla świeżo zakończonej
-    // wiadomości po `isStreaming` flip false (oraz po reload).
     final msgs = [
       ...state.messages,
       ChatMessage(
@@ -491,8 +635,6 @@ class ChatController extends Notifier<ChatState> {
     final msgs = [...state.messages];
     final last = msgs.removeLast();
     final stillPartial = _wasStopped;
-    // Sesja F: konkatenujemy reasoning tak samo jak content, żeby state
-    // odpowiadał DB (gdzie appendContinuation łączy oba).
     final mergedReasoning =
         (last.reasoning ?? '') + additionReasoning;
     msgs.add(
