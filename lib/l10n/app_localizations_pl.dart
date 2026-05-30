@@ -345,14 +345,14 @@ class AppLocalizationsPl extends AppLocalizations {
   String get diagnosticsShareLogs => 'Udostępnij logi';
 
   @override
-  String get diagnosticsClearLogs => 'Wyczyść logi';
+  String get diagnosticsClearAll => 'Wyczyść wszystko';
 
   @override
-  String get diagnosticsClearLogsConfirmTitle => 'Wyczyścić logi?';
+  String get diagnosticsClearAllConfirmTitle => 'Wyczyścić wszystko?';
 
   @override
-  String get diagnosticsClearLogsConfirmContent =>
-      'Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.';
+  String get diagnosticsClearAllConfirmContent =>
+      'Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.';
 
   @override
   String diagnosticsError(String error) {
@@ -361,6 +361,36 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String diagnosticsShareError(String error) {
-    return 'Nie udało się udostępnić logów: $error';
+    return 'Nie udało się udostępnić: $error';
   }
+
+  @override
+  String diagnosticsCrashesSection(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count',
+      many: '$count',
+      few: '$count',
+      one: '$count',
+      zero: '0',
+    );
+    return 'Awarie ($_temp0)';
+  }
+
+  @override
+  String get diagnosticsNoCrashes => 'Brak awarii w tej sesji. 🎉';
+
+  @override
+  String get diagnosticsSendCrashReport => 'Wyślij raport o awarii';
+
+  @override
+  String get diagnosticsCrashReportSubject => 'Atrament — raport o awarii';
+
+  @override
+  String get diagnosticsTestCrash => 'Wywołaj testową awarię';
+
+  @override
+  String get diagnosticsTestCrashTriggered =>
+      'Testowa awaria wywołana — zobacz sekcję Awarie';
 }

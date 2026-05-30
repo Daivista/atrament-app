@@ -704,29 +704,29 @@ abstract class AppLocalizations {
   /// **'Brak logów w tej sesji.'**
   String get diagnosticsLogsEmpty;
 
-  /// Label FAB — otwiera share intent z tekstem diagnostyki + logów
+  /// Label FAB — otwiera share intent z tekstem diagnostyki + wszystkich logów
   ///
   /// In pl, this message translates to:
   /// **'Udostępnij logi'**
   String get diagnosticsShareLogs;
 
-  /// Tooltip ikony delete w AppBar Diagnostyka
+  /// Tooltip ikony delete w AppBar Diagnostyka — czyści zarówno logi jak i raporty awarii
   ///
   /// In pl, this message translates to:
-  /// **'Wyczyść logi'**
-  String get diagnosticsClearLogs;
+  /// **'Wyczyść wszystko'**
+  String get diagnosticsClearAll;
 
-  /// Tytuł dialogu potwierdzenia wyczyszczenia bufora logów
+  /// Tytuł dialogu potwierdzenia wyczyszczenia logów + awarii
   ///
   /// In pl, this message translates to:
-  /// **'Wyczyścić logi?'**
-  String get diagnosticsClearLogsConfirmTitle;
+  /// **'Wyczyścić wszystko?'**
+  String get diagnosticsClearAllConfirmTitle;
 
-  /// Treść dialogu potwierdzenia wyczyszczenia logów
+  /// Treść dialogu potwierdzenia clear all
   ///
   /// In pl, this message translates to:
-  /// **'Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.'**
-  String get diagnosticsClearLogsConfirmContent;
+  /// **'Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.'**
+  String get diagnosticsClearAllConfirmContent;
 
   /// Komunikat błędu gdy diagnostics async query rzuci wyjątek
   ///
@@ -734,11 +734,47 @@ abstract class AppLocalizations {
   /// **'Błąd: {error}'**
   String diagnosticsError(String error);
 
-  /// Snackbar gdy share intent rzuci wyjątek
+  /// Snackbar gdy share intent rzuci wyjątek (zarówno dla pełnych logów jak crash report)
   ///
   /// In pl, this message translates to:
-  /// **'Nie udało się udostępnić logów: {error}'**
+  /// **'Nie udało się udostępnić: {error}'**
   String diagnosticsShareError(String error);
+
+  /// Nagłówek sekcji awarii z liczbą crashy (ICU plural — nawias zawsze pokazuje liczbę).
+  ///
+  /// In pl, this message translates to:
+  /// **'Awarie ({count, plural, =0{0} one{{count}} few{{count}} many{{count}} other{{count}}})'**
+  String diagnosticsCrashesSection(int count);
+
+  /// Placeholder gdy crashes list jest pusty — dobra wiadomość, więc emoji 🎉
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak awarii w tej sesji. 🎉'**
+  String get diagnosticsNoCrashes;
+
+  /// Label przycisku w sekcji awarii — otwiera share intent z prefiltrowanym crash report (crashe + 50 entries kontekstu)
+  ///
+  /// In pl, this message translates to:
+  /// **'Wyślij raport o awarii'**
+  String get diagnosticsSendCrashReport;
+
+  /// Subject w share intent dla crash reportu (np. tytuł emaila)
+  ///
+  /// In pl, this message translates to:
+  /// **'Atrament — raport o awarii'**
+  String get diagnosticsCrashReportSubject;
+
+  /// Label przycisku DEBUG-ONLY (widoczny tylko w kDebugMode) do empirycznego sprawdzenia że global error handlers działają. NIE pokazywany w release.
+  ///
+  /// In pl, this message translates to:
+  /// **'Wywołaj testową awarię'**
+  String get diagnosticsTestCrash;
+
+  /// Snackbar po kliknięciu Wywołaj testową awarię — informuje że crash został wyzwolony i powinien się pojawić w sekcji
+  ///
+  /// In pl, this message translates to:
+  /// **'Testowa awaria wywołana — zobacz sekcję Awarie'**
+  String get diagnosticsTestCrashTriggered;
 }
 
 class _AppLocalizationsDelegate

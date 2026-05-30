@@ -11,13 +11,10 @@ import '../../chat/data/chat_providers.dart';
 import '../../profiles/data/profile_providers.dart';
 
 /// FutureProvider dla informacji o aplikacji (wersja, package, build number).
-/// PackageInfo.fromPlatform() jest async (pobiera z platform channels Android/iOS).
 final _packageInfoProvider = FutureProvider<PackageInfo>(
   (ref) => PackageInfo.fromPlatform(),
 );
 
-/// FutureProvider dla statystyk diagnostycznych — łączy dane z profile_repo
-/// i message_repo. Auto-refresh gdy któryś z repo source zmieni stan.
 final _diagnosticsStatsProvider = FutureProvider<_DiagnosticsStats>((ref) async {
   final profileRepo = ref.watch(profileRepositoryProvider);
   final profiles = await profileRepo.getAllProfiles();
@@ -60,8 +57,8 @@ class DiagnosticsScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: loc.diagnosticsClearLogs,
-            onPressed: () => _confirmClear(context, ref, loc),
+            tooltip: loc.diagnosticsClearAll,
+            onPressed: () => _confirmClearAll(context, ref, loc),
           ),
         ],
       ),
@@ -71,6 +68,15 @@ class DiagnosticsScreen extends ConsumerWidget {
           _buildAppInfoCard(context, packageInfoAsync, loc),
           const SizedBox(height: Spacing.md),
           _buildStatsCard(context, statsAsync, loc),
+          const SizedBox(height: Spacing.md),
+          _buildCrashesCard(
+            context,
+            ref,
+            logBuffer,
+            packageInfoAsync,
+            statsAsync,
+            loc,
+          ),
           const SizedBox(height: Spacing.md),
           _buildLogsCard(context, logBuffer, loc),
         ],
@@ -190,12 +196,96 @@ class DiagnosticsScreen extends ConsumerWidget {
     );
   }
 
+  /// Sekcja Awarie — pokazuje liczbę i listę crashy. Plus button do
+  /// świadomego wysłania crash report przez share intent. W debug mode plus
+  /// button do empirycznego sprawdzenia że error handlers działają.
+  Widget _buildCrashesCard(
+    BuildContext context,
+    WidgetRef ref,
+    LogBuffer buffer,
+    AsyncValue<PackageInfo> packageInfoAsync,
+    AsyncValue<_DiagnosticsStats> statsAsync,
+    AppLocalizations loc,
+  ) {
+    final crashes = buffer.crashes.reversed.toList();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(Spacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              loc.diagnosticsCrashesSection(buffer.crashCount),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: Spacing.sm),
+            if (crashes.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
+                child: Text(
+                  loc.diagnosticsNoCrashes,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              )
+            else ...[
+              // Preview ostatnich 5 crashy — user widzi że są, klika button
+              // żeby zobaczyć pełny report w shared intent.
+              SizedBox(
+                height: crashes.length > 3 ? 240 : null,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: crashes.length > 3
+                      ? const ClampingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+                  itemCount: crashes.length > 5 ? 5 : crashes.length,
+                  itemBuilder: (_, i) => _CrashEntryTile(entry: crashes[i]),
+                ),
+              ),
+              const SizedBox(height: Spacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  icon: const Icon(Icons.bug_report_outlined),
+                  label: Text(loc.diagnosticsSendCrashReport),
+                  onPressed: () => _shareCrashReport(
+                    context,
+                    ref,
+                    packageInfoAsync,
+                    statsAsync,
+                    loc,
+                  ),
+                ),
+              ),
+            ],
+            // W debug mode pokazujemy button do empirycznego sprawdzenia że
+            // global error handlers działają. NIE pokazywany w release —
+            // żeby nie zaśmiecać UX produkcyjnego "test buttonem".
+            if (kDebugMode) ...[
+              const SizedBox(height: Spacing.sm),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(Icons.warning_amber_outlined, size: 18),
+                  label: Text(loc.diagnosticsTestCrash),
+                  onPressed: () => _triggerTestCrash(context, loc),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLogsCard(
     BuildContext context,
     LogBuffer buffer,
     AppLocalizations loc,
   ) {
-    final entries = buffer.entries.reversed.toList(); // najnowsze na górze
+    final entries = buffer.entries.reversed.toList();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(Spacing.md),
@@ -262,7 +352,7 @@ class DiagnosticsScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _confirmClear(
+  Future<void> _confirmClearAll(
     BuildContext context,
     WidgetRef ref,
     AppLocalizations loc,
@@ -270,8 +360,8 @@ class DiagnosticsScreen extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(loc.diagnosticsClearLogsConfirmTitle),
-        content: Text(loc.diagnosticsClearLogsConfirmContent),
+        title: Text(loc.diagnosticsClearAllConfirmTitle),
+        content: Text(loc.diagnosticsClearAllConfirmContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -285,7 +375,7 @@ class DiagnosticsScreen extends ConsumerWidget {
       ),
     );
     if (ok == true) {
-      ref.read(logBufferProvider).clear();
+      ref.read(logBufferProvider).clearAll();
     }
   }
 
@@ -296,8 +386,6 @@ class DiagnosticsScreen extends ConsumerWidget {
     AsyncValue<_DiagnosticsStats> statsAsync,
     AppLocalizations loc,
   ) async {
-    // Cierpliwie czekamy aż obie AsyncValue załadują się; jeśli któraś
-    // jest w loading/error, użyj fallback "unknown".
     final info = packageInfoAsync.value;
     final stats = statsAsync.value;
     final buildMode = kDebugMode
@@ -321,14 +409,52 @@ class DiagnosticsScreen extends ConsumerWidget {
     );
 
     try {
-      // share_plus 10.x API. Jeśli wersja jest starsza i to nie kompiluje,
-      // fallback do `Share.share(exportText, ...)` jest dostępny w starszych
-      // wersjach paczki — wtedy `SharePlus.instance.share(ShareParams(...))`
-      // trzeba zamienić.
+      await SharePlus.instance.share(
+        ShareParams(text: exportText, subject: 'Atrament diagnostics'),
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.diagnosticsShareError('$e'))),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareCrashReport(
+    BuildContext context,
+    WidgetRef ref,
+    AsyncValue<PackageInfo> packageInfoAsync,
+    AsyncValue<_DiagnosticsStats> statsAsync,
+    AppLocalizations loc,
+  ) async {
+    final info = packageInfoAsync.value;
+    final stats = statsAsync.value;
+    final buildMode = kDebugMode
+        ? 'debug'
+        : (kProfileMode ? 'profile' : 'release');
+
+    final reportText = ref.read(logBufferProvider).buildCrashReportText(
+      appName: info?.appName ?? 'Atrament',
+      appVersion: info != null
+          ? '${info.version}+${info.buildNumber}'
+          : 'unknown',
+      buildMode: buildMode,
+      stats: {
+        loc.diagnosticsProfileCount:
+            stats != null ? '${stats.profileCount}' : '?',
+        loc.diagnosticsActiveProfile:
+            stats?.activeProfileName ?? loc.diagnosticsNone,
+        loc.diagnosticsChatCount:
+            stats != null ? '${stats.chatCount}' : '?',
+      },
+    );
+
+    try {
       await SharePlus.instance.share(
         ShareParams(
-          text: exportText,
-          subject: 'Atrament diagnostics',
+          text: reportText,
+          subject: loc.diagnosticsCrashReportSubject,
         ),
       );
     } catch (e) {
@@ -338,6 +464,75 @@ class DiagnosticsScreen extends ConsumerWidget {
         );
       }
     }
+  }
+
+  /// Wywołuje testowy crash żeby user empirycznie zweryfikował że error
+  /// handlers działają. Wyrzuca exception z `Future.microtask` żeby trafić
+  /// w PlatformDispatcher.instance.onError (async path), a nie tylko w
+  /// FlutterError.onError (sync path) — pokrywa szerszy zakres handlerów.
+  void _triggerTestCrash(BuildContext context, AppLocalizations loc) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(loc.diagnosticsTestCrashTriggered),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+    // Wyzwol async exception — global handler złapie i zapisze jako crash.
+    Future.microtask(() {
+      throw StateError(
+        'Test crash from diagnostics screen — empirical pipeline verification',
+      );
+    });
+  }
+}
+
+class _CrashEntryTile extends StatelessWidget {
+  final LogEntry entry;
+  const _CrashEntryTile({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(Spacing.sm),
+      decoration: BoxDecoration(
+        color: cs.errorContainer.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: cs.error.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.error_outline, size: 14, color: cs.error),
+              const SizedBox(width: 6),
+              Text(
+                entry.formattedShort,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontFamily: 'monospace',
+                  fontWeight: FontWeight.w500,
+                  color: cs.error,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            entry.message,
+            style: TextStyle(
+              fontSize: 11,
+              fontFamily: 'monospace',
+              color: cs.onSurface,
+            ),
+            maxLines: 5,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
   }
 }
 

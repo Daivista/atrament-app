@@ -342,14 +342,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get diagnosticsShareLogs => 'Share logs';
 
   @override
-  String get diagnosticsClearLogs => 'Clear logs';
+  String get diagnosticsClearAll => 'Clear all';
 
   @override
-  String get diagnosticsClearLogsConfirmTitle => 'Clear logs?';
+  String get diagnosticsClearAllConfirmTitle => 'Clear everything?';
 
   @override
-  String get diagnosticsClearLogsConfirmContent =>
-      'All logs from this session will be deleted. This action cannot be undone.';
+  String get diagnosticsClearAllConfirmContent =>
+      'All logs and crash reports from this session will be deleted. This action cannot be undone.';
 
   @override
   String diagnosticsError(String error) {
@@ -358,6 +358,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String diagnosticsShareError(String error) {
-    return 'Failed to share logs: $error';
+    return 'Failed to share: $error';
   }
+
+  @override
+  String diagnosticsCrashesSection(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count',
+      one: '$count',
+      zero: '0',
+    );
+    return 'Crashes ($_temp0)';
+  }
+
+  @override
+  String get diagnosticsNoCrashes => 'No crashes in this session. 🎉';
+
+  @override
+  String get diagnosticsSendCrashReport => 'Send crash report';
+
+  @override
+  String get diagnosticsCrashReportSubject => 'Atrament — crash report';
+
+  @override
+  String get diagnosticsTestCrash => 'Trigger test crash';
+
+  @override
+  String get diagnosticsTestCrashTriggered =>
+      'Test crash triggered — see Crashes section';
 }

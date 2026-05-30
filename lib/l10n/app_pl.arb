@@ -449,19 +449,19 @@
   },
   "diagnosticsShareLogs": "Udostępnij logi",
   "@diagnosticsShareLogs": {
-    "description": "Label FAB — otwiera share intent z tekstem diagnostyki + logów"
+    "description": "Label FAB — otwiera share intent z tekstem diagnostyki + wszystkich logów"
   },
-  "diagnosticsClearLogs": "Wyczyść logi",
-  "@diagnosticsClearLogs": {
-    "description": "Tooltip ikony delete w AppBar Diagnostyka"
+  "diagnosticsClearAll": "Wyczyść wszystko",
+  "@diagnosticsClearAll": {
+    "description": "Tooltip ikony delete w AppBar Diagnostyka — czyści zarówno logi jak i raporty awarii"
   },
-  "diagnosticsClearLogsConfirmTitle": "Wyczyścić logi?",
-  "@diagnosticsClearLogsConfirmTitle": {
-    "description": "Tytuł dialogu potwierdzenia wyczyszczenia bufora logów"
+  "diagnosticsClearAllConfirmTitle": "Wyczyścić wszystko?",
+  "@diagnosticsClearAllConfirmTitle": {
+    "description": "Tytuł dialogu potwierdzenia wyczyszczenia logów + awarii"
   },
-  "diagnosticsClearLogsConfirmContent": "Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.",
-  "@diagnosticsClearLogsConfirmContent": {
-    "description": "Treść dialogu potwierdzenia wyczyszczenia logów"
+  "diagnosticsClearAllConfirmContent": "Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.",
+  "@diagnosticsClearAllConfirmContent": {
+    "description": "Treść dialogu potwierdzenia clear all"
   },
   "diagnosticsError": "Błąd: {error}",
   "@diagnosticsError": {
@@ -472,13 +472,43 @@
       }
     }
   },
-  "diagnosticsShareError": "Nie udało się udostępnić logów: {error}",
+  "diagnosticsShareError": "Nie udało się udostępnić: {error}",
   "@diagnosticsShareError": {
-    "description": "Snackbar gdy share intent rzuci wyjątek",
+    "description": "Snackbar gdy share intent rzuci wyjątek (zarówno dla pełnych logów jak crash report)",
     "placeholders": {
       "error": {
         "type": "String"
       }
     }
+  },
+
+  "diagnosticsCrashesSection": "Awarie ({count, plural, =0{0} one{{count}} few{{count}} many{{count}} other{{count}}})",
+  "@diagnosticsCrashesSection": {
+    "description": "Nagłówek sekcji awarii z liczbą crashy (ICU plural — nawias zawsze pokazuje liczbę).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsNoCrashes": "Brak awarii w tej sesji. 🎉",
+  "@diagnosticsNoCrashes": {
+    "description": "Placeholder gdy crashes list jest pusty — dobra wiadomość, więc emoji 🎉"
+  },
+  "diagnosticsSendCrashReport": "Wyślij raport o awarii",
+  "@diagnosticsSendCrashReport": {
+    "description": "Label przycisku w sekcji awarii — otwiera share intent z prefiltrowanym crash report (crashe + 50 entries kontekstu)"
+  },
+  "diagnosticsCrashReportSubject": "Atrament — raport o awarii",
+  "@diagnosticsCrashReportSubject": {
+    "description": "Subject w share intent dla crash reportu (np. tytuł emaila)"
+  },
+  "diagnosticsTestCrash": "Wywołaj testową awarię",
+  "@diagnosticsTestCrash": {
+    "description": "Label przycisku DEBUG-ONLY (widoczny tylko w kDebugMode) do empirycznego sprawdzenia że global error handlers działają. NIE pokazywany w release."
+  },
+  "diagnosticsTestCrashTriggered": "Testowa awaria wywołana — zobacz sekcję Awarie",
+  "@diagnosticsTestCrashTriggered": {
+    "description": "Snackbar po kliknięciu Wywołaj testową awarię — informuje że crash został wyzwolony i powinien się pojawić w sekcji"
   }
 }
