@@ -29,6 +29,10 @@
   "@commonNewChat": {
     "description": "Etykieta FAB listy rozmów oraz placeholder tytułu w AppBar dla rozmowy bez id"
   },
+  "commonMoreMenu": "Więcej",
+  "@commonMoreMenu": {
+    "description": "Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar"
+  },
 
   "themeModeSystem": "Motyw: systemowy",
   "@themeModeSystem": {
@@ -383,6 +387,94 @@
   "addProfileSaveError": "Błąd zapisu: {error}",
   "@addProfileSaveError": {
     "description": "Error message gdy zapis do bazy rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "diagnosticsTitle": "Diagnostyka",
+  "@diagnosticsTitle": {
+    "description": "Tytuł ekranu Diagnostyka + tytuł pozycji w PopupMenuButton AppBar listy rozmów"
+  },
+  "diagnosticsAboutSection": "O aplikacji",
+  "@diagnosticsAboutSection": {
+    "description": "Nagłówek sekcji 'O aplikacji' (wersja, build mode, package name)"
+  },
+  "diagnosticsAppLabel": "Aplikacja",
+  "@diagnosticsAppLabel": {
+    "description": "Label wiersza z nazwą + wersją aplikacji"
+  },
+  "diagnosticsBuildModeLabel": "Tryb buildu",
+  "@diagnosticsBuildModeLabel": {
+    "description": "Label wiersza z trybem kompilacji (debug/profile/release)"
+  },
+  "diagnosticsPackageNameLabel": "Package",
+  "@diagnosticsPackageNameLabel": {
+    "description": "Label wiersza z package name aplikacji (com.example.atrament_app)"
+  },
+  "diagnosticsStateSection": "Stan",
+  "@diagnosticsStateSection": {
+    "description": "Nagłówek sekcji 'Stan' (liczba profili/rozmów, aktywny profil)"
+  },
+  "diagnosticsProfileCount": "Liczba profili",
+  "@diagnosticsProfileCount": {
+    "description": "Label wiersza z liczbą profili w bazie"
+  },
+  "diagnosticsActiveProfile": "Aktywny profil",
+  "@diagnosticsActiveProfile": {
+    "description": "Label wiersza z nazwą aktywnego profilu (gwiazdka)"
+  },
+  "diagnosticsChatCount": "Liczba rozmów",
+  "@diagnosticsChatCount": {
+    "description": "Label wiersza z łączną liczbą rozmów w bazie"
+  },
+  "diagnosticsNone": "— brak —",
+  "@diagnosticsNone": {
+    "description": "Placeholder wartości gdy pole jest puste (np. aktywny profil = null)"
+  },
+  "diagnosticsLogsSection": "Logi ({count})",
+  "@diagnosticsLogsSection": {
+    "description": "Nagłówek sekcji logów z liczbą entries",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsLogsEmpty": "Brak logów w tej sesji.",
+  "@diagnosticsLogsEmpty": {
+    "description": "Placeholder gdy log buffer jest pusty (np. po Wyczyść)"
+  },
+  "diagnosticsShareLogs": "Udostępnij logi",
+  "@diagnosticsShareLogs": {
+    "description": "Label FAB — otwiera share intent z tekstem diagnostyki + logów"
+  },
+  "diagnosticsClearLogs": "Wyczyść logi",
+  "@diagnosticsClearLogs": {
+    "description": "Tooltip ikony delete w AppBar Diagnostyka"
+  },
+  "diagnosticsClearLogsConfirmTitle": "Wyczyścić logi?",
+  "@diagnosticsClearLogsConfirmTitle": {
+    "description": "Tytuł dialogu potwierdzenia wyczyszczenia bufora logów"
+  },
+  "diagnosticsClearLogsConfirmContent": "Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.",
+  "@diagnosticsClearLogsConfirmContent": {
+    "description": "Treść dialogu potwierdzenia wyczyszczenia logów"
+  },
+  "diagnosticsError": "Błąd: {error}",
+  "@diagnosticsError": {
+    "description": "Komunikat błędu gdy diagnostics async query rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "diagnosticsShareError": "Nie udało się udostępnić logów: {error}",
+  "@diagnosticsShareError": {
+    "description": "Snackbar gdy share intent rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "String"

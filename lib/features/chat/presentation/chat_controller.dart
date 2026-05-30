@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
+import '../../../core/logging/log_buffer.dart';
 import '../../../core/providers/providers.dart';
 import '../../profiles/data/profile_providers.dart';
 import '../data/chat_models.dart';
@@ -22,19 +23,28 @@ final chatTargetProvider = StreamProvider<ChatTarget?>((ref) {
     }
     if (profile == null) return null;
     final apiKey = await repo.getApiKey(profile.id);
-    final models = await ref
-        .read(apiClientProvider)
-        .fetchModels(profile.baseUrl, apiKey: apiKey);
-    return ChatTarget(
-      baseUrl: profile.baseUrl,
-      apiKey: apiKey,
-      // models.first to fallback dla rozmów które nie mają jeszcze przypisanego
-      // modelu (chats.model_id NULL). Po sesji A2 dropdown w ChatParametersSheet
-      // pozwala user explicit wybrać model — wtedy state.modelId override.
-      model: models.first,
-      availableModels: models,
-      profileName: profile.name,
-    );
+    try {
+      final models = await ref
+          .read(apiClientProvider)
+          .fetchModels(profile.baseUrl, apiKey: apiKey);
+      LogBuffer().info(
+        'api',
+        'Fetched models for profile=${profile.name}: count=${models.length}',
+      );
+      return ChatTarget(
+        baseUrl: profile.baseUrl,
+        apiKey: apiKey,
+        // models.first to fallback dla rozmów które nie mają jeszcze przypisanego
+        // modelu (chats.model_id NULL). Po sesji A2 dropdown w ChatParametersSheet
+        // pozwala user explicit wybrać model — wtedy state.modelId override.
+        model: models.first,
+        availableModels: models,
+        profileName: profile.name,
+      );
+    } catch (e) {
+      LogBuffer().error('api', 'Fetch models failed for profile=${profile.name}: $e');
+      rethrow;
+    }
   });
 });
 
@@ -136,12 +146,21 @@ class ChatController extends Notifier<ChatState> {
         systemPrompt: chat.systemPrompt,
         modelId: chat.modelId,
       );
-    } catch (_) {}
+      LogBuffer().info(
+        'chat',
+        'Loaded chat: id=$chatId, messages=${dbMsgs.length}, '
+            'hasSystemPrompt=${chat.systemPrompt != null}, '
+            'hasModel=${chat.modelId != null}',
+      );
+    } catch (e) {
+      LogBuffer().error('chat', 'Load chat failed: id=$chatId, error=$e');
+    }
   }
 
   void newChat() {
     if (state.isStreaming) return;
     state = const ChatState();
+    LogBuffer().info('chat', 'New chat state (not yet persisted)');
   }
 
   Future<void> updateTitle(String title) async {
@@ -149,6 +168,7 @@ class ChatController extends Notifier<ChatState> {
     if (id == null) return;
     await ref.read(messageRepositoryProvider).updateChatTitle(id, title);
     state = state.copyWith(title: title.trim().isEmpty ? null : title.trim());
+    LogBuffer().info('chat', 'Updated title: id=$id');
   }
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -164,6 +184,13 @@ class ChatController extends Notifier<ChatState> {
     if (id != null) {
       await ref.read(messageRepositoryProvider).updateChatParameters(id, params);
     }
+    LogBuffer().info(
+      'param',
+      'Updated parameters: chatId=$id, temperature=${params.temperature.toStringAsFixed(2)}, '
+          'maxTokens=${params.maxTokens}, '
+          'topP=${params.topP}, '
+          'reasoning=${params.reasoningEffort?.name}',
+    );
   }
 
   Future<void> updateSystemPrompt(String? systemPrompt) async {
@@ -179,6 +206,11 @@ class ChatController extends Notifier<ChatState> {
           .read(messageRepositoryProvider)
           .updateChatSystemPrompt(id, value);
     }
+    // Loggujemy że system prompt został zmieniony, ALE NIE treść (privacy).
+    LogBuffer().info(
+      'param',
+      'Updated system prompt: chatId=$id, length=${value?.length ?? 0}',
+    );
   }
 
   Future<void> updateModel(String? modelId) async {
@@ -190,6 +222,7 @@ class ChatController extends Notifier<ChatState> {
     if (id != null) {
       await ref.read(messageRepositoryProvider).updateChatModel(id, modelId);
     }
+    LogBuffer().info('param', 'Updated model: chatId=$id, model=$modelId');
   }
 
   Future<void> send(String text) async {
@@ -197,6 +230,7 @@ class ChatController extends Notifier<ChatState> {
 
     final target = await ref.read(chatTargetProvider.future);
     if (target == null) {
+      LogBuffer().warn('chat', 'Send aborted: no active server');
       state = state.copyWith(error: 'Brak aktywnego serwera.');
       return;
     }
@@ -212,6 +246,7 @@ class ChatController extends Notifier<ChatState> {
     // dla nowej rozmowy, zmienić parametry, zamknąć sheet, potem wysłać).
     // Bez tego state-level config byłby zignorowany przy persistance.
     if (wasNewChat) {
+      LogBuffer().info('chat', 'Created new chat: id=$chatId');
       if (state.parameters != const ChatParameters()) {
         await repo.updateChatParameters(chatId, state.parameters);
       }
@@ -244,6 +279,14 @@ class ChatController extends Notifier<ChatState> {
 
     final modelToUse = chat?.modelId ?? target.model;
 
+    // Loggujemy wysyłkę — metadata bez treści (length zamiast content).
+    LogBuffer().info(
+      'chat',
+      'Send: chatId=$chatId, model=$modelToUse, '
+          'historyCount=${apiMessages.length}, '
+          'lastUserLength=${text.trim().length}',
+    );
+
     state = state.copyWith(
       chatId: chatId,
       lastMessageId: userId,
@@ -258,6 +301,7 @@ class ChatController extends Notifier<ChatState> {
     _cancelToken = CancelToken();
     _wasStopped = false;
     final chatApi = ref.read(chatRepositoryProvider);
+    final sendStart = DateTime.now();
 
     try {
       await for (final chunk in chatApi.streamCompletion(
@@ -286,6 +330,14 @@ class ChatController extends Notifier<ChatState> {
         parameters: state.parameters,
         isPartial: _wasStopped,
       );
+      final duration = DateTime.now().difference(sendStart).inMilliseconds;
+      LogBuffer().info(
+        'chat',
+        'Response complete: chatId=$chatId, duration=${duration}ms, '
+            'contentLength=${state.streamingContent.length}, '
+            'reasoningLength=${state.streamingReasoning.length}, '
+            'partial=$_wasStopped',
+      );
     } catch (e) {
       await _commitAssistant(
         repo,
@@ -295,6 +347,7 @@ class ChatController extends Notifier<ChatState> {
         parameters: state.parameters,
         isPartial: true,
       );
+      LogBuffer().error('chat', 'Send error: chatId=$chatId, error=$e');
       state = state.copyWith(error: e.toString());
     }
   }
@@ -307,6 +360,7 @@ class ChatController extends Notifier<ChatState> {
 
     final target = await ref.read(chatTargetProvider.future);
     if (target == null) {
+      LogBuffer().warn('chat', 'Continue aborted: no active server');
       state = state.copyWith(error: 'Brak aktywnego serwera.');
       return;
     }
@@ -332,6 +386,8 @@ class ChatController extends Notifier<ChatState> {
       ...state.messages,
       continueMsg,
     ];
+
+    LogBuffer().info('chat', 'Continue last partial: chatId=$chatId');
 
     state = state.copyWith(
       isStreaming: true,
@@ -364,8 +420,10 @@ class ChatController extends Notifier<ChatState> {
         );
       }
       await _commitContinuation(repo, partialId);
+      LogBuffer().info('chat', 'Continue complete: chatId=$chatId');
     } catch (e) {
       await _commitContinuation(repo, partialId);
+      LogBuffer().error('chat', 'Continue error: chatId=$chatId, error=$e');
       state = state.copyWith(error: e.toString());
     }
   }
@@ -373,6 +431,7 @@ class ChatController extends Notifier<ChatState> {
   void stop() {
     _wasStopped = true;
     _cancelToken?.cancel();
+    LogBuffer().info('chat', 'Stop requested');
   }
 
   Future<void> _commitAssistant(

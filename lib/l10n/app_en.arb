@@ -8,6 +8,7 @@
   "commonCopied": "Copied",
   "commonUnnamedChat": "Untitled",
   "commonNewChat": "New conversation",
+  "commonMoreMenu": "More",
 
   "themeModeSystem": "Theme: system",
   "themeModeLight": "Theme: light",
@@ -101,5 +102,31 @@
   "addProfileSaving": "Saving…",
   "addProfileSaveChanges": "Save changes",
   "addProfileSaveNew": "Save server",
-  "addProfileSaveError": "Save error: {error}"
+  "addProfileSaveError": "Save error: {error}",
+
+  "diagnosticsTitle": "Diagnostics",
+  "diagnosticsAboutSection": "About app",
+  "diagnosticsAppLabel": "App",
+  "diagnosticsBuildModeLabel": "Build mode",
+  "diagnosticsPackageNameLabel": "Package",
+  "diagnosticsStateSection": "State",
+  "diagnosticsProfileCount": "Profiles",
+  "diagnosticsActiveProfile": "Active profile",
+  "diagnosticsChatCount": "Conversations",
+  "diagnosticsNone": "— none —",
+  "diagnosticsLogsSection": "Logs ({count})",
+  "@diagnosticsLogsSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "diagnosticsLogsEmpty": "No logs in this session.",
+  "diagnosticsShareLogs": "Share logs",
+  "diagnosticsClearLogs": "Clear logs",
+  "diagnosticsClearLogsConfirmTitle": "Clear logs?",
+  "diagnosticsClearLogsConfirmContent": "All logs from this session will be deleted. This action cannot be undone.",
+  "diagnosticsError": "Error: {error}",
+  "diagnosticsShareError": "Failed to share logs: {error}"
 }

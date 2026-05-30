@@ -30,6 +30,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get commonNewChat => 'Nowa rozmowa';
 
   @override
+  String get commonMoreMenu => 'Więcej';
+
+  @override
   String get themeModeSystem => 'Motyw: systemowy';
 
   @override
@@ -298,5 +301,66 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String addProfileSaveError(String error) {
     return 'Błąd zapisu: $error';
+  }
+
+  @override
+  String get diagnosticsTitle => 'Diagnostyka';
+
+  @override
+  String get diagnosticsAboutSection => 'O aplikacji';
+
+  @override
+  String get diagnosticsAppLabel => 'Aplikacja';
+
+  @override
+  String get diagnosticsBuildModeLabel => 'Tryb buildu';
+
+  @override
+  String get diagnosticsPackageNameLabel => 'Package';
+
+  @override
+  String get diagnosticsStateSection => 'Stan';
+
+  @override
+  String get diagnosticsProfileCount => 'Liczba profili';
+
+  @override
+  String get diagnosticsActiveProfile => 'Aktywny profil';
+
+  @override
+  String get diagnosticsChatCount => 'Liczba rozmów';
+
+  @override
+  String get diagnosticsNone => '— brak —';
+
+  @override
+  String diagnosticsLogsSection(int count) {
+    return 'Logi ($count)';
+  }
+
+  @override
+  String get diagnosticsLogsEmpty => 'Brak logów w tej sesji.';
+
+  @override
+  String get diagnosticsShareLogs => 'Udostępnij logi';
+
+  @override
+  String get diagnosticsClearLogs => 'Wyczyść logi';
+
+  @override
+  String get diagnosticsClearLogsConfirmTitle => 'Wyczyścić logi?';
+
+  @override
+  String get diagnosticsClearLogsConfirmContent =>
+      'Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.';
+
+  @override
+  String diagnosticsError(String error) {
+    return 'Błąd: $error';
+  }
+
+  @override
+  String diagnosticsShareError(String error) {
+    return 'Nie udało się udostępnić logów: $error';
   }
 }

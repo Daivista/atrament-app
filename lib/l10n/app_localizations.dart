@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Nowa rozmowa'**
   String get commonNewChat;
 
+  /// Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar
+  ///
+  /// In pl, this message translates to:
+  /// **'Więcej'**
+  String get commonMoreMenu;
+
   /// Tooltip przycisku motywu w AppBar — stan systemowy (default, idzie za ustawieniem Androida)
   ///
   /// In pl, this message translates to:
@@ -625,6 +631,114 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Błąd zapisu: {error}'**
   String addProfileSaveError(String error);
+
+  /// Tytuł ekranu Diagnostyka + tytuł pozycji w PopupMenuButton AppBar listy rozmów
+  ///
+  /// In pl, this message translates to:
+  /// **'Diagnostyka'**
+  String get diagnosticsTitle;
+
+  /// Nagłówek sekcji 'O aplikacji' (wersja, build mode, package name)
+  ///
+  /// In pl, this message translates to:
+  /// **'O aplikacji'**
+  String get diagnosticsAboutSection;
+
+  /// Label wiersza z nazwą + wersją aplikacji
+  ///
+  /// In pl, this message translates to:
+  /// **'Aplikacja'**
+  String get diagnosticsAppLabel;
+
+  /// Label wiersza z trybem kompilacji (debug/profile/release)
+  ///
+  /// In pl, this message translates to:
+  /// **'Tryb buildu'**
+  String get diagnosticsBuildModeLabel;
+
+  /// Label wiersza z package name aplikacji (com.example.atrament_app)
+  ///
+  /// In pl, this message translates to:
+  /// **'Package'**
+  String get diagnosticsPackageNameLabel;
+
+  /// Nagłówek sekcji 'Stan' (liczba profili/rozmów, aktywny profil)
+  ///
+  /// In pl, this message translates to:
+  /// **'Stan'**
+  String get diagnosticsStateSection;
+
+  /// Label wiersza z liczbą profili w bazie
+  ///
+  /// In pl, this message translates to:
+  /// **'Liczba profili'**
+  String get diagnosticsProfileCount;
+
+  /// Label wiersza z nazwą aktywnego profilu (gwiazdka)
+  ///
+  /// In pl, this message translates to:
+  /// **'Aktywny profil'**
+  String get diagnosticsActiveProfile;
+
+  /// Label wiersza z łączną liczbą rozmów w bazie
+  ///
+  /// In pl, this message translates to:
+  /// **'Liczba rozmów'**
+  String get diagnosticsChatCount;
+
+  /// Placeholder wartości gdy pole jest puste (np. aktywny profil = null)
+  ///
+  /// In pl, this message translates to:
+  /// **'— brak —'**
+  String get diagnosticsNone;
+
+  /// Nagłówek sekcji logów z liczbą entries
+  ///
+  /// In pl, this message translates to:
+  /// **'Logi ({count})'**
+  String diagnosticsLogsSection(int count);
+
+  /// Placeholder gdy log buffer jest pusty (np. po Wyczyść)
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak logów w tej sesji.'**
+  String get diagnosticsLogsEmpty;
+
+  /// Label FAB — otwiera share intent z tekstem diagnostyki + logów
+  ///
+  /// In pl, this message translates to:
+  /// **'Udostępnij logi'**
+  String get diagnosticsShareLogs;
+
+  /// Tooltip ikony delete w AppBar Diagnostyka
+  ///
+  /// In pl, this message translates to:
+  /// **'Wyczyść logi'**
+  String get diagnosticsClearLogs;
+
+  /// Tytuł dialogu potwierdzenia wyczyszczenia bufora logów
+  ///
+  /// In pl, this message translates to:
+  /// **'Wyczyścić logi?'**
+  String get diagnosticsClearLogsConfirmTitle;
+
+  /// Treść dialogu potwierdzenia wyczyszczenia logów
+  ///
+  /// In pl, this message translates to:
+  /// **'Wszystkie logi z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.'**
+  String get diagnosticsClearLogsConfirmContent;
+
+  /// Komunikat błędu gdy diagnostics async query rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Błąd: {error}'**
+  String diagnosticsError(String error);
+
+  /// Snackbar gdy share intent rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Nie udało się udostępnić logów: {error}'**
+  String diagnosticsShareError(String error);
 }
 
 class _AppLocalizationsDelegate

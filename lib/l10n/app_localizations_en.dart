@@ -30,6 +30,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNewChat => 'New conversation';
 
   @override
+  String get commonMoreMenu => 'More';
+
+  @override
   String get themeModeSystem => 'Theme: system';
 
   @override
@@ -295,5 +298,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String addProfileSaveError(String error) {
     return 'Save error: $error';
+  }
+
+  @override
+  String get diagnosticsTitle => 'Diagnostics';
+
+  @override
+  String get diagnosticsAboutSection => 'About app';
+
+  @override
+  String get diagnosticsAppLabel => 'App';
+
+  @override
+  String get diagnosticsBuildModeLabel => 'Build mode';
+
+  @override
+  String get diagnosticsPackageNameLabel => 'Package';
+
+  @override
+  String get diagnosticsStateSection => 'State';
+
+  @override
+  String get diagnosticsProfileCount => 'Profiles';
+
+  @override
+  String get diagnosticsActiveProfile => 'Active profile';
+
+  @override
+  String get diagnosticsChatCount => 'Conversations';
+
+  @override
+  String get diagnosticsNone => '— none —';
+
+  @override
+  String diagnosticsLogsSection(int count) {
+    return 'Logs ($count)';
+  }
+
+  @override
+  String get diagnosticsLogsEmpty => 'No logs in this session.';
+
+  @override
+  String get diagnosticsShareLogs => 'Share logs';
+
+  @override
+  String get diagnosticsClearLogs => 'Clear logs';
+
+  @override
+  String get diagnosticsClearLogsConfirmTitle => 'Clear logs?';
+
+  @override
+  String get diagnosticsClearLogsConfirmContent =>
+      'All logs from this session will be deleted. This action cannot be undone.';
+
+  @override
+  String diagnosticsError(String error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String diagnosticsShareError(String error) {
+    return 'Failed to share logs: $error';
   }
 }

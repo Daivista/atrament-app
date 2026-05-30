@@ -4,6 +4,7 @@ import '../../../core/database/database.dart';
 import '../../../core/providers/theme_mode_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../diagnostics/presentation/diagnostics_screen.dart';
 import '../../profiles/presentation/profiles_screen.dart';
 import '../data/chat_providers.dart';
 import 'chat_controller.dart';
@@ -35,6 +36,25 @@ class ChatsListScreen extends ConsumerWidget {
             onPressed: () => Navigator.of(
               context,
             ).push(MaterialPageRoute(builder: (_) => const ProfilesScreen())),
+          ),
+          // Overflow menu na końcu — akcje rzadziej używane (diagnostyka,
+          // w przyszłości settings/about). Konwencja Material Design:
+          // primary actions = bezpośrednie ikony, secondary = popup menu.
+          PopupMenuButton<String>(
+            tooltip: loc.commonMoreMenu,
+            onSelected: (v) => _onMenuAction(context, v),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'diagnostics',
+                child: Row(
+                  children: [
+                    const Icon(Icons.bug_report_outlined, size: 20),
+                    const SizedBox(width: 12),
+                    Text(loc.diagnosticsTitle),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -112,6 +132,15 @@ class ChatsListScreen extends ConsumerWidget {
         return loc.themeModeLight;
       case ThemeMode.dark:
         return loc.themeModeDark;
+    }
+  }
+
+  void _onMenuAction(BuildContext context, String action) {
+    switch (action) {
+      case 'diagnostics':
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
+        );
     }
   }
 
