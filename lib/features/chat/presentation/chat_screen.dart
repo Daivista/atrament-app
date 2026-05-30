@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import '../../../core/theme.dart';
@@ -7,6 +8,7 @@ import '../../../shared/widgets/code_block.dart';
 import '../../../shared/widgets/empty_state.dart';
 import 'chat_controller.dart';
 import 'chat_parameters_sheet.dart';
+import 'report_response_dialog.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({super.key});
@@ -54,6 +56,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (result != null) {
       await ref.read(chatControllerProvider.notifier).updateTitle(result);
     }
+  }
+
+  /// Kopiuje treść assistant message do schowka + krótki SnackBar.
+  /// Używane przez PopupMenu „Kopiuj" w bańkach.
+  void _copyMessage(String content) {
+    final loc = AppLocalizations.of(context);
+    Clipboard.setData(ClipboardData(text: content));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(loc.commonCopied),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  /// Otwiera ReportResponseDialog dla wiadomości pod danym indeksem.
+  /// Dialog sam pobiera treść + poprzednią user message z chatControllerProvider.
+  void _reportMessage(int messageIndex) {
+    ReportResponseDialog.show(context, messageIndex);
   }
 
   @override
@@ -124,7 +145,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           return Column(
             children: [
               Expanded(
-                child: _MessageList(scroll: _scroll, chat: chat),
+                child: _MessageList(
+                  scroll: _scroll,
+                  chat: chat,
+                  onCopyMessage: _copyMessage,
+                  onReportMessage: _reportMessage,
+                ),
               ),
               if (lastIsPartial)
                 Container(
@@ -187,7 +213,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 class _MessageList extends StatelessWidget {
   final ScrollController scroll;
   final ChatState chat;
-  const _MessageList({required this.scroll, required this.chat});
+  final void Function(String content) onCopyMessage;
+  final void Function(int messageIndex) onReportMessage;
+  const _MessageList({
+    required this.scroll,
+    required this.chat,
+    required this.onCopyMessage,
+    required this.onReportMessage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -208,10 +241,16 @@ class _MessageList extends StatelessWidget {
       itemBuilder: (context, i) {
         if (i < chat.messages.length) {
           final m = chat.messages[i];
+          // Menu (copy/report) tylko dla assistant + non-partial.
+          // Partial messages mogą być w trakcie resume — nie chcemy raportować
+          // niezakończonej odpowiedzi.
+          final showMenu = m.role == 'assistant' && !m.isPartial;
           return _Bubble(
             text: m.content,
             isUser: m.role == 'user',
             isPartial: m.isPartial,
+            onCopy: showMenu ? () => onCopyMessage(m.content) : null,
+            onReport: showMenu ? () => onReportMessage(i) : null,
           );
         }
         return _Bubble(
@@ -233,12 +272,16 @@ class _Bubble extends StatelessWidget {
   final String reasoning;
   final bool streaming;
   final bool isPartial;
+  final VoidCallback? onCopy;
+  final VoidCallback? onReport;
   const _Bubble({
     required this.text,
     required this.isUser,
     this.reasoning = '',
     this.streaming = false,
     this.isPartial = false,
+    this.onCopy,
+    this.onReport,
   });
 
   @override
@@ -246,6 +289,7 @@ class _Bubble extends StatelessWidget {
     final loc = AppLocalizations.of(context);
     final cs = Theme.of(context).colorScheme;
     final body = text + (streaming ? ' ▋' : '');
+    final showMenu = onCopy != null || onReport != null;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Opacity(
@@ -289,6 +333,53 @@ class _Bubble extends StatelessWidget {
                     closed: closed,
                   ),
                 ),
+              // Menu actions w prawym dolnym rogu bańki — Copy + Report.
+              // Tylko dla assistant + non-partial + non-streaming.
+              if (showMenu) ...[
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: PopupMenuButton<String>(
+                      tooltip: loc.commonMoreMenu,
+                      icon: Icon(
+                        Icons.more_horiz,
+                        size: 18,
+                        color: cs.outline,
+                      ),
+                      padding: EdgeInsets.zero,
+                      onSelected: (v) {
+                        if (v == 'copy' && onCopy != null) onCopy!();
+                        if (v == 'report' && onReport != null) onReport!();
+                      },
+                      itemBuilder: (_) => [
+                        PopupMenuItem(
+                          value: 'copy',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.copy_outlined, size: 18),
+                              const SizedBox(width: 12),
+                              Text(loc.commonCopy),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'report',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.flag_outlined, size: 18),
+                              const SizedBox(width: 12),
+                              Text(loc.chatReportResponse),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

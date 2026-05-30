@@ -25,6 +25,7 @@
   "chatStopTooltip": "Stop",
   "chatSendTooltip": "Send",
   "chatReasoningLabel": "Thinking",
+  "chatReportResponse": "Report response",
 
   "chatParametersTooltip": "Conversation parameters",
   "chatParametersTitle": "Conversation parameters",
@@ -142,5 +143,28 @@
   "diagnosticsSendCrashReport": "Send crash report",
   "diagnosticsCrashReportSubject": "Atrament — crash report",
   "diagnosticsTestCrash": "Trigger test crash",
-  "diagnosticsTestCrashTriggered": "Test crash triggered — see Crashes section"
+  "diagnosticsTestCrashTriggered": "Test crash triggered — see Crashes section",
+
+  "reportResponseTitle": "Report response problem",
+  "reportResponseIntro": "Your report will help improve the app. NOTHING is sent automatically — you choose who to share with (email, clipboard, etc.).",
+  "reportResponseCategoryLabel": "Category:",
+  "reportCategoryInaccurate": "Inaccurate info",
+  "reportCategoryOffTopic": "Off-topic",
+  "reportCategoryUnsafe": "Toxic / unsafe",
+  "reportCategoryPoorQuality": "Poor quality",
+  "reportCategoryOther": "Other",
+  "reportResponseCommentLabel": "Comment (optional):",
+  "reportResponseCommentHint": "Briefly describe what's wrong…",
+  "reportResponseDisclaimerTitle": "What will be shared",
+  "reportResponseDisclaimerContent": "Your category and comment, your question, the reported model response, conversation parameters, model, system prompt (if set), and last 20 technical log entries. API keys and other conversations are NOT included.",
+  "reportResponseShare": "Share",
+  "reportResponseSubject": "Atrament — response problem report",
+  "reportResponseShareError": "Failed to share report: {error}",
+  "@reportResponseShareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  }
 }

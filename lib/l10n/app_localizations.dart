@@ -116,7 +116,7 @@ abstract class AppLocalizations {
   /// **'Usuń'**
   String get commonDelete;
 
-  /// Przycisk kopiowania kodu w bloku ``` do schowka
+  /// Przycisk kopiowania kodu w bloku ``` do schowka lub treści wiadomości assistant
   ///
   /// In pl, this message translates to:
   /// **'Kopiuj'**
@@ -140,13 +140,13 @@ abstract class AppLocalizations {
   /// **'Nowa rozmowa'**
   String get commonNewChat;
 
-  /// Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar
+  /// Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar lub w bańkach wiadomości
   ///
   /// In pl, this message translates to:
   /// **'Więcej'**
   String get commonMoreMenu;
 
-  /// Tooltip przycisku motywu w AppBar — stan systemowy (default, idzie za ustawieniem Androida)
+  /// Tooltip przycisku motywu w AppBar — stan systemowy
   ///
   /// In pl, this message translates to:
   /// **'Motyw: systemowy'**
@@ -164,19 +164,19 @@ abstract class AppLocalizations {
   /// **'Motyw: ciemny'**
   String get themeModeDark;
 
-  /// Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)
+  /// Tytuł dialogu edycji nazwy rozmowy
   ///
   /// In pl, this message translates to:
   /// **'Zmień nazwę rozmowy'**
   String get chatTitleEditDialog;
 
-  /// Banner gdy ostatnia odpowiedź modelu jest częściowa (resume flow)
+  /// Banner gdy ostatnia odpowiedź modelu jest częściowa
   ///
   /// In pl, this message translates to:
   /// **'Odpowiedź przerwana'**
   String get chatResponseInterrupted;
 
-  /// Przycisk w bannerze odpowiedzi przerwanej — wznawia generowanie
+  /// Przycisk w bannerze odpowiedzi przerwanej
   ///
   /// In pl, this message translates to:
   /// **'Kontynuuj'**
@@ -188,7 +188,7 @@ abstract class AppLocalizations {
   /// **'Brak aktywnego serwera'**
   String get chatNoActiveServerTitle;
 
-  /// Tytuł pustego ekranu gdy aktywny profil rzucił błąd połączenia
+  /// Tytuł pustego ekranu gdy aktywny profil rzucił błąd
   ///
   /// In pl, this message translates to:
   /// **'Nie można połączyć'**
@@ -212,7 +212,7 @@ abstract class AppLocalizations {
   /// **'Napisz wiadomość…'**
   String get chatComposerHint;
 
-  /// Tooltip przycisku zatrzymania strumieniowania odpowiedzi
+  /// Tooltip przycisku zatrzymania strumieniowania
   ///
   /// In pl, this message translates to:
   /// **'Zatrzymaj'**
@@ -224,13 +224,19 @@ abstract class AppLocalizations {
   /// **'Wyślij'**
   String get chatSendTooltip;
 
-  /// Etykieta sekcji reasoning w bańce (renderowana z emoji 🧠 w widgecie)
+  /// Etykieta sekcji reasoning w bańce
   ///
   /// In pl, this message translates to:
   /// **'Myślenie'**
   String get chatReasoningLabel;
 
-  /// Tooltip ikony tune w AppBar chat_screen — otwiera ChatParametersSheet
+  /// Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog
+  ///
+  /// In pl, this message translates to:
+  /// **'Raportuj odpowiedź'**
+  String get chatReportResponse;
+
+  /// Tooltip ikony tune w AppBar chat_screen
   ///
   /// In pl, this message translates to:
   /// **'Parametry rozmowy'**
@@ -242,43 +248,43 @@ abstract class AppLocalizations {
   /// **'Parametry rozmowy'**
   String get chatParametersTitle;
 
-  /// Label sekcji wyboru modelu w sheet
+  /// Label sekcji wyboru modelu
   ///
   /// In pl, this message translates to:
   /// **'Model'**
   String get chatParametersModel;
 
-  /// Tryb UI parametrów: tylko suwak Kreatywność + system prompt
+  /// Tryb UI: tylko suwak Kreatywność + system prompt
   ///
   /// In pl, this message translates to:
   /// **'Prosty'**
   String get chatParametersModeSimple;
 
-  /// Tryb UI parametrów: + max_tokens, seed
+  /// Tryb UI: + max_tokens, seed
   ///
   /// In pl, this message translates to:
   /// **'Średni'**
   String get chatParametersModeMedium;
 
-  /// Tryb UI parametrów: wszystkie 13 parametrów
+  /// Tryb UI: wszystkie 13 parametrów
   ///
   /// In pl, this message translates to:
   /// **'Zaawansowany'**
   String get chatParametersModeAdvanced;
 
-  /// Label suwaka Kreatywność (mapping temperature 0.2-1.2, intuicyjnie dla nowych użytkowników)
+  /// Label suwaka Kreatywność
   ///
   /// In pl, this message translates to:
   /// **'Kreatywność'**
   String get chatParametersCreativity;
 
-  /// Etykieta pod lewym końcem suwaka Kreatywność
+  /// Etykieta pod lewym końcem suwaka
   ///
   /// In pl, this message translates to:
   /// **'precyzyjny (0.2)'**
   String get chatParametersCreativityPrecise;
 
-  /// Etykieta pod prawym końcem suwaka Kreatywność
+  /// Etykieta pod prawym końcem suwaka
   ///
   /// In pl, this message translates to:
   /// **'kreatywny (1.2)'**
@@ -296,13 +302,13 @@ abstract class AppLocalizations {
   /// **'Jesteś pomocnym asystentem...'**
   String get chatParametersSystemPromptHint;
 
-  /// Label pola max_tokens (limit długości odpowiedzi)
+  /// Label pola max_tokens
   ///
   /// In pl, this message translates to:
   /// **'Maks. tokenów'**
   String get chatParametersMaxTokens;
 
-  /// Label pola top_p (nucleus sampling)
+  /// Label pola top_p
   ///
   /// In pl, this message translates to:
   /// **'Top-P'**
@@ -320,7 +326,7 @@ abstract class AppLocalizations {
   /// **'Min-P'**
   String get chatParametersMinP;
 
-  /// Label pola seed (deterministyczne generowanie)
+  /// Label pola seed
   ///
   /// In pl, this message translates to:
   /// **'Seed'**
@@ -344,25 +350,25 @@ abstract class AppLocalizations {
   /// **'Presence penalty'**
   String get chatParametersPresencePenalty;
 
-  /// Label pola stop (lista sekwencji zatrzymujących generowanie)
+  /// Label pola stop
   ///
   /// In pl, this message translates to:
   /// **'Stop sequences'**
   String get chatParametersStop;
 
-  /// Placeholder dla pola stop (comma-separated)
+  /// Placeholder dla pola stop
   ///
   /// In pl, this message translates to:
   /// **'np. END, STOP, ###'**
   String get chatParametersStopHint;
 
-  /// Label segmented button dla reasoning_effort (modele rozumujące)
+  /// Label segmented button dla reasoning_effort
   ///
   /// In pl, this message translates to:
   /// **'Reasoning effort'**
   String get chatParametersReasoningEffort;
 
-  /// Wartość 'None' dla reasoning_effort (nie wysyłaj parametru)
+  /// Wartość 'None' dla reasoning_effort
   ///
   /// In pl, this message translates to:
   /// **'—'**
@@ -386,7 +392,7 @@ abstract class AppLocalizations {
   /// **'high'**
   String get chatParametersReasoningHigh;
 
-  /// Hint w pustych polach numerycznych — komunikuje że pusta wartość = nie wysyłaj parametru = serwer użyje swojego defaulta
+  /// Hint w pustych polach numerycznych
   ///
   /// In pl, this message translates to:
   /// **'domyślne serwera'**
@@ -404,7 +410,7 @@ abstract class AppLocalizations {
   /// **'Błąd: {error}'**
   String chatsListError(Object error);
 
-  /// Pozycja w popup menu rozmowy — otwiera dialog edycji nazwy
+  /// Pozycja w popup menu rozmowy
   ///
   /// In pl, this message translates to:
   /// **'Zmień nazwę'**
@@ -428,55 +434,55 @@ abstract class AppLocalizations {
   /// **'Usunąć rozmowę?'**
   String get chatsListDeleteConfirmTitle;
 
-  /// Treść dialogu potwierdzenia usunięcia, z nazwą rozmowy
+  /// Treść dialogu potwierdzenia usunięcia
   ///
   /// In pl, this message translates to:
   /// **'Rozmowa \"{title}\" zostanie usunięta wraz ze wszystkimi wiadomościami.'**
   String chatsListDeleteConfirmContent(String title);
 
-  /// Prefix dla dzisiejszej godziny w subtitle rozmowy. Tracked TODO: pełne formatowanie daty per locale przez intl DateFormat — obecnie format DD.MM.YYYY hardcoded
+  /// Prefix dla dzisiejszej godziny w subtitle rozmowy
   ///
   /// In pl, this message translates to:
   /// **'Dziś'**
   String get chatsListToday;
 
-  /// AppBar tytuł ekranu listy profili (sub-ekran z chats_list). Kontekstowy 'co user robi', nie powtórka brandu — konwencja sub-ekranów.
+  /// AppBar tytuł ekranu listy profili
   ///
   /// In pl, this message translates to:
   /// **'Serwery'**
   String get profilesScreenTitle;
 
-  /// Komunikat błędu gdy stream profili rzuci wyjątek
+  /// Komunikat błędu
   ///
   /// In pl, this message translates to:
   /// **'Błąd: {error}'**
   String profilesScreenError(Object error);
 
-  /// Subtitle profilu gdy apiKeyNeedsReentry = true (klucz zgubiony np. po restore z backup). Tekst zawiera meta-referencję do akcji menu 'Edytuj' — przy tłumaczeniu trzymać spójność z profilesScreenActionEdit.
+  /// Subtitle profilu gdy apiKeyNeedsReentry = true
   ///
   /// In pl, this message translates to:
   /// **'Klucz API utracony — wybierz Edytuj, by wpisać ponownie'**
   String get profilesScreenKeyLost;
 
-  /// Popup menu akcja na profilu — ustawia jako aktywny (gwiazdka)
+  /// Popup menu akcja na profilu
   ///
   /// In pl, this message translates to:
   /// **'Ustaw jako aktywny'**
   String get profilesScreenActionActivate;
 
-  /// Popup menu akcja — odznacza aktywność profilu (gdy obecnie aktywny)
+  /// Popup menu akcja — odznacza aktywność
   ///
   /// In pl, this message translates to:
   /// **'Usuń oznaczenie aktywnego'**
   String get profilesScreenActionDeactivate;
 
-  /// Popup menu akcja — otwiera AddProfileScreen w trybie edycji
+  /// Popup menu akcja — otwiera edycję
   ///
   /// In pl, this message translates to:
   /// **'Edytuj'**
   String get profilesScreenActionEdit;
 
-  /// Label FAB na liście profili — otwiera AddProfileScreen w trybie nowego profilu
+  /// Label FAB na liście profili
   ///
   /// In pl, this message translates to:
   /// **'Dodaj serwer'**
@@ -488,7 +494,7 @@ abstract class AppLocalizations {
   /// **'Usunąć serwer?'**
   String get profilesScreenDeleteConfirmTitle;
 
-  /// Treść dialogu potwierdzenia usunięcia, z nazwą profilu
+  /// Treść dialogu potwierdzenia
   ///
   /// In pl, this message translates to:
   /// **'Profil „{name}\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.'**
@@ -500,67 +506,67 @@ abstract class AppLocalizations {
   /// **'Brak serwerów'**
   String get profilesScreenEmpty;
 
-  /// Podpowiedź pod tytułem 'Brak serwerów'
+  /// Podpowiedź pod 'Brak serwerów'
   ///
   /// In pl, this message translates to:
   /// **'Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.'**
   String get profilesScreenEmptyHint;
 
-  /// AppBar tytuł AddProfileScreen w trybie tworzenia nowego profilu
+  /// AppBar tytuł AddProfileScreen w trybie nowym
   ///
   /// In pl, this message translates to:
   /// **'Dodaj serwer'**
   String get addProfileTitleNew;
 
-  /// AppBar tytuł AddProfileScreen w trybie edycji istniejącego profilu
+  /// AppBar tytuł AddProfileScreen w trybie edycji
   ///
   /// In pl, this message translates to:
   /// **'Edytuj serwer'**
   String get addProfileTitleEdit;
 
-  /// Label pola nazwy profilu — opcjonalne (fallback do URL)
+  /// Label pola nazwy profilu
   ///
   /// In pl, this message translates to:
   /// **'Nazwa (opcjonalna)'**
   String get addProfileNameLabel;
 
-  /// Hint dla pola nazwy — przykład nazwy własnej
+  /// Hint dla pola nazwy
   ///
   /// In pl, this message translates to:
   /// **'np. LM Studio - laptop'**
   String get addProfileNameHint;
 
-  /// Label pola URL — wymagane
+  /// Label pola URL
   ///
   /// In pl, this message translates to:
   /// **'Adres serwera'**
   String get addProfileUrlLabel;
 
-  /// Validation error gdy user kliknie 'Testuj połączenie' z pustym URL
+  /// Validation error
   ///
   /// In pl, this message translates to:
   /// **'Podaj adres serwera.'**
   String get addProfileMissingUrl;
 
-  /// Tytuł dialogu ostrzegającego przed HTTP do publicznego adresu
+  /// Tytuł dialogu cleartext warning
   ///
   /// In pl, this message translates to:
   /// **'Połączenie nieszyfrowane'**
   String get addProfileCleartextTitle;
 
-  /// Content dialogu cleartext warning — wyjaśnia ryzyko HTTP do publicznego adresu
+  /// Content dialogu cleartext warning
   ///
   /// In pl, this message translates to:
   /// **'Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?'**
   String get addProfileCleartextContent;
 
-  /// Przycisk 'kontynuuj' w cleartext warning (akcja po świadomej zgodzie na ryzyko)
+  /// Przycisk 'kontynuuj' w cleartext warning
   ///
   /// In pl, this message translates to:
   /// **'Kontynuuj'**
   String get addProfileContinue;
 
-  /// Warning card w trybie edycji gdy apiKeyNeedsReentry = true
+  /// Warning card w trybie edycji
   ///
   /// In pl, this message translates to:
   /// **'Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.'**
@@ -572,55 +578,55 @@ abstract class AppLocalizations {
   /// **'Klucz API (opcjonalny)'**
   String get addProfileApiKeyLabel;
 
-  /// Hint pola klucza w trybie edycji gdy klucz już istnieje
+  /// Hint pola klucza w edycji gdy klucz istnieje
   ///
   /// In pl, this message translates to:
   /// **'zapisany — zostaw puste by nie zmieniać'**
   String get addProfileApiKeyHintExisting;
 
-  /// Hint pola klucza w trybie nowym lub edycji gdy klucz nie istnieje
+  /// Hint pola klucza w nowym lub edycji gdy klucz nie istnieje
   ///
   /// In pl, this message translates to:
   /// **'dla serwerów wymagających autoryzacji'**
   String get addProfileApiKeyHintNew;
 
-  /// Label checkboxa do skasowania zapisanego klucza (tylko w edycji gdy klucz istnieje)
+  /// Label checkboxa do skasowania klucza
   ///
   /// In pl, this message translates to:
   /// **'Usuń zapisany klucz API'**
   String get addProfileClearKey;
 
-  /// Label przycisku 'Testuj połączenie' podczas trwającego requestu
+  /// Label przycisku 'Testuj połączenie' podczas requestu
   ///
   /// In pl, this message translates to:
   /// **'Łączenie…'**
   String get addProfileConnecting;
 
-  /// Label przycisku testu połączenia (idle state)
+  /// Label przycisku testu połączenia
   ///
   /// In pl, this message translates to:
   /// **'Testuj połączenie'**
   String get addProfileTestConnection;
 
-  /// Komunikat sukcesu połączenia z liczbą modeli. ICU plural dla polskiego (one/few/many/other), bo 1=model, 2-4=modele, 5+=modeli.
+  /// Komunikat sukcesu połączenia z liczbą modeli (ICU plural PL)
   ///
   /// In pl, this message translates to:
   /// **'✅ Połączono — {count, plural, =0{brak dostępnych modeli} one{{count} model dostępny} few{{count} modele dostępne} many{{count} modeli dostępnych} other{{count} modeli dostępnych}}:'**
   String addProfileConnected(int count);
 
-  /// Label przycisku zapisu podczas trwającego writu do bazy
+  /// Label przycisku zapisu podczas writu
   ///
   /// In pl, this message translates to:
   /// **'Zapisywanie…'**
   String get addProfileSaving;
 
-  /// Label przycisku zapisu w trybie edycji
+  /// Label przycisku zapisu w edycji
   ///
   /// In pl, this message translates to:
   /// **'Zapisz zmiany'**
   String get addProfileSaveChanges;
 
-  /// Label przycisku zapisu w trybie nowego profilu
+  /// Label przycisku zapisu w trybie nowym
   ///
   /// In pl, this message translates to:
   /// **'Zapisz serwer'**
@@ -632,149 +638,239 @@ abstract class AppLocalizations {
   /// **'Błąd zapisu: {error}'**
   String addProfileSaveError(String error);
 
-  /// Tytuł ekranu Diagnostyka + tytuł pozycji w PopupMenuButton AppBar listy rozmów
+  /// Tytuł ekranu Diagnostyka
   ///
   /// In pl, this message translates to:
   /// **'Diagnostyka'**
   String get diagnosticsTitle;
 
-  /// Nagłówek sekcji 'O aplikacji' (wersja, build mode, package name)
+  /// Nagłówek sekcji 'O aplikacji'
   ///
   /// In pl, this message translates to:
   /// **'O aplikacji'**
   String get diagnosticsAboutSection;
 
-  /// Label wiersza z nazwą + wersją aplikacji
+  /// Label wiersza z nazwą + wersją
   ///
   /// In pl, this message translates to:
   /// **'Aplikacja'**
   String get diagnosticsAppLabel;
 
-  /// Label wiersza z trybem kompilacji (debug/profile/release)
+  /// Label wiersza z trybem kompilacji
   ///
   /// In pl, this message translates to:
   /// **'Tryb buildu'**
   String get diagnosticsBuildModeLabel;
 
-  /// Label wiersza z package name aplikacji (com.example.atrament_app)
+  /// Label wiersza z package name
   ///
   /// In pl, this message translates to:
   /// **'Package'**
   String get diagnosticsPackageNameLabel;
 
-  /// Nagłówek sekcji 'Stan' (liczba profili/rozmów, aktywny profil)
+  /// Nagłówek sekcji 'Stan'
   ///
   /// In pl, this message translates to:
   /// **'Stan'**
   String get diagnosticsStateSection;
 
-  /// Label wiersza z liczbą profili w bazie
+  /// Label wiersza z liczbą profili
   ///
   /// In pl, this message translates to:
   /// **'Liczba profili'**
   String get diagnosticsProfileCount;
 
-  /// Label wiersza z nazwą aktywnego profilu (gwiazdka)
+  /// Label wiersza z aktywnym profilem
   ///
   /// In pl, this message translates to:
   /// **'Aktywny profil'**
   String get diagnosticsActiveProfile;
 
-  /// Label wiersza z łączną liczbą rozmów w bazie
+  /// Label wiersza z liczbą rozmów
   ///
   /// In pl, this message translates to:
   /// **'Liczba rozmów'**
   String get diagnosticsChatCount;
 
-  /// Placeholder wartości gdy pole jest puste (np. aktywny profil = null)
+  /// Placeholder wartości gdy pole puste
   ///
   /// In pl, this message translates to:
   /// **'— brak —'**
   String get diagnosticsNone;
 
-  /// Nagłówek sekcji logów z liczbą entries
+  /// Nagłówek sekcji logów
   ///
   /// In pl, this message translates to:
   /// **'Logi ({count})'**
   String diagnosticsLogsSection(int count);
 
-  /// Placeholder gdy log buffer jest pusty (np. po Wyczyść)
+  /// Placeholder gdy log buffer pusty
   ///
   /// In pl, this message translates to:
   /// **'Brak logów w tej sesji.'**
   String get diagnosticsLogsEmpty;
 
-  /// Label FAB — otwiera share intent z tekstem diagnostyki + wszystkich logów
+  /// Label FAB
   ///
   /// In pl, this message translates to:
   /// **'Udostępnij logi'**
   String get diagnosticsShareLogs;
 
-  /// Tooltip ikony delete w AppBar Diagnostyka — czyści zarówno logi jak i raporty awarii
+  /// Tooltip ikony delete
   ///
   /// In pl, this message translates to:
   /// **'Wyczyść wszystko'**
   String get diagnosticsClearAll;
 
-  /// Tytuł dialogu potwierdzenia wyczyszczenia logów + awarii
+  /// Tytuł dialogu potwierdzenia
   ///
   /// In pl, this message translates to:
   /// **'Wyczyścić wszystko?'**
   String get diagnosticsClearAllConfirmTitle;
 
-  /// Treść dialogu potwierdzenia clear all
+  /// Treść dialogu potwierdzenia
   ///
   /// In pl, this message translates to:
   /// **'Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.'**
   String get diagnosticsClearAllConfirmContent;
 
-  /// Komunikat błędu gdy diagnostics async query rzuci wyjątek
+  /// Komunikat błędu
   ///
   /// In pl, this message translates to:
   /// **'Błąd: {error}'**
   String diagnosticsError(String error);
 
-  /// Snackbar gdy share intent rzuci wyjątek (zarówno dla pełnych logów jak crash report)
+  /// Snackbar gdy share intent rzuci wyjątek
   ///
   /// In pl, this message translates to:
   /// **'Nie udało się udostępnić: {error}'**
   String diagnosticsShareError(String error);
 
-  /// Nagłówek sekcji awarii z liczbą crashy (ICU plural — nawias zawsze pokazuje liczbę).
+  /// Nagłówek sekcji awarii z liczbą
   ///
   /// In pl, this message translates to:
   /// **'Awarie ({count, plural, =0{0} one{{count}} few{{count}} many{{count}} other{{count}}})'**
   String diagnosticsCrashesSection(int count);
 
-  /// Placeholder gdy crashes list jest pusty — dobra wiadomość, więc emoji 🎉
+  /// Placeholder gdy crashes list pusty
   ///
   /// In pl, this message translates to:
   /// **'Brak awarii w tej sesji. 🎉'**
   String get diagnosticsNoCrashes;
 
-  /// Label przycisku w sekcji awarii — otwiera share intent z prefiltrowanym crash report (crashe + 50 entries kontekstu)
+  /// Label przycisku w sekcji awarii
   ///
   /// In pl, this message translates to:
   /// **'Wyślij raport o awarii'**
   String get diagnosticsSendCrashReport;
 
-  /// Subject w share intent dla crash reportu (np. tytuł emaila)
+  /// Subject w share intent dla crash reportu
   ///
   /// In pl, this message translates to:
   /// **'Atrament — raport o awarii'**
   String get diagnosticsCrashReportSubject;
 
-  /// Label przycisku DEBUG-ONLY (widoczny tylko w kDebugMode) do empirycznego sprawdzenia że global error handlers działają. NIE pokazywany w release.
+  /// Label przycisku DEBUG-ONLY
   ///
   /// In pl, this message translates to:
   /// **'Wywołaj testową awarię'**
   String get diagnosticsTestCrash;
 
-  /// Snackbar po kliknięciu Wywołaj testową awarię — informuje że crash został wyzwolony i powinien się pojawić w sekcji
+  /// Snackbar po kliknięciu Wywołaj testową awarię
   ///
   /// In pl, this message translates to:
   /// **'Testowa awaria wywołana — zobacz sekcję Awarie'**
   String get diagnosticsTestCrashTriggered;
+
+  /// Tytuł ReportResponseDialog — modal raportujący niewłaściwą odpowiedź modelu
+  ///
+  /// In pl, this message translates to:
+  /// **'Zgłoś problem z odpowiedzią'**
+  String get reportResponseTitle;
+
+  /// Wstęp dialogu — wyjaśnia że nic nie idzie automatycznie, świadomy opt-in user'a
+  ///
+  /// In pl, this message translates to:
+  /// **'Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).'**
+  String get reportResponseIntro;
+
+  /// Label sekcji wyboru kategorii
+  ///
+  /// In pl, this message translates to:
+  /// **'Kategoria:'**
+  String get reportResponseCategoryLabel;
+
+  /// Kategoria: fakt nieprawdziwy, halucynacja
+  ///
+  /// In pl, this message translates to:
+  /// **'Nieprawdziwe info'**
+  String get reportCategoryInaccurate;
+
+  /// Kategoria: odpowiedź nie pasuje do pytania
+  ///
+  /// In pl, this message translates to:
+  /// **'Nie na temat'**
+  String get reportCategoryOffTopic;
+
+  /// Kategoria: treść toksyczna lub niebezpieczna
+  ///
+  /// In pl, this message translates to:
+  /// **'Toksyczne / niebezpieczne'**
+  String get reportCategoryUnsafe;
+
+  /// Kategoria: urwana, zbyt krótka, niegramatyczna
+  ///
+  /// In pl, this message translates to:
+  /// **'Złej jakości'**
+  String get reportCategoryPoorQuality;
+
+  /// Kategoria: inna przyczyna nie pasująca do pozostałych
+  ///
+  /// In pl, this message translates to:
+  /// **'Inne'**
+  String get reportCategoryOther;
+
+  /// Label pola komentarza
+  ///
+  /// In pl, this message translates to:
+  /// **'Komentarz (opcjonalny):'**
+  String get reportResponseCommentLabel;
+
+  /// Placeholder w polu komentarza
+  ///
+  /// In pl, this message translates to:
+  /// **'Opisz krótko co jest nie tak…'**
+  String get reportResponseCommentHint;
+
+  /// Nagłówek info-boxa z disclaimer privacy
+  ///
+  /// In pl, this message translates to:
+  /// **'Co zostanie udostępnione'**
+  String get reportResponseDisclaimerTitle;
+
+  /// Treść disclaimer privacy — co zostanie / co NIE zostanie udostępnione
+  ///
+  /// In pl, this message translates to:
+  /// **'Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.'**
+  String get reportResponseDisclaimerContent;
+
+  /// Przycisk submit — otwiera share intent z raportem
+  ///
+  /// In pl, this message translates to:
+  /// **'Udostępnij'**
+  String get reportResponseShare;
+
+  /// Subject w share intent dla report response
+  ///
+  /// In pl, this message translates to:
+  /// **'Atrament — raport problemu z odpowiedzią'**
+  String get reportResponseSubject;
+
+  /// Snackbar gdy share rzuci wyjątek
+  ///
+  /// In pl, this message translates to:
+  /// **'Nie udało się udostępnić raportu: {error}'**
+  String reportResponseShareError(String error);
 }
 
 class _AppLocalizationsDelegate

@@ -76,6 +76,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatReasoningLabel => 'Thinking';
 
   @override
+  String get chatReportResponse => 'Report response';
+
+  @override
   String get chatParametersTooltip => 'Conversation parameters';
 
   @override
@@ -388,4 +391,53 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diagnosticsTestCrashTriggered =>
       'Test crash triggered — see Crashes section';
+
+  @override
+  String get reportResponseTitle => 'Report response problem';
+
+  @override
+  String get reportResponseIntro =>
+      'Your report will help improve the app. NOTHING is sent automatically — you choose who to share with (email, clipboard, etc.).';
+
+  @override
+  String get reportResponseCategoryLabel => 'Category:';
+
+  @override
+  String get reportCategoryInaccurate => 'Inaccurate info';
+
+  @override
+  String get reportCategoryOffTopic => 'Off-topic';
+
+  @override
+  String get reportCategoryUnsafe => 'Toxic / unsafe';
+
+  @override
+  String get reportCategoryPoorQuality => 'Poor quality';
+
+  @override
+  String get reportCategoryOther => 'Other';
+
+  @override
+  String get reportResponseCommentLabel => 'Comment (optional):';
+
+  @override
+  String get reportResponseCommentHint => 'Briefly describe what\'s wrong…';
+
+  @override
+  String get reportResponseDisclaimerTitle => 'What will be shared';
+
+  @override
+  String get reportResponseDisclaimerContent =>
+      'Your category and comment, your question, the reported model response, conversation parameters, model, system prompt (if set), and last 20 technical log entries. API keys and other conversations are NOT included.';
+
+  @override
+  String get reportResponseShare => 'Share';
+
+  @override
+  String get reportResponseSubject => 'Atrament — response problem report';
+
+  @override
+  String reportResponseShareError(String error) {
+    return 'Failed to share report: $error';
+  }
 }

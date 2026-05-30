@@ -52,23 +52,23 @@ class LogEntry {
 /// Pełne HTTP request/response body to feature F2 (verbose mode opt-in
 /// z privacy warningiem).
 ///
+/// **Wyjątek od reguły „no content":** `buildResponseReportText()` zawiera
+/// treść wiadomości — ale TYLKO jako wynik świadomej akcji usera (Raportuj
+/// odpowiedź w bańce → dialog z disclaimerem → share intent z wyborem
+/// adresata). Per-message opt-in, nie globalna telemetria.
+///
 /// **Dwa bufory:**
 /// - `_entries` — wszystkie eventy (max 500, ring buffer, najstarsze wypadają)
 /// - `_crashes` — osobna lista crashy (max 50, ring buffer wewnątrz crashy)
 ///
-/// Crashy trzymane osobno żeby crash sprzed kilkuset wiadomości nie wypadł
-/// z głównego bufora przy aktywnym użyciu — user musi mieć szansę zobaczyć
-/// go nawet jeśli otwiera diagnostykę długo po incydencie.
-///
-/// ChangeNotifier żeby UI (DiagnosticsScreen) auto-rebuildował się gdy nowy
-/// log entry wpadnie. Singleton bo logger musi być dostępny z dowolnego
-/// miejsca w kodzie bez `ref` (zwłaszcza z global error handlers w main.dart
-/// — tam Riverpod jeszcze nie istnieje).
+/// ChangeNotifier żeby UI auto-rebuildował się gdy nowy log entry wpadnie.
+/// Singleton bo logger musi być dostępny z dowolnego miejsca w kodzie bez
+/// `ref` (zwłaszcza z global error handlers w main.dart — tam Riverpod
+/// jeszcze nie istnieje).
 class LogBuffer extends ChangeNotifier {
   static final LogBuffer _instance = LogBuffer._();
   factory LogBuffer() => _instance;
   LogBuffer._() {
-    // Pierwszy entry przy starcie bufora — przydatne do określenia uptime sesji.
     _entries.add(LogEntry(
       timestamp: DateTime.now(),
       level: LogLevel.info,
@@ -77,12 +77,7 @@ class LogBuffer extends ChangeNotifier {
     ));
   }
 
-  /// Maksymalna liczba entries w głównym buforze — ring buffer.
   static const int maxEntries = 500;
-
-  /// Maksymalna liczba crashy w osobnym buforze — odporna na rotation
-  /// głównego bufora. 50 wystarcza na realnie spotykane scenariusze
-  /// (rzadko więcej niż kilka crashy w sesji).
   static const int maxCrashes = 50;
 
   final List<LogEntry> _entries = [];
@@ -100,8 +95,6 @@ class LogBuffer extends ChangeNotifier {
   void error(String tag, String message) => _add(LogLevel.error, tag, message);
 
   /// Unhandled exception z global error handlera (main.dart).
-  /// Zapisuje do _entries (jak normal log) ORAZ do osobnego _crashes
-  /// (z niezależną rotation, żeby crash sprzed dawnych sesji nie wypadł).
   void crash(String message) {
     _add(LogLevel.error, 'crash', message);
   }
@@ -117,7 +110,6 @@ class LogBuffer extends ChangeNotifier {
     if (_entries.length > maxEntries) {
       _entries.removeRange(0, _entries.length - maxEntries);
     }
-    // Crashes — osobny bufor z niezależną rotation.
     if (entry.isCrash) {
       _crashes.add(entry);
       if (_crashes.length > maxCrashes) {
@@ -125,34 +117,26 @@ class LogBuffer extends ChangeNotifier {
       }
     }
     if (kDebugMode) {
-      // Print w debug mode dla łatwości developmentu. W release print nic
-      // nie robi, więc nie ma overheadu.
       // ignore: avoid_print
       debugPrint(entry.formatted);
     }
     notifyListeners();
   }
 
-  /// Auto-redaction wrażliwych wzorców ZANIM trafią do bufora. Defensywnie —
-  /// nawet jeśli wywołujący zapomni, nie wyciekną do exportu.
-  ///
-  /// Wzorce:
-  /// - `Bearer XXX` (Authorization header) → `Bearer ***`
-  /// - `https://user:pass@host` (embedded credentials) → `https://user:***@host`
-  /// - `apiKey: XXX` lub `"api_key":"XXX"` (luźny pattern z JSON-like) → `***`
+  /// Auto-redaction wrażliwych wzorców ZANIM trafią do bufora oraz
+  /// ZANIM trafią do raportów (buildExportText/buildCrashReportText/
+  /// buildResponseReportText). Defensywnie — nawet jeśli wywołujący
+  /// zapomni, nie wyciekną do exportu.
   static String _redact(String msg) {
     var redacted = msg;
-    // Bearer tokens
     redacted = redacted.replaceAllMapped(
       RegExp(r'(Bearer\s+)[A-Za-z0-9\-_.~+/]+=*'),
       (m) => '${m.group(1)}***',
     );
-    // URL z user:pass@
     redacted = redacted.replaceAllMapped(
       RegExp(r'(https?://[^:\s]+:)[^@\s]+(@)'),
       (m) => '${m.group(1)}***${m.group(2)}',
     );
-    // api_key/apiKey value w JSON-like patternie
     redacted = redacted.replaceAllMapped(
       RegExp(
         r'''(["']?(?:api_key|apiKey)["']?\s*[:=]\s*["']?)[^"',\s}]+'''),
@@ -161,30 +145,22 @@ class LogBuffer extends ChangeNotifier {
     return redacted;
   }
 
-  /// Wyczyść główny bufor entries. NIE czyści crashes (osobny bufor,
-  /// świadomie — user może chcieć zachować crash report nawet po wyczyszczeniu
-  /// normalnych logów).
   void clear() {
     _entries.clear();
     notifyListeners();
   }
 
-  /// Wyczyść bufor crashy.
   void clearCrashes() {
     _crashes.clear();
     notifyListeners();
   }
 
-  /// Wyczyść oba bufory naraz — używane przez UI gdy user wybiera
-  /// "wyczyść wszystko" w diagnostyce.
   void clearAll() {
     _entries.clear();
     _crashes.clear();
     notifyListeners();
   }
 
-  /// Zbuduj pełny tekst diagnostics + WSZYSTKIE logi do share intent.
-  /// Format human-readable, łatwy do wklejenia w email/messenger/issue tracker.
   String buildExportText({
     required String appName,
     required String appVersion,
@@ -217,12 +193,6 @@ class LogBuffer extends ChangeNotifier {
     return buf.toString();
   }
 
-  /// Zbuduj tekst CRASH REPORT do share intent — tylko crashy + ostatnie
-  /// 50 entries kontekstu przed pierwszym crashem (żeby zobaczyć co user
-  /// robił prowadząc do crashu).
-  ///
-  /// Używane przez button "Wyślij raport o awarii" w diagnostyce. Mniejszy
-  /// payload niż buildExportText, skoncentrowany tylko na crashes.
   String buildCrashReportText({
     required String appName,
     required String appVersion,
@@ -249,11 +219,76 @@ class LogBuffer extends ChangeNotifier {
       buf.writeln(c.formatted);
       buf.writeln();
     }
-    // Ostatnie 50 entries jako kontekst — co user robił przed crashem.
     final contextEntries = _entries.length <= 50
         ? _entries
         : _entries.sublist(_entries.length - 50);
     buf.writeln('--- Kontekst (ostatnie ${contextEntries.length} entries) ---');
+    for (final e in contextEntries) {
+      buf.writeln(e.formatted);
+    }
+    return buf.toString();
+  }
+
+  /// Buduje raport problematycznej odpowiedzi modelu dla share intent.
+  /// **Świadomy opt-in user'a** — zawiera treść wiadomości (jedyny raport
+  /// który ją zawiera). User otwiera przez Raportuj odpowiedź → dialog →
+  /// share intent → wybiera komu udostępnić.
+  ///
+  /// Auto-redaction nadal działa — message strings (userQuestion,
+  /// assistantResponse, systemPrompt) przepuszczane przez _redact zanim
+  /// trafią do tekstu raportu, więc Bearer/credentials/api_key wzorce
+  /// zostaną zredagowane nawet jeśli przez przypadek znalazły się w
+  /// treści wiadomości.
+  String buildResponseReportText({
+    required String appName,
+    required String appVersion,
+    required String buildMode,
+    required String model,
+    required Map<String, String> parameters,
+    required String? systemPrompt,
+    required String? userQuestion,
+    required String assistantResponse,
+    required String category,
+    required String? userComment,
+  }) {
+    final buf = StringBuffer();
+    buf.writeln('=== Atrament — Response Report ===');
+    buf.writeln('Generated: ${DateTime.now().toIso8601String()}');
+    buf.writeln();
+    buf.writeln('--- O aplikacji ---');
+    buf.writeln('App: $appName $appVersion');
+    buf.writeln('Build mode: $buildMode');
+    buf.writeln();
+    buf.writeln('--- Parametry rozmowy ---');
+    buf.writeln('Model: $model');
+    parameters.forEach((k, v) => buf.writeln('$k: $v'));
+    if (systemPrompt != null && systemPrompt.isNotEmpty) {
+      buf.writeln();
+      buf.writeln('--- System prompt ---');
+      buf.writeln(_redact(systemPrompt));
+    }
+    buf.writeln();
+    buf.writeln('--- Kategoria ---');
+    buf.writeln(category);
+    if (userComment != null && userComment.trim().isNotEmpty) {
+      buf.writeln();
+      buf.writeln('--- Komentarz użytkownika ---');
+      buf.writeln(_redact(userComment.trim()));
+    }
+    if (userQuestion != null && userQuestion.isNotEmpty) {
+      buf.writeln();
+      buf.writeln('--- Pytanie użytkownika ---');
+      buf.writeln(_redact(userQuestion));
+    }
+    buf.writeln();
+    buf.writeln('--- Raportowana odpowiedź modelu ---');
+    buf.writeln(_redact(assistantResponse));
+    final contextEntries = _entries.length <= 20
+        ? _entries
+        : _entries.sublist(_entries.length - 20);
+    buf.writeln();
+    buf.writeln(
+        '--- Kontekst techniczny (ostatnie ${contextEntries.length} entries) ---');
     for (final e in contextEntries) {
       buf.writeln(e.formatted);
     }

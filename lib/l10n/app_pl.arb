@@ -15,7 +15,7 @@
   },
   "commonCopy": "Kopiuj",
   "@commonCopy": {
-    "description": "Przycisk kopiowania kodu w bloku ``` do schowka"
+    "description": "Przycisk kopiowania kodu w bloku ``` do schowka lub treści wiadomości assistant"
   },
   "commonCopied": "Skopiowano",
   "@commonCopied": {
@@ -31,12 +31,12 @@
   },
   "commonMoreMenu": "Więcej",
   "@commonMoreMenu": {
-    "description": "Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar"
+    "description": "Tooltip dla PopupMenuButton (trzy kropki) — overflow menu z rzadko używanymi akcjami w AppBar lub w bańkach wiadomości"
   },
 
   "themeModeSystem": "Motyw: systemowy",
   "@themeModeSystem": {
-    "description": "Tooltip przycisku motywu w AppBar — stan systemowy (default, idzie za ustawieniem Androida)"
+    "description": "Tooltip przycisku motywu w AppBar — stan systemowy"
   },
   "themeModeLight": "Motyw: jasny",
   "@themeModeLight": {
@@ -49,15 +49,15 @@
 
   "chatTitleEditDialog": "Zmień nazwę rozmowy",
   "@chatTitleEditDialog": {
-    "description": "Tytuł dialogu edycji nazwy rozmowy (chat_screen i chats_list)"
+    "description": "Tytuł dialogu edycji nazwy rozmowy"
   },
   "chatResponseInterrupted": "Odpowiedź przerwana",
   "@chatResponseInterrupted": {
-    "description": "Banner gdy ostatnia odpowiedź modelu jest częściowa (resume flow)"
+    "description": "Banner gdy ostatnia odpowiedź modelu jest częściowa"
   },
   "chatContinueButton": "Kontynuuj",
   "@chatContinueButton": {
-    "description": "Przycisk w bannerze odpowiedzi przerwanej — wznawia generowanie"
+    "description": "Przycisk w bannerze odpowiedzi przerwanej"
   },
   "chatNoActiveServerTitle": "Brak aktywnego serwera",
   "@chatNoActiveServerTitle": {
@@ -65,7 +65,7 @@
   },
   "chatCannotConnectTitle": "Nie można połączyć",
   "@chatCannotConnectTitle": {
-    "description": "Tytuł pustego ekranu gdy aktywny profil rzucił błąd połączenia"
+    "description": "Tytuł pustego ekranu gdy aktywny profil rzucił błąd"
   },
   "chatNoActiveServerHint": "Ustaw aktywny serwer (gwiazdka) w zarządzaniu serwerami.",
   "@chatNoActiveServerHint": {
@@ -81,7 +81,7 @@
   },
   "chatStopTooltip": "Zatrzymaj",
   "@chatStopTooltip": {
-    "description": "Tooltip przycisku zatrzymania strumieniowania odpowiedzi"
+    "description": "Tooltip przycisku zatrzymania strumieniowania"
   },
   "chatSendTooltip": "Wyślij",
   "@chatSendTooltip": {
@@ -89,12 +89,16 @@
   },
   "chatReasoningLabel": "Myślenie",
   "@chatReasoningLabel": {
-    "description": "Etykieta sekcji reasoning w bańce (renderowana z emoji 🧠 w widgecie)"
+    "description": "Etykieta sekcji reasoning w bańce"
+  },
+  "chatReportResponse": "Raportuj odpowiedź",
+  "@chatReportResponse": {
+    "description": "Pozycja w PopupMenu bańki assistant — otwiera ReportResponseDialog"
   },
 
   "chatParametersTooltip": "Parametry rozmowy",
   "@chatParametersTooltip": {
-    "description": "Tooltip ikony tune w AppBar chat_screen — otwiera ChatParametersSheet"
+    "description": "Tooltip ikony tune w AppBar chat_screen"
   },
   "chatParametersTitle": "Parametry rozmowy",
   "@chatParametersTitle": {
@@ -102,31 +106,31 @@
   },
   "chatParametersModel": "Model",
   "@chatParametersModel": {
-    "description": "Label sekcji wyboru modelu w sheet"
+    "description": "Label sekcji wyboru modelu"
   },
   "chatParametersModeSimple": "Prosty",
   "@chatParametersModeSimple": {
-    "description": "Tryb UI parametrów: tylko suwak Kreatywność + system prompt"
+    "description": "Tryb UI: tylko suwak Kreatywność + system prompt"
   },
   "chatParametersModeMedium": "Średni",
   "@chatParametersModeMedium": {
-    "description": "Tryb UI parametrów: + max_tokens, seed"
+    "description": "Tryb UI: + max_tokens, seed"
   },
   "chatParametersModeAdvanced": "Zaawansowany",
   "@chatParametersModeAdvanced": {
-    "description": "Tryb UI parametrów: wszystkie 13 parametrów"
+    "description": "Tryb UI: wszystkie 13 parametrów"
   },
   "chatParametersCreativity": "Kreatywność",
   "@chatParametersCreativity": {
-    "description": "Label suwaka Kreatywność (mapping temperature 0.2-1.2, intuicyjnie dla nowych użytkowników)"
+    "description": "Label suwaka Kreatywność"
   },
   "chatParametersCreativityPrecise": "precyzyjny (0.2)",
   "@chatParametersCreativityPrecise": {
-    "description": "Etykieta pod lewym końcem suwaka Kreatywność"
+    "description": "Etykieta pod lewym końcem suwaka"
   },
   "chatParametersCreativityCreative": "kreatywny (1.2)",
   "@chatParametersCreativityCreative": {
-    "description": "Etykieta pod prawym końcem suwaka Kreatywność"
+    "description": "Etykieta pod prawym końcem suwaka"
   },
   "chatParametersSystemPrompt": "System prompt (opcjonalnie)",
   "@chatParametersSystemPrompt": {
@@ -138,11 +142,11 @@
   },
   "chatParametersMaxTokens": "Maks. tokenów",
   "@chatParametersMaxTokens": {
-    "description": "Label pola max_tokens (limit długości odpowiedzi)"
+    "description": "Label pola max_tokens"
   },
   "chatParametersTopP": "Top-P",
   "@chatParametersTopP": {
-    "description": "Label pola top_p (nucleus sampling)"
+    "description": "Label pola top_p"
   },
   "chatParametersTopK": "Top-K",
   "@chatParametersTopK": {
@@ -154,7 +158,7 @@
   },
   "chatParametersSeed": "Seed",
   "@chatParametersSeed": {
-    "description": "Label pola seed (deterministyczne generowanie)"
+    "description": "Label pola seed"
   },
   "chatParametersRepeatPenalty": "Repeat penalty",
   "@chatParametersRepeatPenalty": {
@@ -170,19 +174,19 @@
   },
   "chatParametersStop": "Stop sequences",
   "@chatParametersStop": {
-    "description": "Label pola stop (lista sekwencji zatrzymujących generowanie)"
+    "description": "Label pola stop"
   },
   "chatParametersStopHint": "np. END, STOP, ###",
   "@chatParametersStopHint": {
-    "description": "Placeholder dla pola stop (comma-separated)"
+    "description": "Placeholder dla pola stop"
   },
   "chatParametersReasoningEffort": "Reasoning effort",
   "@chatParametersReasoningEffort": {
-    "description": "Label segmented button dla reasoning_effort (modele rozumujące)"
+    "description": "Label segmented button dla reasoning_effort"
   },
   "chatParametersReasoningNone": "—",
   "@chatParametersReasoningNone": {
-    "description": "Wartość 'None' dla reasoning_effort (nie wysyłaj parametru)"
+    "description": "Wartość 'None' dla reasoning_effort"
   },
   "chatParametersReasoningLow": "low",
   "@chatParametersReasoningLow": {
@@ -198,7 +202,7 @@
   },
   "chatParametersDefaultHint": "domyślne serwera",
   "@chatParametersDefaultHint": {
-    "description": "Hint w pustych polach numerycznych — komunikuje że pusta wartość = nie wysyłaj parametru = serwer użyje swojego defaulta"
+    "description": "Hint w pustych polach numerycznych"
   },
 
   "chatsListServersTooltip": "Serwery",
@@ -216,7 +220,7 @@
   },
   "chatsListRename": "Zmień nazwę",
   "@chatsListRename": {
-    "description": "Pozycja w popup menu rozmowy — otwiera dialog edycji nazwy"
+    "description": "Pozycja w popup menu rozmowy"
   },
   "chatsListEmpty": "Brak rozmów",
   "@chatsListEmpty": {
@@ -232,7 +236,7 @@
   },
   "chatsListDeleteConfirmContent": "Rozmowa \"{title}\" zostanie usunięta wraz ze wszystkimi wiadomościami.",
   "@chatsListDeleteConfirmContent": {
-    "description": "Treść dialogu potwierdzenia usunięcia, z nazwą rozmowy",
+    "description": "Treść dialogu potwierdzenia usunięcia",
     "placeholders": {
       "title": {
         "type": "String"
@@ -241,16 +245,16 @@
   },
   "chatsListToday": "Dziś",
   "@chatsListToday": {
-    "description": "Prefix dla dzisiejszej godziny w subtitle rozmowy. Tracked TODO: pełne formatowanie daty per locale przez intl DateFormat — obecnie format DD.MM.YYYY hardcoded"
+    "description": "Prefix dla dzisiejszej godziny w subtitle rozmowy"
   },
 
   "profilesScreenTitle": "Serwery",
   "@profilesScreenTitle": {
-    "description": "AppBar tytuł ekranu listy profili (sub-ekran z chats_list). Kontekstowy 'co user robi', nie powtórka brandu — konwencja sub-ekranów."
+    "description": "AppBar tytuł ekranu listy profili"
   },
   "profilesScreenError": "Błąd: {error}",
   "@profilesScreenError": {
-    "description": "Komunikat błędu gdy stream profili rzuci wyjątek",
+    "description": "Komunikat błędu",
     "placeholders": {
       "error": {
         "type": "Object"
@@ -259,23 +263,23 @@
   },
   "profilesScreenKeyLost": "Klucz API utracony — wybierz Edytuj, by wpisać ponownie",
   "@profilesScreenKeyLost": {
-    "description": "Subtitle profilu gdy apiKeyNeedsReentry = true (klucz zgubiony np. po restore z backup). Tekst zawiera meta-referencję do akcji menu 'Edytuj' — przy tłumaczeniu trzymać spójność z profilesScreenActionEdit."
+    "description": "Subtitle profilu gdy apiKeyNeedsReentry = true"
   },
   "profilesScreenActionActivate": "Ustaw jako aktywny",
   "@profilesScreenActionActivate": {
-    "description": "Popup menu akcja na profilu — ustawia jako aktywny (gwiazdka)"
+    "description": "Popup menu akcja na profilu"
   },
   "profilesScreenActionDeactivate": "Usuń oznaczenie aktywnego",
   "@profilesScreenActionDeactivate": {
-    "description": "Popup menu akcja — odznacza aktywność profilu (gdy obecnie aktywny)"
+    "description": "Popup menu akcja — odznacza aktywność"
   },
   "profilesScreenActionEdit": "Edytuj",
   "@profilesScreenActionEdit": {
-    "description": "Popup menu akcja — otwiera AddProfileScreen w trybie edycji"
+    "description": "Popup menu akcja — otwiera edycję"
   },
   "profilesScreenAddProfile": "Dodaj serwer",
   "@profilesScreenAddProfile": {
-    "description": "Label FAB na liście profili — otwiera AddProfileScreen w trybie nowego profilu"
+    "description": "Label FAB na liście profili"
   },
   "profilesScreenDeleteConfirmTitle": "Usunąć serwer?",
   "@profilesScreenDeleteConfirmTitle": {
@@ -283,7 +287,7 @@
   },
   "profilesScreenDeleteConfirmContent": "Profil „{name}\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.",
   "@profilesScreenDeleteConfirmContent": {
-    "description": "Treść dialogu potwierdzenia usunięcia, z nazwą profilu",
+    "description": "Treść dialogu potwierdzenia",
     "placeholders": {
       "name": {
         "type": "String"
@@ -296,48 +300,48 @@
   },
   "profilesScreenEmptyHint": "Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.",
   "@profilesScreenEmptyHint": {
-    "description": "Podpowiedź pod tytułem 'Brak serwerów'"
+    "description": "Podpowiedź pod 'Brak serwerów'"
   },
 
   "addProfileTitleNew": "Dodaj serwer",
   "@addProfileTitleNew": {
-    "description": "AppBar tytuł AddProfileScreen w trybie tworzenia nowego profilu"
+    "description": "AppBar tytuł AddProfileScreen w trybie nowym"
   },
   "addProfileTitleEdit": "Edytuj serwer",
   "@addProfileTitleEdit": {
-    "description": "AppBar tytuł AddProfileScreen w trybie edycji istniejącego profilu"
+    "description": "AppBar tytuł AddProfileScreen w trybie edycji"
   },
   "addProfileNameLabel": "Nazwa (opcjonalna)",
   "@addProfileNameLabel": {
-    "description": "Label pola nazwy profilu — opcjonalne (fallback do URL)"
+    "description": "Label pola nazwy profilu"
   },
   "addProfileNameHint": "np. LM Studio - laptop",
   "@addProfileNameHint": {
-    "description": "Hint dla pola nazwy — przykład nazwy własnej"
+    "description": "Hint dla pola nazwy"
   },
   "addProfileUrlLabel": "Adres serwera",
   "@addProfileUrlLabel": {
-    "description": "Label pola URL — wymagane"
+    "description": "Label pola URL"
   },
   "addProfileMissingUrl": "Podaj adres serwera.",
   "@addProfileMissingUrl": {
-    "description": "Validation error gdy user kliknie 'Testuj połączenie' z pustym URL"
+    "description": "Validation error"
   },
   "addProfileCleartextTitle": "Połączenie nieszyfrowane",
   "@addProfileCleartextTitle": {
-    "description": "Tytuł dialogu ostrzegającego przed HTTP do publicznego adresu"
+    "description": "Tytuł dialogu cleartext warning"
   },
   "addProfileCleartextContent": "Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?",
   "@addProfileCleartextContent": {
-    "description": "Content dialogu cleartext warning — wyjaśnia ryzyko HTTP do publicznego adresu"
+    "description": "Content dialogu cleartext warning"
   },
   "addProfileContinue": "Kontynuuj",
   "@addProfileContinue": {
-    "description": "Przycisk 'kontynuuj' w cleartext warning (akcja po świadomej zgodzie na ryzyko)"
+    "description": "Przycisk 'kontynuuj' w cleartext warning"
   },
   "addProfileApiKeyLost": "Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.",
   "@addProfileApiKeyLost": {
-    "description": "Warning card w trybie edycji gdy apiKeyNeedsReentry = true"
+    "description": "Warning card w trybie edycji"
   },
   "addProfileApiKeyLabel": "Klucz API (opcjonalny)",
   "@addProfileApiKeyLabel": {
@@ -345,27 +349,27 @@
   },
   "addProfileApiKeyHintExisting": "zapisany — zostaw puste by nie zmieniać",
   "@addProfileApiKeyHintExisting": {
-    "description": "Hint pola klucza w trybie edycji gdy klucz już istnieje"
+    "description": "Hint pola klucza w edycji gdy klucz istnieje"
   },
   "addProfileApiKeyHintNew": "dla serwerów wymagających autoryzacji",
   "@addProfileApiKeyHintNew": {
-    "description": "Hint pola klucza w trybie nowym lub edycji gdy klucz nie istnieje"
+    "description": "Hint pola klucza w nowym lub edycji gdy klucz nie istnieje"
   },
   "addProfileClearKey": "Usuń zapisany klucz API",
   "@addProfileClearKey": {
-    "description": "Label checkboxa do skasowania zapisanego klucza (tylko w edycji gdy klucz istnieje)"
+    "description": "Label checkboxa do skasowania klucza"
   },
   "addProfileConnecting": "Łączenie…",
   "@addProfileConnecting": {
-    "description": "Label przycisku 'Testuj połączenie' podczas trwającego requestu"
+    "description": "Label przycisku 'Testuj połączenie' podczas requestu"
   },
   "addProfileTestConnection": "Testuj połączenie",
   "@addProfileTestConnection": {
-    "description": "Label przycisku testu połączenia (idle state)"
+    "description": "Label przycisku testu połączenia"
   },
   "addProfileConnected": "✅ Połączono — {count, plural, =0{brak dostępnych modeli} one{{count} model dostępny} few{{count} modele dostępne} many{{count} modeli dostępnych} other{{count} modeli dostępnych}}:",
   "@addProfileConnected": {
-    "description": "Komunikat sukcesu połączenia z liczbą modeli. ICU plural dla polskiego (one/few/many/other), bo 1=model, 2-4=modele, 5+=modeli.",
+    "description": "Komunikat sukcesu połączenia z liczbą modeli (ICU plural PL)",
     "placeholders": {
       "count": {
         "type": "int"
@@ -374,15 +378,15 @@
   },
   "addProfileSaving": "Zapisywanie…",
   "@addProfileSaving": {
-    "description": "Label przycisku zapisu podczas trwającego writu do bazy"
+    "description": "Label przycisku zapisu podczas writu"
   },
   "addProfileSaveChanges": "Zapisz zmiany",
   "@addProfileSaveChanges": {
-    "description": "Label przycisku zapisu w trybie edycji"
+    "description": "Label przycisku zapisu w edycji"
   },
   "addProfileSaveNew": "Zapisz serwer",
   "@addProfileSaveNew": {
-    "description": "Label przycisku zapisu w trybie nowego profilu"
+    "description": "Label przycisku zapisu w trybie nowym"
   },
   "addProfileSaveError": "Błąd zapisu: {error}",
   "@addProfileSaveError": {
@@ -396,47 +400,47 @@
 
   "diagnosticsTitle": "Diagnostyka",
   "@diagnosticsTitle": {
-    "description": "Tytuł ekranu Diagnostyka + tytuł pozycji w PopupMenuButton AppBar listy rozmów"
+    "description": "Tytuł ekranu Diagnostyka"
   },
   "diagnosticsAboutSection": "O aplikacji",
   "@diagnosticsAboutSection": {
-    "description": "Nagłówek sekcji 'O aplikacji' (wersja, build mode, package name)"
+    "description": "Nagłówek sekcji 'O aplikacji'"
   },
   "diagnosticsAppLabel": "Aplikacja",
   "@diagnosticsAppLabel": {
-    "description": "Label wiersza z nazwą + wersją aplikacji"
+    "description": "Label wiersza z nazwą + wersją"
   },
   "diagnosticsBuildModeLabel": "Tryb buildu",
   "@diagnosticsBuildModeLabel": {
-    "description": "Label wiersza z trybem kompilacji (debug/profile/release)"
+    "description": "Label wiersza z trybem kompilacji"
   },
   "diagnosticsPackageNameLabel": "Package",
   "@diagnosticsPackageNameLabel": {
-    "description": "Label wiersza z package name aplikacji (com.example.atrament_app)"
+    "description": "Label wiersza z package name"
   },
   "diagnosticsStateSection": "Stan",
   "@diagnosticsStateSection": {
-    "description": "Nagłówek sekcji 'Stan' (liczba profili/rozmów, aktywny profil)"
+    "description": "Nagłówek sekcji 'Stan'"
   },
   "diagnosticsProfileCount": "Liczba profili",
   "@diagnosticsProfileCount": {
-    "description": "Label wiersza z liczbą profili w bazie"
+    "description": "Label wiersza z liczbą profili"
   },
   "diagnosticsActiveProfile": "Aktywny profil",
   "@diagnosticsActiveProfile": {
-    "description": "Label wiersza z nazwą aktywnego profilu (gwiazdka)"
+    "description": "Label wiersza z aktywnym profilem"
   },
   "diagnosticsChatCount": "Liczba rozmów",
   "@diagnosticsChatCount": {
-    "description": "Label wiersza z łączną liczbą rozmów w bazie"
+    "description": "Label wiersza z liczbą rozmów"
   },
   "diagnosticsNone": "— brak —",
   "@diagnosticsNone": {
-    "description": "Placeholder wartości gdy pole jest puste (np. aktywny profil = null)"
+    "description": "Placeholder wartości gdy pole puste"
   },
   "diagnosticsLogsSection": "Logi ({count})",
   "@diagnosticsLogsSection": {
-    "description": "Nagłówek sekcji logów z liczbą entries",
+    "description": "Nagłówek sekcji logów",
     "placeholders": {
       "count": {
         "type": "int"
@@ -445,27 +449,27 @@
   },
   "diagnosticsLogsEmpty": "Brak logów w tej sesji.",
   "@diagnosticsLogsEmpty": {
-    "description": "Placeholder gdy log buffer jest pusty (np. po Wyczyść)"
+    "description": "Placeholder gdy log buffer pusty"
   },
   "diagnosticsShareLogs": "Udostępnij logi",
   "@diagnosticsShareLogs": {
-    "description": "Label FAB — otwiera share intent z tekstem diagnostyki + wszystkich logów"
+    "description": "Label FAB"
   },
   "diagnosticsClearAll": "Wyczyść wszystko",
   "@diagnosticsClearAll": {
-    "description": "Tooltip ikony delete w AppBar Diagnostyka — czyści zarówno logi jak i raporty awarii"
+    "description": "Tooltip ikony delete"
   },
   "diagnosticsClearAllConfirmTitle": "Wyczyścić wszystko?",
   "@diagnosticsClearAllConfirmTitle": {
-    "description": "Tytuł dialogu potwierdzenia wyczyszczenia logów + awarii"
+    "description": "Tytuł dialogu potwierdzenia"
   },
   "diagnosticsClearAllConfirmContent": "Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.",
   "@diagnosticsClearAllConfirmContent": {
-    "description": "Treść dialogu potwierdzenia clear all"
+    "description": "Treść dialogu potwierdzenia"
   },
   "diagnosticsError": "Błąd: {error}",
   "@diagnosticsError": {
-    "description": "Komunikat błędu gdy diagnostics async query rzuci wyjątek",
+    "description": "Komunikat błędu",
     "placeholders": {
       "error": {
         "type": "String"
@@ -474,7 +478,7 @@
   },
   "diagnosticsShareError": "Nie udało się udostępnić: {error}",
   "@diagnosticsShareError": {
-    "description": "Snackbar gdy share intent rzuci wyjątek (zarówno dla pełnych logów jak crash report)",
+    "description": "Snackbar gdy share intent rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "String"
@@ -484,7 +488,7 @@
 
   "diagnosticsCrashesSection": "Awarie ({count, plural, =0{0} one{{count}} few{{count}} many{{count}} other{{count}}})",
   "@diagnosticsCrashesSection": {
-    "description": "Nagłówek sekcji awarii z liczbą crashy (ICU plural — nawias zawsze pokazuje liczbę).",
+    "description": "Nagłówek sekcji awarii z liczbą",
     "placeholders": {
       "count": {
         "type": "int"
@@ -493,22 +497,88 @@
   },
   "diagnosticsNoCrashes": "Brak awarii w tej sesji. 🎉",
   "@diagnosticsNoCrashes": {
-    "description": "Placeholder gdy crashes list jest pusty — dobra wiadomość, więc emoji 🎉"
+    "description": "Placeholder gdy crashes list pusty"
   },
   "diagnosticsSendCrashReport": "Wyślij raport o awarii",
   "@diagnosticsSendCrashReport": {
-    "description": "Label przycisku w sekcji awarii — otwiera share intent z prefiltrowanym crash report (crashe + 50 entries kontekstu)"
+    "description": "Label przycisku w sekcji awarii"
   },
   "diagnosticsCrashReportSubject": "Atrament — raport o awarii",
   "@diagnosticsCrashReportSubject": {
-    "description": "Subject w share intent dla crash reportu (np. tytuł emaila)"
+    "description": "Subject w share intent dla crash reportu"
   },
   "diagnosticsTestCrash": "Wywołaj testową awarię",
   "@diagnosticsTestCrash": {
-    "description": "Label przycisku DEBUG-ONLY (widoczny tylko w kDebugMode) do empirycznego sprawdzenia że global error handlers działają. NIE pokazywany w release."
+    "description": "Label przycisku DEBUG-ONLY"
   },
   "diagnosticsTestCrashTriggered": "Testowa awaria wywołana — zobacz sekcję Awarie",
   "@diagnosticsTestCrashTriggered": {
-    "description": "Snackbar po kliknięciu Wywołaj testową awarię — informuje że crash został wyzwolony i powinien się pojawić w sekcji"
+    "description": "Snackbar po kliknięciu Wywołaj testową awarię"
+  },
+
+  "reportResponseTitle": "Zgłoś problem z odpowiedzią",
+  "@reportResponseTitle": {
+    "description": "Tytuł ReportResponseDialog — modal raportujący niewłaściwą odpowiedź modelu"
+  },
+  "reportResponseIntro": "Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).",
+  "@reportResponseIntro": {
+    "description": "Wstęp dialogu — wyjaśnia że nic nie idzie automatycznie, świadomy opt-in user'a"
+  },
+  "reportResponseCategoryLabel": "Kategoria:",
+  "@reportResponseCategoryLabel": {
+    "description": "Label sekcji wyboru kategorii"
+  },
+  "reportCategoryInaccurate": "Nieprawdziwe info",
+  "@reportCategoryInaccurate": {
+    "description": "Kategoria: fakt nieprawdziwy, halucynacja"
+  },
+  "reportCategoryOffTopic": "Nie na temat",
+  "@reportCategoryOffTopic": {
+    "description": "Kategoria: odpowiedź nie pasuje do pytania"
+  },
+  "reportCategoryUnsafe": "Toksyczne / niebezpieczne",
+  "@reportCategoryUnsafe": {
+    "description": "Kategoria: treść toksyczna lub niebezpieczna"
+  },
+  "reportCategoryPoorQuality": "Złej jakości",
+  "@reportCategoryPoorQuality": {
+    "description": "Kategoria: urwana, zbyt krótka, niegramatyczna"
+  },
+  "reportCategoryOther": "Inne",
+  "@reportCategoryOther": {
+    "description": "Kategoria: inna przyczyna nie pasująca do pozostałych"
+  },
+  "reportResponseCommentLabel": "Komentarz (opcjonalny):",
+  "@reportResponseCommentLabel": {
+    "description": "Label pola komentarza"
+  },
+  "reportResponseCommentHint": "Opisz krótko co jest nie tak…",
+  "@reportResponseCommentHint": {
+    "description": "Placeholder w polu komentarza"
+  },
+  "reportResponseDisclaimerTitle": "Co zostanie udostępnione",
+  "@reportResponseDisclaimerTitle": {
+    "description": "Nagłówek info-boxa z disclaimer privacy"
+  },
+  "reportResponseDisclaimerContent": "Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.",
+  "@reportResponseDisclaimerContent": {
+    "description": "Treść disclaimer privacy — co zostanie / co NIE zostanie udostępnione"
+  },
+  "reportResponseShare": "Udostępnij",
+  "@reportResponseShare": {
+    "description": "Przycisk submit — otwiera share intent z raportem"
+  },
+  "reportResponseSubject": "Atrament — raport problemu z odpowiedzią",
+  "@reportResponseSubject": {
+    "description": "Subject w share intent dla report response"
+  },
+  "reportResponseShareError": "Nie udało się udostępnić raportu: {error}",
+  "@reportResponseShareError": {
+    "description": "Snackbar gdy share rzuci wyjątek",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }

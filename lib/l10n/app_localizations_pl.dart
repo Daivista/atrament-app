@@ -76,6 +76,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get chatReasoningLabel => 'Myślenie';
 
   @override
+  String get chatReportResponse => 'Raportuj odpowiedź';
+
+  @override
   String get chatParametersTooltip => 'Parametry rozmowy';
 
   @override
@@ -393,4 +396,54 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get diagnosticsTestCrashTriggered =>
       'Testowa awaria wywołana — zobacz sekcję Awarie';
+
+  @override
+  String get reportResponseTitle => 'Zgłoś problem z odpowiedzią';
+
+  @override
+  String get reportResponseIntro =>
+      'Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).';
+
+  @override
+  String get reportResponseCategoryLabel => 'Kategoria:';
+
+  @override
+  String get reportCategoryInaccurate => 'Nieprawdziwe info';
+
+  @override
+  String get reportCategoryOffTopic => 'Nie na temat';
+
+  @override
+  String get reportCategoryUnsafe => 'Toksyczne / niebezpieczne';
+
+  @override
+  String get reportCategoryPoorQuality => 'Złej jakości';
+
+  @override
+  String get reportCategoryOther => 'Inne';
+
+  @override
+  String get reportResponseCommentLabel => 'Komentarz (opcjonalny):';
+
+  @override
+  String get reportResponseCommentHint => 'Opisz krótko co jest nie tak…';
+
+  @override
+  String get reportResponseDisclaimerTitle => 'Co zostanie udostępnione';
+
+  @override
+  String get reportResponseDisclaimerContent =>
+      'Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.';
+
+  @override
+  String get reportResponseShare => 'Udostępnij';
+
+  @override
+  String get reportResponseSubject =>
+      'Atrament — raport problemu z odpowiedzią';
+
+  @override
+  String reportResponseShareError(String error) {
+    return 'Nie udało się udostępnić raportu: $error';
+  }
 }
