@@ -4,7 +4,6 @@ import '../../../core/database/database.dart';
 import '../../../core/theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/profile_providers.dart';
-import 'add_profile_screen.dart';
 
 class ProfilesScreen extends ConsumerWidget {
   const ProfilesScreen({super.key});
@@ -17,9 +16,9 @@ class ProfilesScreen extends ConsumerWidget {
     final activeId = ref.watch(activeProfileIdProvider).value;
 
     return Scaffold(
-      // Sub-ekran (Navigator.push z chats_list) — tytuł kontekstowy ("Serwery"),
-      // nie powtarzanie marki ("Atrament"). Konwencja jak chats_list:
-      // główny ekran = brand name, sub-ekran = co user teraz robi.
+      // Sub-ekran (Navigator.pushNamed z chats_list) — tytuł kontekstowy
+      // ("Serwery"), nie powtarzanie marki ("Atrament"). Konwencja jak
+      // chats_list: główny ekran = brand name, sub-ekran = co user teraz robi.
       appBar: AppBar(title: Text(loc.profilesScreenTitle)),
       body: profilesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -98,9 +97,10 @@ class ProfilesScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => const AddProfileScreen())),
+        // Profile-flow refactor: named route '/profile' bez arguments =
+        // tryb new w AddProfileScreen (onGenerateRoute w main.dart
+        // przekaże editing=null).
+        onPressed: () => Navigator.of(context).pushNamed('/profile'),
         icon: const Icon(Icons.add),
         label: Text(loc.profilesScreenAddProfile),
       ),
@@ -121,9 +121,9 @@ class ProfilesScreen extends ConsumerWidget {
       case 'deactivate':
         await repo.clearActiveProfile();
       case 'edit':
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (_) => AddProfileScreen(editing: p)));
+        // Profile-flow refactor: named route '/profile' z arguments=Profile
+        // = tryb edit (onGenerateRoute w main.dart rozpakuje editing=p).
+        Navigator.of(context).pushNamed('/profile', arguments: p);
       case 'delete':
         final ok = await showDialog<bool>(
           context: context,

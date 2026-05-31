@@ -5,7 +5,6 @@ import '../../../core/providers/theme_mode_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../diagnostics/presentation/diagnostics_screen.dart';
-import '../../profiles/presentation/profiles_screen.dart';
 import '../data/chat_providers.dart';
 import 'chat_controller.dart';
 
@@ -31,11 +30,9 @@ class ChatsListScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.dns),
             tooltip: loc.chatsListServersTooltip,
-            // ProfilesScreen i AddProfileScreen nie są jeszcze w main.dart routes —
-            // refactor profili poza scope Kroku 2, świadoma niespójność tymczasowa.
-            onPressed: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const ProfilesScreen())),
+            // Profile-flow refactor: named route '/profiles' zamiast
+            // MaterialPageRoute. Konsystentne z chat-flow nawigacją.
+            onPressed: () => Navigator.of(context).pushNamed('/profiles'),
           ),
           // Overflow menu na końcu — akcje rzadziej używane (diagnostyka,
           // w przyszłości settings/about). Konwencja Material Design:
@@ -138,6 +135,8 @@ class ChatsListScreen extends ConsumerWidget {
   void _onMenuAction(BuildContext context, String action) {
     switch (action) {
       case 'diagnostics':
+        // Diagnostics nie jest w main.dart routes — tracked TODO, osobny
+        // refactor (poza scope profile-flow). MaterialPageRoute tymczasowo.
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => const DiagnosticsScreen()),
         );

@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:atrament_app/core/database/database.dart';
 import 'package:atrament_app/core/logging/log_buffer.dart';
 import 'package:atrament_app/core/providers/theme_mode_provider.dart';
 import 'package:atrament_app/core/theme.dart';
 import 'package:atrament_app/features/chat/presentation/chat_screen.dart';
 import 'package:atrament_app/features/chat/presentation/chats_list_screen.dart';
 import 'package:atrament_app/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:atrament_app/features/profiles/presentation/add_profile_screen.dart';
+import 'package:atrament_app/features/profiles/presentation/profiles_screen.dart';
 import 'package:atrament_app/l10n/app_localizations.dart';
 
 Future<void> main() async {
@@ -90,10 +93,34 @@ class AtramentApp extends ConsumerWidget {
       // od OnboardingScreen, który po complete robi pushReplacementNamed('/')
       // żeby usunąć onboarding z navigation stack.
       initialRoute: skipOnboarding ? '/' : '/onboarding',
+      // Profile-flow refactor: ProfilesScreen i AddProfileScreen przeniesione
+      // z MaterialPageRoute push'y na named routes. Konwencja resource-based
+      // jak '/chat' — liczba mnoga dla listy ('/profiles'), pojedyncza dla
+      // pojedynczego zasobu ('/profile'). Tryb form (new vs edit) określony
+      // przez arguments: null = nowy serwer, Profile = edycja istniejącego.
+      //
+      // Tracked TODO: gdy F2 wprowadzi go_router (deep links / tablet split),
+      // ten onGenerateRoute zostanie zastąpiony route configuration. Obecna
+      // struktura jest świadomie minimal — nie warto wprowadzać go_router
+      // dla pojedynczego ekranu z argumentem.
       routes: {
         '/onboarding': (_) => const OnboardingScreen(),
         '/': (_) => const ChatsListScreen(),
         '/chat': (_) => const ChatScreen(),
+        '/profiles': (_) => const ProfilesScreen(),
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/profile') {
+          // Defensive type check — pushNamed z naszego kodu zawsze przekazuje
+          // Profile? jako arguments, ale future deep links mogą wpaść z
+          // złym typem. `is` zamiast `as?` żeby nie rzucić runtime exception.
+          final args = settings.arguments;
+          final profile = args is Profile ? args : null;
+          return MaterialPageRoute(
+            builder: (_) => AddProfileScreen(editing: profile),
+          );
+        }
+        return null;
       },
     );
   }
