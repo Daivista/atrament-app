@@ -443,4 +443,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String reportResponseShareError(String error) {
     return 'Failed to share report: $error';
   }
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingPage1Title => 'Conversations without the cloud';
+
+  @override
+  String get onboardingPage1Body =>
+      'Atrament connects to your local LLM server. Your data never leaves your device.';
+
+  @override
+  String get onboardingPage2Title => 'Full control';
+
+  @override
+  String get onboardingPage2Body =>
+      'Choose your model, tune parameters, peek into how the model thinks. Everything you need.';
+
+  @override
+  String get onboardingPage3Title => 'Let\'s start';
+
+  @override
+  String get onboardingPage3Body =>
+      'Add your LM Studio or Ollama server, choose a model, and start chatting.';
 }

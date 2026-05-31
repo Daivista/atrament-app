@@ -167,5 +167,15 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingStart": "Get started",
+  "onboardingPage1Title": "Conversations without the cloud",
+  "onboardingPage1Body": "Atrament connects to your local LLM server. Your data never leaves your device.",
+  "onboardingPage2Title": "Full control",
+  "onboardingPage2Body": "Choose your model, tune parameters, peek into how the model thinks. Everything you need.",
+  "onboardingPage3Title": "Let's start",
+  "onboardingPage3Body": "Add your LM Studio or Ollama server, choose a model, and start chatting."
 }

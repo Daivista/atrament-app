@@ -97,7 +97,7 @@
   },
   "chatRegenerate": "Regeneruj",
   "@chatRegenerate": {
-    "description": "Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G) — wywołuje regenerację odpowiedzi. Replace approach: stara message znika, nowa generuje się dla tego samego user pytania używając obecnych parametrów"
+    "description": "Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G)"
   },
 
   "chatParametersTooltip": "Parametry rozmowy",
@@ -522,11 +522,11 @@
 
   "reportResponseTitle": "Zgłoś problem z odpowiedzią",
   "@reportResponseTitle": {
-    "description": "Tytuł ReportResponseDialog — modal raportujący niewłaściwą odpowiedź modelu"
+    "description": "Tytuł ReportResponseDialog"
   },
   "reportResponseIntro": "Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).",
   "@reportResponseIntro": {
-    "description": "Wstęp dialogu — wyjaśnia że nic nie idzie automatycznie, świadomy opt-in user'a"
+    "description": "Wstęp dialogu"
   },
   "reportResponseCategoryLabel": "Kategoria:",
   "@reportResponseCategoryLabel": {
@@ -534,23 +534,23 @@
   },
   "reportCategoryInaccurate": "Nieprawdziwe info",
   "@reportCategoryInaccurate": {
-    "description": "Kategoria: fakt nieprawdziwy, halucynacja"
+    "description": "Kategoria: fakt nieprawdziwy"
   },
   "reportCategoryOffTopic": "Nie na temat",
   "@reportCategoryOffTopic": {
-    "description": "Kategoria: odpowiedź nie pasuje do pytania"
+    "description": "Kategoria: off-topic"
   },
   "reportCategoryUnsafe": "Toksyczne / niebezpieczne",
   "@reportCategoryUnsafe": {
-    "description": "Kategoria: treść toksyczna lub niebezpieczna"
+    "description": "Kategoria: toxic"
   },
   "reportCategoryPoorQuality": "Złej jakości",
   "@reportCategoryPoorQuality": {
-    "description": "Kategoria: urwana, zbyt krótka, niegramatyczna"
+    "description": "Kategoria: poor quality"
   },
   "reportCategoryOther": "Inne",
   "@reportCategoryOther": {
-    "description": "Kategoria: inna przyczyna nie pasująca do pozostałych"
+    "description": "Kategoria: inne"
   },
   "reportResponseCommentLabel": "Komentarz (opcjonalny):",
   "@reportResponseCommentLabel": {
@@ -570,7 +570,7 @@
   },
   "reportResponseShare": "Udostępnij",
   "@reportResponseShare": {
-    "description": "Przycisk submit — otwiera share intent"
+    "description": "Przycisk submit"
   },
   "reportResponseSubject": "Atrament — raport problemu z odpowiedzią",
   "@reportResponseSubject": {
@@ -584,5 +584,42 @@
         "type": "String"
       }
     }
+  },
+
+  "onboardingSkip": "Pomiń",
+  "@onboardingSkip": {
+    "description": "Sesja H: TextButton w prawym górnym rogu OnboardingScreen — pomija onboarding i ustawia flag hasSeenOnboarding=true. Ukryty na ostatnim slajdzie (CTA tam jest 'Rozpocznij')."
+  },
+  "onboardingNext": "Dalej",
+  "@onboardingNext": {
+    "description": "Sesja H: CTA button na dole OnboardingScreen dla slajdów 1-2. Przenosi do następnego slajdu."
+  },
+  "onboardingStart": "Rozpocznij",
+  "@onboardingStart": {
+    "description": "Sesja H: CTA button na dole ostatniego slajdu. Ustawia flag i pushReplacementNamed('/')."
+  },
+  "onboardingPage1Title": "Rozmowy bez chmury",
+  "@onboardingPage1Title": {
+    "description": "Sesja H slajd 1 — privacy positioning. Najmocniejsza pozycja konkurencyjna Atramentu wg manifestu."
+  },
+  "onboardingPage1Body": "Atrament łączy się z lokalnym serwerem LLM na twoim komputerze. Twoje dane nigdy nie opuszczają urządzenia.",
+  "@onboardingPage1Body": {
+    "description": "Sesja H slajd 1 body — kategoryczne 'nigdy' jest świadome (Data Safety form po Sesji D deklaruje 'no data collected')."
+  },
+  "onboardingPage2Title": "Pełna kontrola",
+  "@onboardingPage2Title": {
+    "description": "Sesja H slajd 2 — power features (parametry A1/A2 + reasoning F)."
+  },
+  "onboardingPage2Body": "Wybierz model, dostosuj parametry, podejrzyj proces myślowy. Wszystko czego potrzebujesz.",
+  "@onboardingPage2Body": {
+    "description": "Sesja H slajd 2 body — 'podejrzyj' sugeruje 'zobacz coś czego zwykle nie widać' (reasoning UI)."
+  },
+  "onboardingPage3Title": "Zaczynamy",
+  "@onboardingPage3Title": {
+    "description": "Sesja H slajd 3 — quick start CTA."
+  },
+  "onboardingPage3Body": "Dodaj swój serwer LM Studio lub Ollama, wybierz model i zacznij rozmowę.",
+  "@onboardingPage3Body": {
+    "description": "Sesja H slajd 3 body — konkretne nazwy serwerów (LM Studio, Ollama) bo to są target users."
   }
 }

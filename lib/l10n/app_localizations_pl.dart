@@ -449,4 +449,34 @@ class AppLocalizationsPl extends AppLocalizations {
   String reportResponseShareError(String error) {
     return 'Nie udało się udostępnić raportu: $error';
   }
+
+  @override
+  String get onboardingSkip => 'Pomiń';
+
+  @override
+  String get onboardingNext => 'Dalej';
+
+  @override
+  String get onboardingStart => 'Rozpocznij';
+
+  @override
+  String get onboardingPage1Title => 'Rozmowy bez chmury';
+
+  @override
+  String get onboardingPage1Body =>
+      'Atrament łączy się z lokalnym serwerem LLM na twoim komputerze. Twoje dane nigdy nie opuszczają urządzenia.';
+
+  @override
+  String get onboardingPage2Title => 'Pełna kontrola';
+
+  @override
+  String get onboardingPage2Body =>
+      'Wybierz model, dostosuj parametry, podejrzyj proces myślowy. Wszystko czego potrzebujesz.';
+
+  @override
+  String get onboardingPage3Title => 'Zaczynamy';
+
+  @override
+  String get onboardingPage3Body =>
+      'Dodaj swój serwer LM Studio lub Ollama, wybierz model i zacznij rozmowę.';
 }

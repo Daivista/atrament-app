@@ -236,7 +236,7 @@ abstract class AppLocalizations {
   /// **'Raportuj odpowiedź'**
   String get chatReportResponse;
 
-  /// Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G) — wywołuje regenerację odpowiedzi. Replace approach: stara message znika, nowa generuje się dla tego samego user pytania używając obecnych parametrów
+  /// Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G)
   ///
   /// In pl, this message translates to:
   /// **'Regeneruj'**
@@ -788,13 +788,13 @@ abstract class AppLocalizations {
   /// **'Testowa awaria wywołana — zobacz sekcję Awarie'**
   String get diagnosticsTestCrashTriggered;
 
-  /// Tytuł ReportResponseDialog — modal raportujący niewłaściwą odpowiedź modelu
+  /// Tytuł ReportResponseDialog
   ///
   /// In pl, this message translates to:
   /// **'Zgłoś problem z odpowiedzią'**
   String get reportResponseTitle;
 
-  /// Wstęp dialogu — wyjaśnia że nic nie idzie automatycznie, świadomy opt-in user'a
+  /// Wstęp dialogu
   ///
   /// In pl, this message translates to:
   /// **'Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).'**
@@ -806,31 +806,31 @@ abstract class AppLocalizations {
   /// **'Kategoria:'**
   String get reportResponseCategoryLabel;
 
-  /// Kategoria: fakt nieprawdziwy, halucynacja
+  /// Kategoria: fakt nieprawdziwy
   ///
   /// In pl, this message translates to:
   /// **'Nieprawdziwe info'**
   String get reportCategoryInaccurate;
 
-  /// Kategoria: odpowiedź nie pasuje do pytania
+  /// Kategoria: off-topic
   ///
   /// In pl, this message translates to:
   /// **'Nie na temat'**
   String get reportCategoryOffTopic;
 
-  /// Kategoria: treść toksyczna lub niebezpieczna
+  /// Kategoria: toxic
   ///
   /// In pl, this message translates to:
   /// **'Toksyczne / niebezpieczne'**
   String get reportCategoryUnsafe;
 
-  /// Kategoria: urwana, zbyt krótka, niegramatyczna
+  /// Kategoria: poor quality
   ///
   /// In pl, this message translates to:
   /// **'Złej jakości'**
   String get reportCategoryPoorQuality;
 
-  /// Kategoria: inna przyczyna nie pasująca do pozostałych
+  /// Kategoria: inne
   ///
   /// In pl, this message translates to:
   /// **'Inne'**
@@ -860,7 +860,7 @@ abstract class AppLocalizations {
   /// **'Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.'**
   String get reportResponseDisclaimerContent;
 
-  /// Przycisk submit — otwiera share intent
+  /// Przycisk submit
   ///
   /// In pl, this message translates to:
   /// **'Udostępnij'**
@@ -877,6 +877,60 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Nie udało się udostępnić raportu: {error}'**
   String reportResponseShareError(String error);
+
+  /// Sesja H: TextButton w prawym górnym rogu OnboardingScreen — pomija onboarding i ustawia flag hasSeenOnboarding=true. Ukryty na ostatnim slajdzie (CTA tam jest 'Rozpocznij').
+  ///
+  /// In pl, this message translates to:
+  /// **'Pomiń'**
+  String get onboardingSkip;
+
+  /// Sesja H: CTA button na dole OnboardingScreen dla slajdów 1-2. Przenosi do następnego slajdu.
+  ///
+  /// In pl, this message translates to:
+  /// **'Dalej'**
+  String get onboardingNext;
+
+  /// Sesja H: CTA button na dole ostatniego slajdu. Ustawia flag i pushReplacementNamed('/').
+  ///
+  /// In pl, this message translates to:
+  /// **'Rozpocznij'**
+  String get onboardingStart;
+
+  /// Sesja H slajd 1 — privacy positioning. Najmocniejsza pozycja konkurencyjna Atramentu wg manifestu.
+  ///
+  /// In pl, this message translates to:
+  /// **'Rozmowy bez chmury'**
+  String get onboardingPage1Title;
+
+  /// Sesja H slajd 1 body — kategoryczne 'nigdy' jest świadome (Data Safety form po Sesji D deklaruje 'no data collected').
+  ///
+  /// In pl, this message translates to:
+  /// **'Atrament łączy się z lokalnym serwerem LLM na twoim komputerze. Twoje dane nigdy nie opuszczają urządzenia.'**
+  String get onboardingPage1Body;
+
+  /// Sesja H slajd 2 — power features (parametry A1/A2 + reasoning F).
+  ///
+  /// In pl, this message translates to:
+  /// **'Pełna kontrola'**
+  String get onboardingPage2Title;
+
+  /// Sesja H slajd 2 body — 'podejrzyj' sugeruje 'zobacz coś czego zwykle nie widać' (reasoning UI).
+  ///
+  /// In pl, this message translates to:
+  /// **'Wybierz model, dostosuj parametry, podejrzyj proces myślowy. Wszystko czego potrzebujesz.'**
+  String get onboardingPage2Body;
+
+  /// Sesja H slajd 3 — quick start CTA.
+  ///
+  /// In pl, this message translates to:
+  /// **'Zaczynamy'**
+  String get onboardingPage3Title;
+
+  /// Sesja H slajd 3 body — konkretne nazwy serwerów (LM Studio, Ollama) bo to są target users.
+  ///
+  /// In pl, this message translates to:
+  /// **'Dodaj swój serwer LM Studio lub Ollama, wybierz model i zacznij rozmowę.'**
+  String get onboardingPage3Body;
 }
 
 class _AppLocalizationsDelegate
