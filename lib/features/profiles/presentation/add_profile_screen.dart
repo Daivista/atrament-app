@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database.dart';
+import '../../../core/logging/log_buffer.dart';
 import '../../../core/network/address_validator.dart';
 import '../../../core/providers/providers.dart';
 import '../../../core/theme.dart';
@@ -106,6 +107,8 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
           ? _url.text.trim()
           : _name.text.trim();
       if (_isEditing) {
+        // Update path — bez zmian w active state. URL/nazwa update nie
+        // powinno zmieniać który profil jest aktywny.
         await repo.updateProfile(
           id: widget.editing!.id,
           name: name,
@@ -114,11 +117,22 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
           clearApiKey: _clearKey,
         );
       } else {
-        await repo.saveProfile(
+        // Create path — discovered podczas testów Sesji H że bez
+        // auto-activate user ląduje w ChatsList z "Brak aktywnego serwera"
+        // tuż po świeżym dodaniu serwera. User: "ktoś kto nie rozumie tej
+        // apki pomyśli że to bug". Auto-activate dla każdego nowego
+        // profilu — power user ma jeden tap gwiazdki w ProfilesScreen
+        // żeby przełączyć z powrotem do starego, jeśli zamierzał backup.
+        final newId = await repo.saveProfile(
           name: name,
           baseUrl: _url.text.trim(),
           type: 'openai_compat',
           apiKey: key.isEmpty ? null : key,
+        );
+        await repo.setActiveProfileId(newId);
+        LogBuffer().info(
+          'profile',
+          'Auto-activated new profile: id=$newId',
         );
       }
       if (mounted) Navigator.of(context).pop();
