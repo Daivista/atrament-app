@@ -9,15 +9,52 @@ import '../data/chat_providers.dart';
 import 'chat_controller.dart';
 
 class ChatsListScreen extends ConsumerWidget {
-  const ChatsListScreen({super.key});
+  /// Tablet split view mode flag. When true:
+  /// - tap chat or FAB does NOT push '/chat' route
+  /// - instead calls [onChatOpened] callback so parent
+  ///   [AdaptiveHomeScaffold] can show right pane
+  ///
+  /// Default false (mobile flow unchanged).
+  final bool inSplitView;
+
+  /// Called after tap chat / FAB in split view mode. Used by parent
+  /// [AdaptiveHomeScaffold] to mark right pane as active.
+  final VoidCallback? onChatOpened;
+
+  /// Called when user taps sidebar collapse button. Only relevant in
+  /// split view mode — parent [AdaptiveHomeScaffold] toggles sidebar
+  /// visibility. AppBar leading IconButton shown only when this
+  /// callback is provided AND inSplitView=true.
+  final VoidCallback? onToggleSidebar;
+
+  const ChatsListScreen({
+    super.key,
+    this.inSplitView = false,
+    this.onChatOpened,
+    this.onToggleSidebar,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final loc = AppLocalizations.of(context);
     final chatsAsync = ref.watch(chatsListProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final showCollapseButton = inSplitView && onToggleSidebar != null;
     return Scaffold(
       appBar: AppBar(
+        // Disable automatic back arrow — w mobile mode '/' to home (canPop=false
+        // po onboarding fix), w split view route '/' też nie ma canPop. Wprost
+        // wyłączenie żeby implicit leading nigdy nie zaskoczył.
+        automaticallyImplyLeading: false,
+        // Tablet collapsible sidebar: leading menu_open icon w split view
+        // pozwala user collapse sidebar (lista chats znika, chat full width).
+        leading: showCollapseButton
+            ? IconButton(
+                icon: const Icon(Icons.menu_open),
+                tooltip: loc.tabletSidebarCollapse,
+                onPressed: onToggleSidebar,
+              )
+            : null,
         // 'Atrament' jest nazwą marki — nie tłumaczone celowo.
         title: const Text('Atrament'),
         actions: [
@@ -93,14 +130,14 @@ class ChatsListScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                onTap: () => _openChat(context, ref, c.id),
+                onTap: () => _openChat(context, ref, c.id, loc),
               );
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _newChat(context, ref),
+        onPressed: () => _newChat(context, ref, loc),
         icon: const Icon(Icons.add_comment_outlined),
         label: Text(loc.commonNewChat),
       ),
@@ -143,19 +180,77 @@ class ChatsListScreen extends ConsumerWidget {
     }
   }
 
+  /// Tap chat from list. Two flows:
+  ///
+  /// **Mobile**: loadChat + pushNamed('/chat') — standard push as before.
+  ///
+  /// **Tablet split view**: loadChat + onChatOpened() callback — no push,
+  /// AdaptiveHomeScaffold reactively shows ChatScreen in right pane.
+  ///
+  /// **Guard**: if any chat currently streaming, show SnackBar feedback
+  /// and skip. Fixes Sesja G discovered edge case (concurrent navigation/
+  /// streaming) — applies uniformly to mobile AND tablet because mobile
+  /// users also experienced this confusion silently.
   Future<void> _openChat(
     BuildContext context,
     WidgetRef ref,
     String chatId,
+    AppLocalizations loc,
   ) async {
+    final chatState = ref.read(chatControllerProvider);
+    if (chatState.isStreaming) {
+      _showStreamingSnackBar(context, loc);
+      return;
+    }
     await ref.read(chatControllerProvider.notifier).loadChat(chatId);
     if (!context.mounted) return;
-    Navigator.of(context).pushNamed('/chat');
+    if (inSplitView) {
+      onChatOpened?.call();
+    } else {
+      Navigator.of(context).pushNamed('/chat');
+    }
   }
 
-  void _newChat(BuildContext context, WidgetRef ref) {
+  /// Tap FAB "Nowa rozmowa". Two flows:
+  ///
+  /// **Mobile**: newChat() + pushNamed('/chat') — push new empty chat screen.
+  ///
+  /// **Tablet split view**: newChat() + onChatOpened() — show empty chat
+  /// in right pane, no push.
+  ///
+  /// **Guard**: if any chat currently streaming, show SnackBar feedback
+  /// and skip. Consistent with _openChat.
+  void _newChat(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations loc,
+  ) {
+    final chatState = ref.read(chatControllerProvider);
+    if (chatState.isStreaming) {
+      _showStreamingSnackBar(context, loc);
+      return;
+    }
     ref.read(chatControllerProvider.notifier).newChat();
-    Navigator.of(context).pushNamed('/chat');
+    if (inSplitView) {
+      onChatOpened?.call();
+    } else {
+      Navigator.of(context).pushNamed('/chat');
+    }
+  }
+
+  /// Sesja G discovered edge case fix: visible UX feedback gdy user próbuje
+  /// nawigować do innej rozmowy podczas trwającego streaming. Aktualnie
+  /// loadChat ma guard if (state.isStreaming) return; — defensive (zapobiega
+  /// state corruption). SnackBar tu daje user wizualną odpowiedź "dlaczego
+  /// nic się nie stało po kliknięciu".
+  void _showStreamingSnackBar(BuildContext context, AppLocalizations loc) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(loc.chatStreamingInProgress),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   Future<void> _onAction(

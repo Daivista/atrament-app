@@ -99,6 +99,19 @@
   "@chatRegenerate": {
     "description": "Pozycja w PopupMenu bańki ostatniej assistant message (Sesja G)"
   },
+  "chatStreamingInProgress": "Trwa generowanie odpowiedzi. Zatrzymaj lub poczekaj.",
+  "@chatStreamingInProgress": {
+    "description": "Tablet refactor: SnackBar feedback gdy user próbuje przełączyć rozmowę lub stworzyć nową podczas trwającego streaming. Fixuje Sesja G discovered edge case (concurrent navigation/streaming) dla mobile + tablet uniformly."
+  },
+
+  "tabletSidebarCollapse": "Schowaj listę rozmów",
+  "@tabletSidebarCollapse": {
+    "description": "Tablet split view: tooltip dla IconButton(menu_open) w lewym AppBar. Tap zwija sidebar — lista rozmów znika, chat zajmuje całą szerokość. Critical dla tablet portrait (~800dp) gdzie 35% lista zostawia chat tylko ~520dp."
+  },
+  "tabletSidebarExpand": "Pokaż listę rozmów",
+  "@tabletSidebarExpand": {
+    "description": "Tablet split view: tooltip dla IconButton(menu) w prawym AppBar gdy sidebar collapsed. Tap rozwija sidebar — lista rozmów wraca z animacją cross-fade 200ms."
+  },
 
   "chatParametersTooltip": "Parametry rozmowy",
   "@chatParametersTooltip": {
@@ -189,25 +202,10 @@
     "description": "Label segmented button dla reasoning_effort"
   },
   "chatParametersReasoningNone": "—",
-  "@chatParametersReasoningNone": {
-    "description": "Wartość 'None' dla reasoning_effort"
-  },
   "chatParametersReasoningLow": "low",
-  "@chatParametersReasoningLow": {
-    "description": "Wartość 'low' dla reasoning_effort"
-  },
   "chatParametersReasoningMedium": "medium",
-  "@chatParametersReasoningMedium": {
-    "description": "Wartość 'medium' dla reasoning_effort"
-  },
   "chatParametersReasoningHigh": "high",
-  "@chatParametersReasoningHigh": {
-    "description": "Wartość 'high' dla reasoning_effort"
-  },
   "chatParametersDefaultHint": "domyślne serwera",
-  "@chatParametersDefaultHint": {
-    "description": "Hint w pustych polach numerycznych"
-  },
 
   "chatsListServersTooltip": "Serwery",
   "@chatsListServersTooltip": {
@@ -215,7 +213,6 @@
   },
   "chatsListError": "Błąd: {error}",
   "@chatsListError": {
-    "description": "Komunikat błędu gdy stream rozmów rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "Object"
@@ -223,24 +220,11 @@
     }
   },
   "chatsListRename": "Zmień nazwę",
-  "@chatsListRename": {
-    "description": "Pozycja w popup menu rozmowy"
-  },
   "chatsListEmpty": "Brak rozmów",
-  "@chatsListEmpty": {
-    "description": "Tytuł pustego stanu listy rozmów"
-  },
   "chatsListEmptyHint": "Stuknij \"Nowa rozmowa\", by zacząć pierwszą.",
-  "@chatsListEmptyHint": {
-    "description": "Podpowiedź pod tytułem 'Brak rozmów'"
-  },
   "chatsListDeleteConfirmTitle": "Usunąć rozmowę?",
-  "@chatsListDeleteConfirmTitle": {
-    "description": "Tytuł dialogu potwierdzenia usunięcia rozmowy"
-  },
   "chatsListDeleteConfirmContent": "Rozmowa \"{title}\" zostanie usunięta wraz ze wszystkimi wiadomościami.",
   "@chatsListDeleteConfirmContent": {
-    "description": "Treść dialogu potwierdzenia usunięcia",
     "placeholders": {
       "title": {
         "type": "String"
@@ -248,17 +232,10 @@
     }
   },
   "chatsListToday": "Dziś",
-  "@chatsListToday": {
-    "description": "Prefix dla dzisiejszej godziny w subtitle rozmowy"
-  },
 
   "profilesScreenTitle": "Serwery",
-  "@profilesScreenTitle": {
-    "description": "AppBar tytuł ekranu listy profili"
-  },
   "profilesScreenError": "Błąd: {error}",
   "@profilesScreenError": {
-    "description": "Komunikat błędu",
     "placeholders": {
       "error": {
         "type": "Object"
@@ -266,32 +243,13 @@
     }
   },
   "profilesScreenKeyLost": "Klucz API utracony — wybierz Edytuj, by wpisać ponownie",
-  "@profilesScreenKeyLost": {
-    "description": "Subtitle profilu gdy apiKeyNeedsReentry = true"
-  },
   "profilesScreenActionActivate": "Ustaw jako aktywny",
-  "@profilesScreenActionActivate": {
-    "description": "Popup menu akcja na profilu"
-  },
   "profilesScreenActionDeactivate": "Usuń oznaczenie aktywnego",
-  "@profilesScreenActionDeactivate": {
-    "description": "Popup menu akcja — odznacza aktywność"
-  },
   "profilesScreenActionEdit": "Edytuj",
-  "@profilesScreenActionEdit": {
-    "description": "Popup menu akcja — otwiera edycję"
-  },
   "profilesScreenAddProfile": "Dodaj serwer",
-  "@profilesScreenAddProfile": {
-    "description": "Label FAB na liście profili"
-  },
   "profilesScreenDeleteConfirmTitle": "Usunąć serwer?",
-  "@profilesScreenDeleteConfirmTitle": {
-    "description": "Tytuł dialogu potwierdzenia usunięcia profilu"
-  },
   "profilesScreenDeleteConfirmContent": "Profil „{name}\" zostanie usunięty wraz z kluczem API. Tej operacji nie można cofnąć.",
   "@profilesScreenDeleteConfirmContent": {
-    "description": "Treść dialogu potwierdzenia",
     "placeholders": {
       "name": {
         "type": "String"
@@ -299,81 +257,26 @@
     }
   },
   "profilesScreenEmpty": "Brak serwerów",
-  "@profilesScreenEmpty": {
-    "description": "Tytuł pustego stanu listy profili"
-  },
   "profilesScreenEmptyHint": "Dodaj swój pierwszy serwer LLM (LM Studio, Ollama…), żeby zacząć rozmowę.",
-  "@profilesScreenEmptyHint": {
-    "description": "Podpowiedź pod 'Brak serwerów'"
-  },
 
   "addProfileTitleNew": "Dodaj serwer",
-  "@addProfileTitleNew": {
-    "description": "AppBar tytuł AddProfileScreen w trybie nowym"
-  },
   "addProfileTitleEdit": "Edytuj serwer",
-  "@addProfileTitleEdit": {
-    "description": "AppBar tytuł AddProfileScreen w trybie edycji"
-  },
   "addProfileNameLabel": "Nazwa (opcjonalna)",
-  "@addProfileNameLabel": {
-    "description": "Label pola nazwy profilu"
-  },
   "addProfileNameHint": "np. LM Studio - laptop",
-  "@addProfileNameHint": {
-    "description": "Hint dla pola nazwy"
-  },
   "addProfileUrlLabel": "Adres serwera",
-  "@addProfileUrlLabel": {
-    "description": "Label pola URL"
-  },
   "addProfileMissingUrl": "Podaj adres serwera.",
-  "@addProfileMissingUrl": {
-    "description": "Validation error"
-  },
   "addProfileCleartextTitle": "Połączenie nieszyfrowane",
-  "@addProfileCleartextTitle": {
-    "description": "Tytuł dialogu cleartext warning"
-  },
   "addProfileCleartextContent": "Łączysz się przez HTTP z publicznym adresem. Dane (klucz API, rozmowy) mogą zostać przechwycone. Dla sieci lokalnej to zwykle bezpieczne, dla publicznych zalecamy HTTPS.\n\nKontynuować?",
-  "@addProfileCleartextContent": {
-    "description": "Content dialogu cleartext warning"
-  },
   "addProfileContinue": "Kontynuuj",
-  "@addProfileContinue": {
-    "description": "Przycisk 'kontynuuj' w cleartext warning"
-  },
   "addProfileApiKeyLost": "Klucz API tego serwera został utracony (np. po przywróceniu kopii zapasowej). Wpisz go ponownie poniżej, by przywrócić połączenie.",
-  "@addProfileApiKeyLost": {
-    "description": "Warning card w trybie edycji"
-  },
   "addProfileApiKeyLabel": "Klucz API (opcjonalny)",
-  "@addProfileApiKeyLabel": {
-    "description": "Label pola klucza API"
-  },
   "addProfileApiKeyHintExisting": "zapisany — zostaw puste by nie zmieniać",
-  "@addProfileApiKeyHintExisting": {
-    "description": "Hint pola klucza w edycji gdy klucz istnieje"
-  },
   "addProfileApiKeyHintNew": "dla serwerów wymagających autoryzacji",
-  "@addProfileApiKeyHintNew": {
-    "description": "Hint pola klucza w nowym lub edycji gdy klucz nie istnieje"
-  },
   "addProfileClearKey": "Usuń zapisany klucz API",
-  "@addProfileClearKey": {
-    "description": "Label checkboxa do skasowania klucza"
-  },
   "addProfileConnecting": "Łączenie…",
-  "@addProfileConnecting": {
-    "description": "Label przycisku 'Testuj połączenie' podczas requestu"
-  },
   "addProfileTestConnection": "Testuj połączenie",
-  "@addProfileTestConnection": {
-    "description": "Label przycisku testu połączenia"
-  },
   "addProfileConnected": "✅ Połączono — {count, plural, =0{brak dostępnych modeli} one{{count} model dostępny} few{{count} modele dostępne} many{{count} modeli dostępnych} other{{count} modeli dostępnych}}:",
   "@addProfileConnected": {
-    "description": "Komunikat sukcesu połączenia z liczbą modeli (ICU plural PL)",
     "placeholders": {
       "count": {
         "type": "int"
@@ -381,20 +284,10 @@
     }
   },
   "addProfileSaving": "Zapisywanie…",
-  "@addProfileSaving": {
-    "description": "Label przycisku zapisu podczas writu"
-  },
   "addProfileSaveChanges": "Zapisz zmiany",
-  "@addProfileSaveChanges": {
-    "description": "Label przycisku zapisu w edycji"
-  },
   "addProfileSaveNew": "Zapisz serwer",
-  "@addProfileSaveNew": {
-    "description": "Label przycisku zapisu w trybie nowym"
-  },
   "addProfileSaveError": "Błąd zapisu: {error}",
   "@addProfileSaveError": {
-    "description": "Error message gdy zapis do bazy rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "String"
@@ -403,48 +296,17 @@
   },
 
   "diagnosticsTitle": "Diagnostyka",
-  "@diagnosticsTitle": {
-    "description": "Tytuł ekranu Diagnostyka"
-  },
   "diagnosticsAboutSection": "O aplikacji",
-  "@diagnosticsAboutSection": {
-    "description": "Nagłówek sekcji 'O aplikacji'"
-  },
   "diagnosticsAppLabel": "Aplikacja",
-  "@diagnosticsAppLabel": {
-    "description": "Label wiersza z nazwą + wersją"
-  },
   "diagnosticsBuildModeLabel": "Tryb buildu",
-  "@diagnosticsBuildModeLabel": {
-    "description": "Label wiersza z trybem kompilacji"
-  },
   "diagnosticsPackageNameLabel": "Package",
-  "@diagnosticsPackageNameLabel": {
-    "description": "Label wiersza z package name"
-  },
   "diagnosticsStateSection": "Stan",
-  "@diagnosticsStateSection": {
-    "description": "Nagłówek sekcji 'Stan'"
-  },
   "diagnosticsProfileCount": "Liczba profili",
-  "@diagnosticsProfileCount": {
-    "description": "Label wiersza z liczbą profili"
-  },
   "diagnosticsActiveProfile": "Aktywny profil",
-  "@diagnosticsActiveProfile": {
-    "description": "Label wiersza z aktywnym profilem"
-  },
   "diagnosticsChatCount": "Liczba rozmów",
-  "@diagnosticsChatCount": {
-    "description": "Label wiersza z liczbą rozmów"
-  },
   "diagnosticsNone": "— brak —",
-  "@diagnosticsNone": {
-    "description": "Placeholder wartości gdy pole puste"
-  },
   "diagnosticsLogsSection": "Logi ({count})",
   "@diagnosticsLogsSection": {
-    "description": "Nagłówek sekcji logów",
     "placeholders": {
       "count": {
         "type": "int"
@@ -452,28 +314,12 @@
     }
   },
   "diagnosticsLogsEmpty": "Brak logów w tej sesji.",
-  "@diagnosticsLogsEmpty": {
-    "description": "Placeholder gdy log buffer pusty"
-  },
   "diagnosticsShareLogs": "Udostępnij logi",
-  "@diagnosticsShareLogs": {
-    "description": "Label FAB"
-  },
   "diagnosticsClearAll": "Wyczyść wszystko",
-  "@diagnosticsClearAll": {
-    "description": "Tooltip ikony delete"
-  },
   "diagnosticsClearAllConfirmTitle": "Wyczyścić wszystko?",
-  "@diagnosticsClearAllConfirmTitle": {
-    "description": "Tytuł dialogu potwierdzenia"
-  },
   "diagnosticsClearAllConfirmContent": "Wszystkie logi i raporty awarii z tej sesji zostaną usunięte. Tej operacji nie można cofnąć.",
-  "@diagnosticsClearAllConfirmContent": {
-    "description": "Treść dialogu potwierdzenia"
-  },
   "diagnosticsError": "Błąd: {error}",
   "@diagnosticsError": {
-    "description": "Komunikat błędu",
     "placeholders": {
       "error": {
         "type": "String"
@@ -482,7 +328,6 @@
   },
   "diagnosticsShareError": "Nie udało się udostępnić: {error}",
   "@diagnosticsShareError": {
-    "description": "Snackbar gdy share intent rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "String"
@@ -492,7 +337,6 @@
 
   "diagnosticsCrashesSection": "Awarie ({count, plural, =0{0} one{{count}} few{{count}} many{{count}} other{{count}}})",
   "@diagnosticsCrashesSection": {
-    "description": "Nagłówek sekcji awarii z liczbą",
     "placeholders": {
       "count": {
         "type": "int"
@@ -500,85 +344,27 @@
     }
   },
   "diagnosticsNoCrashes": "Brak awarii w tej sesji. 🎉",
-  "@diagnosticsNoCrashes": {
-    "description": "Placeholder gdy crashes list pusty"
-  },
   "diagnosticsSendCrashReport": "Wyślij raport o awarii",
-  "@diagnosticsSendCrashReport": {
-    "description": "Label przycisku w sekcji awarii"
-  },
   "diagnosticsCrashReportSubject": "Atrament — raport o awarii",
-  "@diagnosticsCrashReportSubject": {
-    "description": "Subject w share intent dla crash reportu"
-  },
   "diagnosticsTestCrash": "Wywołaj testową awarię",
-  "@diagnosticsTestCrash": {
-    "description": "Label przycisku DEBUG-ONLY"
-  },
   "diagnosticsTestCrashTriggered": "Testowa awaria wywołana — zobacz sekcję Awarie",
-  "@diagnosticsTestCrashTriggered": {
-    "description": "Snackbar po kliknięciu Wywołaj testową awarię"
-  },
 
   "reportResponseTitle": "Zgłoś problem z odpowiedzią",
-  "@reportResponseTitle": {
-    "description": "Tytuł ReportResponseDialog"
-  },
   "reportResponseIntro": "Twój raport pomoże ulepszyć aplikację. NIC nie zostanie wysłane automatycznie — wybierzesz sam komu udostępnić (email, schowek, itp).",
-  "@reportResponseIntro": {
-    "description": "Wstęp dialogu"
-  },
   "reportResponseCategoryLabel": "Kategoria:",
-  "@reportResponseCategoryLabel": {
-    "description": "Label sekcji wyboru kategorii"
-  },
   "reportCategoryInaccurate": "Nieprawdziwe info",
-  "@reportCategoryInaccurate": {
-    "description": "Kategoria: fakt nieprawdziwy"
-  },
   "reportCategoryOffTopic": "Nie na temat",
-  "@reportCategoryOffTopic": {
-    "description": "Kategoria: off-topic"
-  },
   "reportCategoryUnsafe": "Toksyczne / niebezpieczne",
-  "@reportCategoryUnsafe": {
-    "description": "Kategoria: toxic"
-  },
   "reportCategoryPoorQuality": "Złej jakości",
-  "@reportCategoryPoorQuality": {
-    "description": "Kategoria: poor quality"
-  },
   "reportCategoryOther": "Inne",
-  "@reportCategoryOther": {
-    "description": "Kategoria: inne"
-  },
   "reportResponseCommentLabel": "Komentarz (opcjonalny):",
-  "@reportResponseCommentLabel": {
-    "description": "Label pola komentarza"
-  },
   "reportResponseCommentHint": "Opisz krótko co jest nie tak…",
-  "@reportResponseCommentHint": {
-    "description": "Placeholder w polu komentarza"
-  },
   "reportResponseDisclaimerTitle": "Co zostanie udostępnione",
-  "@reportResponseDisclaimerTitle": {
-    "description": "Nagłówek info-boxa z disclaimer privacy"
-  },
   "reportResponseDisclaimerContent": "Twoja kategoria i komentarz, twoje pytanie, raportowana odpowiedź modelu, parametry rozmowy, model, system prompt (jeśli był) oraz ostatnie 20 entries logów technicznych. Klucze API i inne rozmowy NIE są dołączane.",
-  "@reportResponseDisclaimerContent": {
-    "description": "Treść disclaimer privacy"
-  },
   "reportResponseShare": "Udostępnij",
-  "@reportResponseShare": {
-    "description": "Przycisk submit"
-  },
   "reportResponseSubject": "Atrament — raport problemu z odpowiedzią",
-  "@reportResponseSubject": {
-    "description": "Subject w share intent dla report response"
-  },
   "reportResponseShareError": "Nie udało się udostępnić raportu: {error}",
   "@reportResponseShareError": {
-    "description": "Snackbar gdy share rzuci wyjątek",
     "placeholders": {
       "error": {
         "type": "String"
@@ -587,39 +373,15 @@
   },
 
   "onboardingSkip": "Pomiń",
-  "@onboardingSkip": {
-    "description": "Sesja H: TextButton w prawym górnym rogu OnboardingScreen — pomija onboarding i ustawia flag hasSeenOnboarding=true. Ukryty na ostatnim slajdzie (CTA tam jest 'Rozpocznij')."
-  },
   "onboardingNext": "Dalej",
-  "@onboardingNext": {
-    "description": "Sesja H: CTA button na dole OnboardingScreen dla slajdów 1-2. Przenosi do następnego slajdu."
-  },
   "onboardingStart": "Rozpocznij",
-  "@onboardingStart": {
-    "description": "Sesja H: CTA button na dole ostatniego slajdu. Ustawia flag i pushReplacementNamed('/')."
-  },
   "onboardingPage1Title": "Rozmowy bez chmury",
-  "@onboardingPage1Title": {
-    "description": "Sesja H slajd 1 — privacy positioning. Najmocniejsza pozycja konkurencyjna Atramentu wg manifestu."
-  },
   "onboardingPage1Body": "Atrament łączy się z lokalnym serwerem LLM na twoim komputerze. Twoje dane nigdy nie opuszczają urządzenia.",
-  "@onboardingPage1Body": {
-    "description": "Sesja H slajd 1 body — kategoryczne 'nigdy' jest świadome (Data Safety form po Sesji D deklaruje 'no data collected')."
-  },
   "onboardingPage2Title": "Pełna kontrola",
-  "@onboardingPage2Title": {
-    "description": "Sesja H slajd 2 — power features (parametry A1/A2 + reasoning F)."
-  },
   "onboardingPage2Body": "Wybierz model, dostosuj parametry, podejrzyj proces myślowy. Wszystko czego potrzebujesz.",
-  "@onboardingPage2Body": {
-    "description": "Sesja H slajd 2 body — 'podejrzyj' sugeruje 'zobacz coś czego zwykle nie widać' (reasoning UI)."
-  },
   "onboardingPage3Title": "Zaczynamy",
-  "@onboardingPage3Title": {
-    "description": "Sesja H slajd 3 — quick start CTA."
-  },
   "onboardingPage3Body": "Dodaj swój serwer LM Studio lub Ollama, wybierz model i zacznij rozmowę.",
-  "@onboardingPage3Body": {
-    "description": "Sesja H slajd 3 body — konkretne nazwy serwerów (LM Studio, Ollama) bo to są target users."
-  }
+
+  "splitViewEmptyTitle": "Wybierz rozmowę",
+  "splitViewEmptyBody": "Wybierz rozmowę z listy lub stwórz nową, aby zacząć."
 }

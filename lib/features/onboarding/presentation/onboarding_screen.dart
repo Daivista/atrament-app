@@ -11,8 +11,13 @@ import '../../../l10n/app_localizations.dart';
 /// Pokazywany TYLKO raz — flag `hasSeenOnboarding` w SharedPreferences
 /// blokuje powtórne pokazanie. Skip i Get started oba ustawiają flag.
 ///
-/// Po complete: pushReplacementNamed('/') — usuwa onboarding z stack
-/// żeby Back z chats_list nie wracał do onboardingu.
+/// Po complete: pushNamedAndRemoveUntil('/', ...) — usuwa WSZYSTKIE routes
+/// pod nim. Subtelność Fluttera: initialRoute='/onboarding' przy bootstrapie
+/// auto-generuje '/' jako root + '/onboarding' na top (stack [/, /onboarding]).
+/// pushReplacementNamed('/') zostawiłoby stack [/, /] (duplikat), powodując
+/// canPop()=true w widgets pod '/' — np. AppBar w split view tablet
+/// pokazywałby implicit back arrow w embedded ChatsListScreen i ChatScreen.
+/// pushNamedAndRemoveUntil eliminuje cały stack i pushe jedno '/'.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -37,9 +42,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenOnboarding', true);
     if (!mounted) return;
-    // pushReplacementNamed (nie pushNamed) — usuwa onboarding z navigation
-    // stack żeby Back z chats_list nie wracał do onboardingu.
-    Navigator.of(context).pushReplacementNamed('/');
+    // pushNamedAndRemoveUntil zamiast pushReplacementNamed — czyści cały
+    // navigation stack żeby canPop()=false na route '/'. To naprawia bug
+    // implicit back arrow w split view tablet (znaleziony w empirycznej
+    // weryfikacji tablet refactor).
+    Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
   }
 
   void _onNext() {

@@ -27,6 +27,10 @@
   "chatReasoningLabel": "Thinking",
   "chatReportResponse": "Report response",
   "chatRegenerate": "Regenerate",
+  "chatStreamingInProgress": "Response is being generated. Stop or wait.",
+
+  "tabletSidebarCollapse": "Hide conversations list",
+  "tabletSidebarExpand": "Show conversations list",
 
   "chatParametersTooltip": "Conversation parameters",
   "chatParametersTitle": "Conversation parameters",
@@ -58,15 +62,36 @@
 
   "chatsListServersTooltip": "Servers",
   "chatsListError": "Error: {error}",
+  "@chatsListError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
   "chatsListRename": "Rename",
   "chatsListEmpty": "No conversations",
   "chatsListEmptyHint": "Tap \"New conversation\" to start your first.",
   "chatsListDeleteConfirmTitle": "Delete conversation?",
   "chatsListDeleteConfirmContent": "Conversation \"{title}\" will be deleted along with all messages.",
+  "@chatsListDeleteConfirmContent": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "chatsListToday": "Today",
 
   "profilesScreenTitle": "Servers",
   "profilesScreenError": "Error: {error}",
+  "@profilesScreenError": {
+    "placeholders": {
+      "error": {
+        "type": "Object"
+      }
+    }
+  },
   "profilesScreenKeyLost": "API key lost — choose Edit to enter again",
   "profilesScreenActionActivate": "Set as active",
   "profilesScreenActionDeactivate": "Remove active mark",
@@ -74,6 +99,13 @@
   "profilesScreenAddProfile": "Add server",
   "profilesScreenDeleteConfirmTitle": "Delete server?",
   "profilesScreenDeleteConfirmContent": "Profile \"{name}\" will be deleted along with its API key. This action cannot be undone.",
+  "@profilesScreenDeleteConfirmContent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "profilesScreenEmpty": "No servers",
   "profilesScreenEmptyHint": "Add your first LLM server (LM Studio, Ollama…) to start chatting.",
 
@@ -105,6 +137,13 @@
   "addProfileSaveChanges": "Save changes",
   "addProfileSaveNew": "Save server",
   "addProfileSaveError": "Save error: {error}",
+  "@addProfileSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
 
   "diagnosticsTitle": "Diagnostics",
   "diagnosticsAboutSection": "About app",
@@ -130,7 +169,21 @@
   "diagnosticsClearAllConfirmTitle": "Clear everything?",
   "diagnosticsClearAllConfirmContent": "All logs and crash reports from this session will be deleted. This action cannot be undone.",
   "diagnosticsError": "Error: {error}",
+  "@diagnosticsError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "diagnosticsShareError": "Failed to share: {error}",
+  "@diagnosticsShareError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
 
   "diagnosticsCrashesSection": "Crashes ({count, plural, =0{0} one{{count}} other{{count}}})",
   "@diagnosticsCrashesSection": {
@@ -177,5 +230,8 @@
   "onboardingPage2Title": "Full control",
   "onboardingPage2Body": "Choose your model, tune parameters, peek into how the model thinks. Everything you need.",
   "onboardingPage3Title": "Let's start",
-  "onboardingPage3Body": "Add your LM Studio or Ollama server, choose a model, and start chatting."
+  "onboardingPage3Body": "Add your LM Studio or Ollama server, choose a model, and start chatting.",
+
+  "splitViewEmptyTitle": "Choose a conversation",
+  "splitViewEmptyBody": "Pick a conversation from the list or create a new one to start."
 }

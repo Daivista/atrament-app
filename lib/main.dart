@@ -8,11 +8,11 @@ import 'package:atrament_app/core/logging/log_buffer.dart';
 import 'package:atrament_app/core/providers/theme_mode_provider.dart';
 import 'package:atrament_app/core/theme.dart';
 import 'package:atrament_app/features/chat/presentation/chat_screen.dart';
-import 'package:atrament_app/features/chat/presentation/chats_list_screen.dart';
 import 'package:atrament_app/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:atrament_app/features/profiles/presentation/add_profile_screen.dart';
 import 'package:atrament_app/features/profiles/presentation/profiles_screen.dart';
 import 'package:atrament_app/l10n/app_localizations.dart';
+import 'package:atrament_app/shared/widgets/adaptive_home_scaffold.dart';
 
 Future<void> main() async {
   // Inicjalizacja bindings przed ustawieniem global error handlers — wymagane
@@ -45,7 +45,7 @@ Future<void> main() async {
   // hasSeenOnboarding flag jest null (default false), więc app startuje
   // od /onboarding. Po skip lub Get started OnboardingScreen ustawia flag
   // na true i pushReplacementNamed('/'). Drugie uruchomienie czyta true,
-  // initialRoute = '/' (ChatsListScreen) — onboarding pomijany.
+  // initialRoute = '/' (AdaptiveHomeScaffold) — onboarding pomijany.
   //
   // SharedPreferences.getInstance() jest szybkie (<10ms), więc async
   // bootstrap nie wprowadza zauważalnego boot time delay.
@@ -89,23 +89,19 @@ class AtramentApp extends ConsumerWidget {
         return const Locale('en');
       },
       // Sesja H: initial route zależy od flag onboardingu. Jeśli user widział
-      // onboarding (flag=true) → start od ChatsListScreen. Jeśli nie → start
-      // od OnboardingScreen, który po complete robi pushReplacementNamed('/')
-      // żeby usunąć onboarding z navigation stack.
+      // onboarding (flag=true) → start od AdaptiveHomeScaffold (single pane
+      // mobile lub split view tablet). Jeśli nie → start od OnboardingScreen.
       initialRoute: skipOnboarding ? '/' : '/onboarding',
-      // Profile-flow refactor: ProfilesScreen i AddProfileScreen przeniesione
-      // z MaterialPageRoute push'y na named routes. Konwencja resource-based
-      // jak '/chat' — liczba mnoga dla listy ('/profiles'), pojedyncza dla
-      // pojedynczego zasobu ('/profile'). Tryb form (new vs edit) określony
-      // przez arguments: null = nowy serwer, Profile = edycja istniejącego.
+      // Tablet refactor: route '/' to teraz AdaptiveHomeScaffold który
+      // LayoutBuilder'em decyduje czy pokazać single-pane (ChatsListScreen)
+      // czy split view (chats list + chat side-by-side) na ekranach >= 720dp.
       //
-      // Tracked TODO: gdy F2 wprowadzi go_router (deep links / tablet split),
-      // ten onGenerateRoute zostanie zastąpiony route configuration. Obecna
-      // struktura jest świadomie minimal — nie warto wprowadzać go_router
-      // dla pojedynczego ekranu z argumentem.
+      // Profile-flow: ProfilesScreen i AddProfileScreen named routes
+      // (z poprzedniego refaktoru). Tryb form (new vs edit) określony przez
+      // arguments: null = nowy serwer, Profile = edycja istniejącego.
       routes: {
         '/onboarding': (_) => const OnboardingScreen(),
-        '/': (_) => const ChatsListScreen(),
+        '/': (_) => const AdaptiveHomeScaffold(),
         '/chat': (_) => const ChatScreen(),
         '/profiles': (_) => const ProfilesScreen(),
       },

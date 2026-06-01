@@ -11,7 +11,28 @@ import 'chat_parameters_sheet.dart';
 import 'report_response_dialog.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({super.key});
+  /// Tablet split view mode flag. When true, AppBar leading is suppressed
+  /// (automaticallyImplyLeading: false) — no back arrow because this widget
+  /// is embedded in [AdaptiveHomeScaffold], not pushed as a route.
+  /// Default false (mobile flow unchanged — auto back arrow if canPop).
+  final bool inSplitView;
+
+  /// Whether sidebar is currently collapsed in tablet split view. Used to
+  /// decide if AppBar leading should show IconButton(menu) to expand sidebar.
+  /// Only relevant when inSplitView=true. Default false.
+  final bool sidebarCollapsed;
+
+  /// Called when user taps menu button in AppBar to toggle sidebar visibility.
+  /// Only relevant when inSplitView=true. Default null (mobile mode).
+  final VoidCallback? onToggleSidebar;
+
+  const ChatScreen({
+    super.key,
+    this.inSplitView = false,
+    this.sidebarCollapsed = false,
+    this.onToggleSidebar,
+  });
+
   @override
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
@@ -125,8 +146,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         chat.messages.last.role == 'assistant' &&
         !chat.isStreaming;
 
+    // Tablet collapsible sidebar: jeśli embedded w split view I sidebar
+    // jest collapsed, AppBar leading to IconButton(menu) → expand sidebar.
+    // Jeśli inSplitView ale !collapsed → no leading (sidebar widoczny obok).
+    // Jeśli !inSplitView (mobile) → automaticallyImplyLeading default true,
+    // Material auto-pokazuje back arrow z route push.
+    final showExpandButton = widget.inSplitView &&
+        widget.sidebarCollapsed &&
+        widget.onToggleSidebar != null;
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: !widget.inSplitView,
+        leading: showExpandButton
+            ? IconButton(
+                icon: const Icon(Icons.menu),
+                tooltip: loc.tabletSidebarExpand,
+                onPressed: widget.onToggleSidebar,
+              )
+            : null,
         title: GestureDetector(
           onTap: _editTitle,
           child: Column(

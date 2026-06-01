@@ -82,6 +82,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatRegenerate => 'Regenerate';
 
   @override
+  String get chatStreamingInProgress =>
+      'Response is being generated. Stop or wait.';
+
+  @override
+  String get tabletSidebarCollapse => 'Hide conversations list';
+
+  @override
+  String get tabletSidebarExpand => 'Show conversations list';
+
+  @override
   String get chatParametersTooltip => 'Conversation parameters';
 
   @override
@@ -473,4 +483,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingPage3Body =>
       'Add your LM Studio or Ollama server, choose a model, and start chatting.';
+
+  @override
+  String get splitViewEmptyTitle => 'Choose a conversation';
+
+  @override
+  String get splitViewEmptyBody =>
+      'Pick a conversation from the list or create a new one to start.';
 }
